@@ -183,8 +183,16 @@ function initHeaderUI() {
         }
       })();
       versionBadge.addEventListener('click', () => {
-        // Jump user to Settings where full version modal exists
-        window.location.hash = '#settings';
+        // Prefer the reusable VersionModal component; fall back to Settings.
+        (async () => {
+          try {
+            const mod = await import('/modules/js/version-modal.js');
+            await mod.ensureVersionModal({ appName: window.Sunday?.config?.name || 'CN Console' });
+            window.VersionModal?.open?.();
+          } catch {
+            window.location.hash = '#settings';
+          }
+        })();
       });
     }
 
@@ -252,7 +260,7 @@ async function maybeInitCNPages() {
     const route = (window.location.hash || '').replace(/^#/, '').replace(/^\//, '').split('?')[0];
     const r = route || '';
 
-    const v = '20251219e';
+    const v = '20251219f';
     // Expose for settings/diagnostics
     window.__CN_ASSET_VERSION = v;
 
