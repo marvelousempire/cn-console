@@ -112,6 +112,7 @@ function initHeaderUI() {
     const themeIcon = document.getElementById('cnThemeIcon');
     const logoutBtn = document.getElementById('cnLogoutBtn');
     const routeEl = document.getElementById('cnHeaderRoute');
+    const versionBadge = document.getElementById('cnHeaderVersionBadge');
 
     const getTheme = () =>
       document.documentElement.getAttribute('data-theme') || localStorage.getItem('themeMode') || 'dark';
@@ -164,6 +165,27 @@ function initHeaderUI() {
     setTheme(getTheme());
     updateRoute();
 
+    // Version badge (host app version)
+    if (versionBadge && !versionBadge.__cnBound) {
+      versionBadge.__cnBound = true;
+      (async () => {
+        try {
+          const r = await fetch('/api/git/version', { cache: 'no-store' });
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          const info = await r.json();
+          const v = info.fullVersion || info.version || 'v0';
+          versionBadge.textContent = v;
+          versionBadge.title = `${v} • ${info.commitHash || ''}`;
+        } catch {
+          // keep default
+        }
+      })();
+      versionBadge.addEventListener('click', () => {
+        // Jump user to Settings where full version modal exists
+        window.location.hash = '#settings';
+      });
+    }
+
     if (themeBtn && !themeBtn.__cnBound) {
       themeBtn.__cnBound = true;
       themeBtn.addEventListener('click', toggleTheme);
@@ -209,7 +231,9 @@ async function maybeInitCNPages() {
     const route = (window.location.hash || '').replace(/^#/, '').replace(/^\//, '').split('?')[0];
     const r = route || '';
 
-    const v = '20251219a';
+    const v = '20251219d';
+    // Expose for settings/diagnostics
+    window.__CN_ASSET_VERSION = v;
 
     if (r === '' || r === 'overview') {
       const mod = await import(`./cn-overview.js?v=${v}`);

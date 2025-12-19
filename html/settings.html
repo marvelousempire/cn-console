@@ -9,8 +9,40 @@
     .cn-settings-btn.primary { background: linear-gradient(135deg, #10b981, #059669); color:white; border:none; }
     .cn-settings-btn.danger { background: linear-gradient(135deg, #ef4444, #dc2626); color:white; border:none; }
 
-    .cn-settings-grid { display:grid; grid-template-columns: 1fr 0.8fr; gap: 12px; align-items: start; }
-    @media (max-width: 980px) { .cn-settings-grid { grid-template-columns: 1fr; } }
+    .cn-version-badge {
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      color: white;
+      background: linear-gradient(135deg, var(--brand), color-mix(in srgb, var(--brand) 80%, #000));
+      border: 1px solid color-mix(in srgb, var(--brand) 70%, #000);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--brand) 25%, transparent);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .cn-version-badge:hover { transform: translateY(-1px); box-shadow: 0 4px 12px color-mix(in srgb, var(--brand) 35%, transparent); }
+
+    /* Tabs */
+    .cn-settings-tabs { display:flex; gap:8px; flex-wrap:wrap; margin: 10px 0 14px; }
+    .cn-settings-tab {
+      padding:10px 14px;
+      border-radius:10px;
+      border:1px solid var(--line);
+      background:var(--bg);
+      color:var(--ink);
+      font-weight:800;
+      cursor:pointer;
+      transition:all 0.2s ease;
+      font-size: 12px;
+      display:flex;
+      align-items:center;
+      gap: 6px;
+    }
+    .cn-settings-tab:hover { border-color: var(--brand); }
+    .cn-settings-tab.active { border-color: var(--brand); color: var(--brand); box-shadow:0 4px 10px color-mix(in srgb, var(--brand) 18%, transparent); }
+
+    .cn-settings-grid { display:grid; grid-template-columns: 1fr; gap: 12px; align-items: start; }
 
     .cn-settings-card { border:1px solid var(--line); border-radius:14px; background: rgba(255,255,255,0.02); padding: 12px; }
     .cn-settings-title { font-weight: 900; font-size: 14px; }
@@ -25,38 +57,113 @@
     .cn-radio { display:inline-flex; gap: 6px; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; }
     .cn-radio input { accent-color: var(--accent); }
 
-    .cn-settings-toast { position:fixed; top:80px; right:24px; padding:12px 16px; border-radius:10px; font-weight:700; display:none; z-index:9999; }
+    .cn-kv { display:grid; grid-template-columns: 160px 1fr; gap: 10px; margin-top: 10px; }
+    .cn-kv .k { color: var(--muted); font-size: 12px; }
+    .cn-kv .v { font-weight: 800; font-size: 12px; overflow-wrap:anywhere; }
+
+    .cn-settings-toast { position:fixed; top:80px; right:24px; padding:12px 16px; border-radius:10px; font-weight:800; display:none; z-index:9999; }
     .cn-settings-toast.show { display:block; background:linear-gradient(135deg,#6366f1,#4f46e5); color:white; }
+
+    /* Modal */
+    .cn-modal { position: fixed; inset:0; background: rgba(0,0,0,0.55); display:none; align-items:center; justify-content:center; z-index: 10000; }
+    .cn-modal.show { display:flex; }
+    .cn-modal-card { width: min(820px, 92vw); max-height: 80vh; overflow:hidden; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+    .cn-modal-header { display:flex; align-items:center; justify-content:space-between; padding: 14px 16px; border-bottom: 1px solid var(--line); background: var(--bg); }
+    .cn-modal-title { font-weight: 900; }
+    .cn-modal-close { border:none; background:none; color: var(--muted); font-size: 20px; cursor:pointer; }
+    .cn-modal-tabs { display:flex; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--bg); }
+    .cn-modal-tab { padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font-weight: 800; font-size: 12px; cursor:pointer; }
+    .cn-modal-tab.active { border-color: var(--brand); color: var(--brand); }
+    .cn-modal-body { padding: 12px 16px; overflow:auto; max-height: calc(80vh - 120px); }
+
+    .cn-commit { padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .cn-commit:last-child { border-bottom: none; }
+    .cn-commit .msg { font-weight: 800; }
+    .cn-commit .meta { margin-top: 4px; color: var(--muted); font-size: 11px; }
   </style>
 
   <div class="cn-settings-shell">
     <div class="cn-settings-bar">
-      <h1>⚙️ CN Settings</h1>
+      <h1>
+        ⚙️ CN Settings
+        <span id="cnSettingsVersionBadge" class="cn-version-badge" title="Version / Changelog">v0</span>
+      </h1>
       <div class="cn-settings-actions">
+        <button class="cn-settings-btn" id="cnOpenQuickActions">⚡ Actions</button>
         <button class="cn-settings-btn" id="cnApplyAddons">🔄 Apply</button>
-        <button class="cn-settings-btn danger" id="cnClearCache">🗑️ Clear Cache</button>
+        <button class="cn-settings-btn" id="cnExportSettings">📥 Export</button>
+        <button class="cn-settings-btn danger" id="cnResetSettings">↩️ Reset</button>
       </div>
     </div>
 
+    <div class="cn-settings-tabs" id="cnSettingsTabs">
+      <button class="cn-settings-tab active" type="button" data-tab="addons">🧩 Add-ons</button>
+      <button class="cn-settings-tab" type="button" data-tab="cache">🗑️ Cache</button>
+      <button class="cn-settings-tab" type="button" data-tab="diagnostics">💚 Diagnostics</button>
+      <button class="cn-settings-tab" type="button" data-tab="about">ℹ️ About</button>
+    </div>
+
     <div class="cn-settings-grid">
-      <div class="cn-settings-card">
+      <div class="cn-settings-card" data-panel="addons">
         <div class="cn-settings-title">Console Add-ons</div>
-        <div class="cn-settings-sub">Turn on/off installable UI features (like the ⚡ Quick Actions FAB) without editing code.</div>
+        <div class="cn-settings-sub">Pick UI features to install/uninstall (DRY). Think “radio buttons install buttons into the console”.</div>
         <div id="cnAddonsList"></div>
       </div>
 
-      <div class="cn-settings-card">
+      <div class="cn-settings-card" data-panel="cache" style="display:none">
+        <div class="cn-settings-title">Cache & Reload</div>
+        <div class="cn-settings-sub">Use this when the browser is stuck on old JS/CSS. It’s a true cache-buster (service worker + CacheStorage clear).</div>
+        <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="cn-settings-btn danger" id="cnClearCache">🗑️ Clear Cache + Reload</button>
+        </div>
+      </div>
+
+      <div class="cn-settings-card" data-panel="diagnostics" style="display:none">
+        <div class="cn-settings-title">Diagnostics</div>
+        <div class="cn-settings-sub">Useful state for debugging across consoles.</div>
+        <div class="cn-kv">
+          <div class="k">Console</div><div class="v" id="cnDiagConsole">—</div>
+          <div class="k">Console version</div><div class="v" id="cnDiagConsoleVersion">—</div>
+          <div class="k">Asset version</div><div class="v" id="cnDiagAssetVersion">—</div>
+          <div class="k">Host</div><div class="v" id="cnDiagHost">—</div>
+          <div class="k">Host git</div><div class="v" id="cnDiagHostGit">—</div>
+        </div>
+      </div>
+
+      <div class="cn-settings-card" data-panel="about" style="display:none">
         <div class="cn-settings-title">About</div>
         <div class="cn-settings-sub">
-          This Settings page is modeled after the Quick Server Settings UX, but scoped to CN.
-          The goal is DRY install/uninstall of console widgets via a shared add-on registry.
-        </div>
-        <div class="cn-settings-sub" style="margin-top:10px">
-          Tip: the ⚡ button opens Quick Actions, including a true cache-buster (service worker + CacheStorage clear).
+          This Settings UX is modeled after Quick Server (stable + consistent). CN adds a DRY add-on installer so any console can “pick” components and mount/unmount them.
         </div>
       </div>
     </div>
   </div>
 
   <div id="cnSettingsToast" class="cn-settings-toast"></div>
+
+  <div id="cnSettingsModal" class="cn-modal" role="dialog" aria-modal="true">
+    <div class="cn-modal-card">
+      <div class="cn-modal-header">
+        <div class="cn-modal-title">CN Settings — Version</div>
+        <button class="cn-modal-close" id="cnModalClose" aria-label="Close">✕</button>
+      </div>
+      <div class="cn-modal-tabs">
+        <button class="cn-modal-tab active" type="button" data-modal-tab="changelog">📋 Changelog</button>
+        <button class="cn-modal-tab" type="button" data-modal-tab="vitals">💚 Vitals</button>
+      </div>
+      <div class="cn-modal-body">
+        <div data-modal-panel="changelog">
+          <div id="cnChangelogList" class="cn-settings-sub">Loading…</div>
+        </div>
+        <div data-modal-panel="vitals" style="display:none">
+          <div class="cn-kv">
+            <div class="k">Host version</div><div class="v" id="cnHostVersion">—</div>
+            <div class="k">Host branch</div><div class="v" id="cnHostBranch">—</div>
+            <div class="k">Host commit</div><div class="v" id="cnHostCommit">—</div>
+            <div class="k">Last updated</div><div class="v" id="cnHostUpdated">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

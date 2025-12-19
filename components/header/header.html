@@ -49,6 +49,21 @@
     gap: 8px;
   }
 
+  .cn-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 900;
+    cursor: pointer;
+    user-select: none;
+  }
+
   .cn-btn {
     display: inline-flex;
     align-items: center;
@@ -83,6 +98,7 @@
     </div>
 
     <div class="cn-header__right">
+      <span class="cn-badge" id="cnHeaderVersionBadge" title="Version">v0</span>
       <button class="cn-btn" type="button" id="cnThemeBtn" title="Toggle theme">
         <span id="cnThemeIcon">🌙</span>
       </button>
