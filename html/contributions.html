@@ -1,0 +1,49 @@
+<div class="sunday-container" data-cn-page="contributions">
+  <div class="sunday-card" style="margin-bottom: 16px;">
+    <div class="sunday-card__header">
+      <div>
+        <div class="sunday-text sunday-text--title">Contribution Network</div>
+        <div class="sunday-text sunday-text--muted">
+          Browse every Contribution (consoles, cartridges, tools, systems) from the CN registry.
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+        <a class="sunday-btn" id="cnOpenRegistry" target="_blank" rel="noreferrer">Open registry</a>
+        <a class="sunday-btn" id="cnOpenRepo" target="_blank" rel="noreferrer">Open CN repo</a>
+      </div>
+    </div>
+
+    <div class="sunday-card__body">
+      <div class="cn-ecosystem">
+        <div class="cn-ecosystem__label sunday-text sunday-text--muted">Network Structure (Beginner Map)</div>
+        <div id="cnBeginnerRow" class="cn-ecosystem__row"></div>
+      </div>
+
+      <div class="cn-ecosystem">
+        <div class="cn-ecosystem__label sunday-text sunday-text--muted">Ecosystem</div>
+        <div id="cnEcosystemRow" class="cn-ecosystem__row"></div>
+      </div>
+
+      <div class="cn-controls">
+        <input id="cnSearch" class="cn-input" placeholder="Search contributions (name, type, tagline, repo)…" />
+        <select id="cnType" class="cn-select">
+          <option value="">All types</option>
+        </select>
+        <select id="cnStatus" class="cn-select">
+          <option value="">All status</option>
+          <option value="active">Active</option>
+          <option value="planned">Planned</option>
+          <option value="archived">Archived</option>
+        </select>
+        <button id="cnReload" class="sunday-btn">Reload</button>
+      </div>
+
+      <div class="cn-meta">
+        <div id="cnMeta" class="sunday-text sunday-text--muted">Loading…</div>
+      </div>
+
+      <div id="cnError" class="cn-error" style="display:none"></div>
+      <div id="cnGrid" class="cn-grid"></div>
+    </div>
+  </div>
+</div>

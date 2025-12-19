@@ -1,0 +1,110 @@
+{
+  "$schema": "./cartridge.schema.json",
+  "_meta": {
+    "name": "AI Console",
+    "version": "1.0.0",
+    "description": "AI-powered assistant with chat, actions, code generation, and contextual help",
+    "author": "Marvelous Empire",
+    "created": "2025-12-13",
+    "updated": "2025-12-13"
+  },
+  
+  "cartridge": {
+    "id": "ai-console",
+    "name": "AI Console",
+    "icon": "🤖",
+    "version": "1.0.0",
+    "type": "lightweight",
+    "modes": {
+      "standalone": true,
+      "embedded": true
+    }
+  },
+  
+  "inheritance": {
+    "mode": "SLAVE",
+    "parent": "quick-server",
+    "fallbackParent": "sunday"
+  },
+  
+  "ui": {
+    "theme": null,
+    "mode": null,
+    "accentColor": "#8b5cf6",
+    "headerVisible": null,
+    "sidebarVisible": null,
+    "animationsEnabled": null,
+    "fontSize": null
+  },
+  
+  "layout": {
+    "defaultView": "chat",
+    "headerVisible": null,
+    "sidebarVisible": null
+  },
+  
+  "features": {
+    "chat": true,
+    "actions": true,
+    "codegen": true,
+    "assistant": true,
+    "ragContext": true,
+    "streaming": true,
+    "conversationHistory": true
+  },
+  
+  "ai": {
+    "defaultProvider": "ollama",
+    "providers": {
+      "ollama": {
+        "enabled": true,
+        "baseUrl": "http://localhost:11434",
+        "defaultModel": "llama3.2"
+      },
+      "openai": {
+        "enabled": false,
+        "apiKey": null,
+        "model": "gpt-4"
+      },
+      "claude": {
+        "enabled": false,
+        "apiKey": null,
+        "model": "claude-3-sonnet"
+      }
+    },
+    "ragEnabled": true,
+    "maxContextTokens": 4096,
+    "temperature": 0.7,
+    "systemPrompt": "You are Sunday AI, a helpful assistant for the Quick Server platform. You help users manage WordPress sites, Docker containers, and development workflows. Be concise and helpful."
+  },
+  
+  "navigation": {
+    "tabs": [
+      { "id": "chat", "label": "Chat", "icon": "💬" },
+      { "id": "actions", "label": "Actions", "icon": "⚡" },
+      { "id": "codegen", "label": "Code Gen", "icon": "🔧" },
+      { "id": "assistant", "label": "Assistant", "icon": "🎯" }
+    ]
+  },
+  
+  "api": {
+    "baseUrl": "/api/ai",
+    "endpoints": {
+      "chat": "/chat",
+      "complete": "/complete",
+      "actions": "/actions",
+      "codegen": "/codegen",
+      "rag": "/rag/search"
+    }
+  },
+  
+  "permissions": {
+    "required": ["ai.read"],
+    "optional": ["ai.write", "ai.admin", "system.execute", "files.write"]
+  },
+  
+  "dependencies": {
+    "sunday": ">=2.0.0",
+    "cartridges": ["ollama-manager"]
+  }
+}

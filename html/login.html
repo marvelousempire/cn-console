@@ -1,0 +1,35 @@
+<div class="sunday-container" data-cn-page="login">
+  <div class="sunday-card" style="max-width:520px;margin:0 auto;">
+    <div class="sunday-card__header">
+      <div>
+        <div class="sunday-text sunday-text--title">Sign in</div>
+        <div class="sunday-text sunday-text--muted">CN Console access requires an account.</div>
+      </div>
+    </div>
+    <div class="sunday-card__body">
+      <form id="cnLoginForm" style="display:grid;gap:12px;">
+        <label class="sunday-text" style="display:grid;gap:6px;">
+          <span class="sunday-text sunday-text--muted">Email</span>
+          <input id="cnEmail" class="cn-input" type="email" autocomplete="email" placeholder="admin@thebriefcase.app" required />
+        </label>
+
+        <label class="sunday-text" style="display:grid;gap:6px;">
+          <span class="sunday-text sunday-text--muted">Password</span>
+          <input id="cnPassword" class="cn-input" type="password" autocomplete="current-password" placeholder="••••••••" required />
+        </label>
+
+        <label class="sunday-text" style="display:flex;align-items:center;gap:10px;">
+          <input id="cnRemember" type="checkbox" />
+          <span class="sunday-text sunday-text--muted">Remember me</span>
+        </label>
+
+        <button id="cnLoginBtn" class="sunday-btn" type="submit">Sign in</button>
+        <div id="cnLoginError" class="cn-error" style="display:none"></div>
+      </form>
+
+      <div class="sunday-text sunday-text--muted" style="margin-top:12px;line-height:1.5">
+        If you intended to browse anonymously, the server can expose read-only CN content — but admin actions require sign-in.
+      </div>
+    </div>
+  </div>
+</div>

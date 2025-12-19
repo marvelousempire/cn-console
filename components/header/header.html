@@ -1,0 +1,97 @@
+<!-- CN Console Header (console-local; overrides Quick Server header) -->
+
+<style>
+  .cn-header {
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    padding: 0 20px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+
+  .cn-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    gap: 12px;
+  }
+
+  .cn-header__title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 850;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .cn-header__meta {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cn-header__right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cn-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    min-width: 36px;
+    padding: 0 10px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 650;
+    cursor: pointer;
+  }
+
+  .cn-btn.brand {
+    border: none;
+    background: linear-gradient(135deg, var(--brand, #7ce3ff), var(--accent, #60ffa8));
+    color: #081018;
+  }
+</style>
+
+<div class="cn-header">
+  <div class="cn-header__inner">
+    <div>
+      <h1 class="cn-header__title">
+        <span>🧩</span>
+        <span>CN Console</span>
+      </h1>
+      <div id="cnHeaderRoute" class="cn-header__meta">Ready</div>
+    </div>
+
+    <div class="cn-header__right">
+      <button class="cn-btn" type="button" id="cnThemeBtn" title="Toggle theme">
+        <span id="cnThemeIcon">🌙</span>
+      </button>
+      <button class="cn-btn brand" type="button" id="cnLogoutBtn" title="Logout">
+        🚪 Logout
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTE: No inline scripts here.
+     The CN Console boot module wires up theme/logout/route. -->

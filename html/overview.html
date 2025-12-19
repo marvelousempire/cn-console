@@ -1,0 +1,85 @@
+<div class="sunday-container" data-cn-page="overview">
+  <div class="sunday-card" style="margin-bottom: 16px;">
+    <div class="sunday-card__header">
+      <div>
+        <div class="sunday-text sunday-text--title">CN Overview</div>
+        <div class="sunday-text sunday-text--muted">Beginner map + live counts from the CN registry</div>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+        <a class="sunday-btn" href="https://github.com/marvelousempire/ContributionNetwork" target="_blank" rel="noreferrer">Open CN repo</a>
+      </div>
+    </div>
+
+    <div class="sunday-card__body">
+      <div class="cn-overview-grid">
+        <div class="cn-overview-card">
+          <div class="cn-overview-head">
+            <div>
+              <div class="cn-overview-title">Network Structure</div>
+              <div class="cn-overview-sub">A few building blocks that snap together.</div>
+            </div>
+            <div class="cn-toggle">
+              <button id="cnSimpleBtn" class="cn-toggle-btn active" type="button">Beginner</button>
+              <button id="cnAdvancedBtn" class="cn-toggle-btn" type="button">Advanced</button>
+            </div>
+          </div>
+
+          <div id="cnSimple">
+            <div class="cn-node cn-node-network">
+              <div class="cn-node-title">🤝 Contribution Network</div>
+              <div class="cn-node-desc">The association + registry (source of truth). Contributions are the work; Members are the beneficiaries.</div>
+            </div>
+
+            <div class="cn-structure-diagram">
+              <div class="cn-node cn-node-framework">
+                <div class="cn-node-title">Framework</div>
+                <div class="cn-node-desc">The engine + shared services</div>
+              </div>
+              <div class="cn-node cn-node-console">
+                <div class="cn-node-title">Console</div>
+                <div class="cn-node-desc">A dashboard UI surface (like this)</div>
+              </div>
+              <div class="cn-node cn-node-cartridge">
+                <div class="cn-node-title">Cartridge</div>
+                <div class="cn-node-desc">A plug‑in feature bundle</div>
+              </div>
+              <div class="cn-node cn-node-app">
+                <div class="cn-node-title">App</div>
+                <div class="cn-node-desc">A module inside a cartridge</div>
+              </div>
+              <div class="cn-node cn-node-page">
+                <div class="cn-node-title">Page</div>
+                <div class="cn-node-desc">A screen / route</div>
+              </div>
+            </div>
+
+            <div class="cn-steps">
+              <div class="cn-step"><span class="cn-step-num">1</span><span>Pick what you’re contributing</span></div>
+              <div class="cn-step"><span class="cn-step-num">2</span><span>Register it in the CN registry</span></div>
+              <div class="cn-step"><span class="cn-step-num">3</span><span>Document it in <code>contributions/&lt;id&gt;.md</code></span></div>
+            </div>
+
+            <div class="cn-inventory">
+              <div class="cn-overview-sub" style="margin-bottom:8px">Current inventory (by type)</div>
+              <div id="cnCounts" class="cn-pill-row">Loading…</div>
+            </div>
+          </div>
+
+          <div id="cnAdvanced" style="display:none">
+            <div id="cnAdvancedMd" class="sunday-markdown">Loading…</div>
+          </div>
+        </div>
+
+        <div class="cn-overview-card">
+          <div class="cn-overview-title">Getting started</div>
+          <div class="cn-overview-sub" style="margin-top:6px; line-height:1.55">
+            Use the tabs above. <b>Contributions</b> is the directory of everything in the network. <b>Protocols</b> is the canonical operating text.
+          </div>
+          <div class="cn-overview-sub" style="margin-top:10px">
+            Tip: press <code>/</code> on Protocols to search headings.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

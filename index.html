@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CN Console</title>
+
+  <!-- 🌞 Sunday App Framework - Core CSS -->
+  <link rel="stylesheet" href="/sundayapp/css/tokens.css">
+  <link rel="stylesheet" href="/sundayapp/css/base.css">
+  <link rel="stylesheet" href="/sundayapp/css/utilities.css">
+
+  <!-- Sunday Standard primitives (for `sunday-*` classes) -->
+  <link rel="stylesheet" href="/sundayapp/css/console-primitives.css">
+  <link rel="stylesheet" href="/sundayapp/css/console-shell.css">
+  <link rel="stylesheet" href="/sundayapp/css/components/tabs.css">
+
+  <!-- CN Console overrides -->
+  <link rel="stylesheet" href="css/ai-console.css?v=20251219a">
+</head>
+<body>
+  <div id="global-header-container" class="global-header"></div>
+
+  <div class="tabs-container">
+    <!-- Pre-render tabs so navigation is visible even if JS fails -->
+    <div class="tabs" id="mainTabs">
+      <a class="tab-btn" href="#overview" data-tab="overview" data-route="overview">
+        <span class="tab-icon">🏛️</span>
+        <span class="tab-label">Overview</span>
+      </a>
+      <a class="tab-btn" href="#contributions" data-tab="contributions" data-route="contributions">
+        <span class="tab-icon">🧩</span>
+        <span class="tab-label">Contributions</span>
+      </a>
+      <a class="tab-btn" href="#protocols" data-tab="protocols" data-route="protocols">
+        <span class="tab-icon">📜</span>
+        <span class="tab-label">Protocols</span>
+      </a>
+      <a class="tab-btn" href="#ai" data-tab="ai" data-route="ai">
+        <span class="tab-icon">🤖</span>
+        <span class="tab-label">AI</span>
+      </a>
+      <a class="tab-btn" href="#settings" data-tab="settings" data-route="settings">
+        <span class="tab-icon">⚙️</span>
+        <span class="tab-label">Settings</span>
+      </a>
+    </div>
+  </div>
+
+  <div id="contentContainer" class="content-container">
+    <div id="cnBootStatus" class="sunday-card">
+      <div class="sunday-card__body">
+        <div class="sunday-text sunday-text--title">CN Console</div>
+        <div class="sunday-text sunday-text--muted">Loading…</div>
+      </div>
+    </div>
+  </div>
+
+  <noscript>
+    <div class="sunday-card" style="max-width:720px;margin:24px auto;">
+      <div class="sunday-card__header">
+        <div class="sunday-text sunday-text--title">JavaScript is disabled</div>
+        <div class="sunday-text sunday-text--muted">CN Console requires JavaScript to run.</div>
+      </div>
+      <div class="sunday-card__body">
+        <div class="sunday-text">Enable JavaScript, then reload this page.</div>
+      </div>
+    </div>
+  </noscript>
+
+  <!-- Bootstrap runs as an external module to avoid inline-script blockers -->
+  <script type="module" src="./js/cn-boot.js?v=20251219a"></script>
+
+  <script nomodule>
+    window.__CN_NO_MODULE = true;
+    try {
+      const container = document.getElementById('contentContainer');
+      if (container) {
+        container.innerHTML = `
+          <div class="sunday-card" style="max-width:720px;margin:24px auto;">
+            <div class="sunday-card__header">
+              <div class="sunday-text sunday-text--title">Browser not supported</div>
+              <div class="sunday-text sunday-text--muted">This console requires a browser with ES Modules support.</div>
+            </div>
+            <div class="sunday-card__body">
+              <div class="sunday-text">Open this site in the latest Chrome, Firefox, Safari, or Edge.</div>
+            </div>
+          </div>
+        `;
+      }
+    } catch {}
+  </script>
+
+  <!-- If modules are supported but the module failed to load/run, show a clear error. -->
+  <script>
+    setTimeout(function () {
+      try {
+        if (window.__CN_BOOT_OK === true) return;
+        if (window.__CN_NO_MODULE) return;
+        const container = document.getElementById('contentContainer');
+        if (!container) return;
+        container.innerHTML = `
+          <div class="sunday-card" style="max-width:720px;margin:24px auto;">
+            <div class="sunday-card__header">
+              <div class="sunday-text sunday-text--title">CN Console didn’t start</div>
+              <div class="sunday-text sunday-text--muted">The browser supports modules, but the boot module did not run.</div>
+            </div>
+            <div class="sunday-card__body">
+              <div class="sunday-text">Try a hard reload. If it persists, check for script blockers/extensions or try another browser.</div>
+            </div>
+          </div>
+        `;
+      } catch {}
+    }, 2500);
+  </script>
+</body>
+</html>
+
