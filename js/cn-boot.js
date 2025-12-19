@@ -260,7 +260,7 @@ async function maybeInitCNPages() {
     const route = (window.location.hash || '').replace(/^#/, '').replace(/^\//, '').split('?')[0];
     const r = route || '';
 
-    const v = '20251219f';
+    const v = '20251219g';
     // Expose for settings/diagnostics
     window.__CN_ASSET_VERSION = v;
 
@@ -397,6 +397,18 @@ async function initApp() {
 
   await loadHeader();
   initHeaderUI();
+
+  // Install shared add-ons early so new UI components appear immediately
+  // (and don't rely on users clicking "Apply" in Settings).
+  try {
+    const v = window.__CN_ASSET_VERSION || '';
+    const url = v ? `/modules/js/console-addons.js?v=${encodeURIComponent(v)}` : '/modules/js/console-addons.js';
+    const { applyAddons } = await import(url);
+    await applyAddons();
+  } catch (e) {
+    console.warn('[Addons] apply failed:', e);
+  }
+
   await initFAB();
 
   // Keep active tab class in sync if we rendered tabs ourselves.

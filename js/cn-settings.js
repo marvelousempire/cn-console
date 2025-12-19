@@ -35,7 +35,11 @@ export async function initCNSettings(root = document) {
     setTimeout(() => toastEl.classList.remove('show'), 1800);
   };
 
-  const { listAddons, getEnabledAddons, toggleAddon, applyAddons } = await import('/modules/js/console-addons.js');
+  // IMPORTANT: cache-bust shared add-ons module so users actually get updates.
+  // Browsers can aggressively cache ESM imports under /modules/*.
+  const assetV = window.__CN_ASSET_VERSION || '';
+  const addonsUrl = assetV ? `/modules/js/console-addons.js?v=${encodeURIComponent(assetV)}` : '/modules/js/console-addons.js';
+  const { listAddons, getEnabledAddons, toggleAddon, applyAddons } = await import(addonsUrl);
 
   const consoleKey = (window.Sunday?.config?.name || 'Console').toLowerCase().replace(/\s+/g, '-');
   const consoleName = window.Sunday?.config?.name || 'Console';

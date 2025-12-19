@@ -31,12 +31,12 @@ export default {
   routes: {
     '': { page: 'overview', title: 'Overview', fallback: './html/overview.html?v=20251217c' },
     overview: { page: 'overview', title: 'Overview', fallback: './html/overview.html?v=20251217c' },
-    login: { page: 'login', title: 'Sign in', fallback: './html/login.html?v=20251219f' },
+    login: { page: 'login', title: 'Sign in', fallback: './html/login.html?v=20251219g' },
     ai: { page: 'ai', title: 'AI', fallback: './html/ai.html' },
     // Cache-bust: server sets long cache headers for static assets.
     contributions: { page: 'contributions', title: 'Contributions', fallback: './html/contributions.html?v=20251217c' },
     protocols: { page: 'protocols', title: 'Protocols', fallback: './html/protocols.html?v=20251217c' },
-    settings: { page: 'settings', title: 'Settings', fallback: './html/settings.html?v=20251219f' }
+    settings: { page: 'settings', title: 'Settings', fallback: './html/settings.html?v=20251219g' }
   },
 
   tabs: [
