@@ -113,6 +113,8 @@ function initHeaderUI() {
     const logoutBtn = document.getElementById('cnLogoutBtn');
     const routeEl = document.getElementById('cnHeaderRoute');
     const versionBadge = document.getElementById('cnHeaderVersionBadge');
+    const quickActionsBtn = document.getElementById('cnQuickActionsBtn');
+    const settingsBtn = document.getElementById('cnSettingsBtn');
 
     const getTheme = () =>
       document.documentElement.getAttribute('data-theme') || localStorage.getItem('themeMode') || 'dark';
@@ -186,6 +188,25 @@ function initHeaderUI() {
       });
     }
 
+    if (settingsBtn && !settingsBtn.__cnBound) {
+      settingsBtn.__cnBound = true;
+      settingsBtn.addEventListener('click', () => {
+        window.location.hash = '#settings';
+      });
+    }
+
+    if (quickActionsBtn && !quickActionsBtn.__cnBound) {
+      quickActionsBtn.__cnBound = true;
+      quickActionsBtn.addEventListener('click', async () => {
+        try {
+          if (!window.QuickActionsModal) {
+            await import('/sundayapp/components/modals/quick-actions.js');
+          }
+          window.QuickActionsModal?.open?.();
+        } catch {}
+      });
+    }
+
     if (themeBtn && !themeBtn.__cnBound) {
       themeBtn.__cnBound = true;
       themeBtn.addEventListener('click', toggleTheme);
@@ -231,7 +252,7 @@ async function maybeInitCNPages() {
     const route = (window.location.hash || '').replace(/^#/, '').replace(/^\//, '').split('?')[0];
     const r = route || '';
 
-    const v = '20251219d';
+    const v = '20251219e';
     // Expose for settings/diagnostics
     window.__CN_ASSET_VERSION = v;
 
