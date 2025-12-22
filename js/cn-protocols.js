@@ -176,6 +176,7 @@ export async function initCNProtocols(root = document) {
 
       headings = extractHeadings(md);
       renderOptions('');
+      generateTocHtml();
 
       const urlSection = getSectionFromUrl();
       if (urlSection && pickEl) {
