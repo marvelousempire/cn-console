@@ -314,9 +314,46 @@
   }
 
   function openConsole(consoleId) {
+    console.log('Opening console:', consoleId);
+    console.log('Network data:', networkData);
+    console.log('Available consoles:', Object.keys(networkData.consoles || {}));
+
     const c = networkData.consoles[consoleId];
-    if (!c) return;
-    window.open(consoleId === networkData.tld ? '/' : c.path, '_blank');
+    if (!c) {
+      console.error('Console not found:', consoleId);
+      return;
+    }
+
+    let url;
+    if (consoleId === networkData.tld) {
+      // TLD console opens at root
+      url = '/';
+    } else if (c.tld) {
+      // Console has its own domain
+      url = `https://${c.tld}`;
+    } else if (c.path) {
+      // Console is on same domain - construct full URL
+      const currentDomain = networkData.domain || window.location.hostname;
+      url = `https://${currentDomain}${c.path}`;
+    } else {
+      console.error('No URL available for console:', consoleId);
+      return;
+    }
+
+    console.log('Opening URL:', url);
+
+    try {
+      const newWindow = window.open(url, '_blank');
+      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+        // Popup blocked or failed to open
+        console.warn('Popup blocked, trying same window navigation');
+        window.location.href = url;
+      }
+    } catch (error) {
+      console.error('Failed to open window:', error);
+      // Fallback to same window navigation
+      window.location.href = url;
+    }
   }
 </script>
 
