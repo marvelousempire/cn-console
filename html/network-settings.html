@@ -91,11 +91,21 @@
         </div>
       </div>
 
-      <!-- Server IP Info -->
-      <div class="server-info-row">
-        <span class="server-label">Server IP:</span>
-        <span class="server-value" id="server-ip">Detecting...</span>
-        <button class="copy-btn" onclick="copyServerIP()" title="Copy IP">📋</button>
+      <!-- Server & Registrar Info -->
+      <div class="dns-info-row">
+        <div class="dns-info-item">
+          <span class="dns-info-label">🖥️ Server IP:</span>
+          <span class="dns-info-value" id="server-ip">Detecting...</span>
+          <button class="copy-btn" onclick="copyServerIP()" title="Copy IP">📋</button>
+        </div>
+        <div class="dns-info-item">
+          <span class="dns-info-label">🏢 DNS Provider:</span>
+          <span class="dns-info-value" id="dns-registrar">Checking...</span>
+        </div>
+        <div class="dns-info-item" id="dns-nameservers-row" style="display:none">
+          <span class="dns-info-label">📡 Nameservers:</span>
+          <span class="dns-info-value" id="dns-nameservers" style="font-size:11px">-</span>
+        </div>
       </div>
     </div>
   </div>
@@ -326,17 +336,22 @@
     font-size: 13px;
     font-weight: 600;
   }
-  .server-info-row {
+  .dns-info-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 12px 16px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+  }
+  .dns-info-item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     font-size: 13px;
-    padding: 10px 14px;
-    background: rgba(0,0,0,0.2);
-    border-radius: 8px;
   }
-  .server-label { opacity: 0.7; }
-  .server-value { font-family: monospace; font-weight: 600; }
+  .dns-info-label { opacity: 0.7; }
+  .dns-info-value { font-family: monospace; font-weight: 600; }
   .copy-btn {
     background: none;
     border: none;
@@ -473,6 +488,7 @@
       updateDNSIndicator('a', 'ok', 'Localhost (dev)');
       updateDNSIndicator('wildcard', 'ok', 'N/A (localhost)');
       updateDNSIndicator('ssl', 'unknown', 'No SSL (dev)');
+      document.getElementById('dns-registrar').textContent = 'Local';
       return;
     }
 
@@ -480,6 +496,7 @@
     updateDNSIndicator('a', 'unknown', 'Checking...');
     updateDNSIndicator('wildcard', 'unknown', 'Checking...');
     updateDNSIndicator('ssl', 'unknown', 'Checking...');
+    document.getElementById('dns-registrar').textContent = 'Checking...';
 
     try {
       const response = await fetch('/api/network/dns-check?domain=' + encodeURIComponent(domain));
@@ -493,18 +510,35 @@
           updateDNSIndicator('a', 'error', data.aRecord?.error || 'Not pointing');
         }
         
-        // Wildcard
+        // Wildcard - show type (CNAME or A) and target
         if (data.wildcard?.resolved) {
-          updateDNSIndicator('wildcard', 'ok', `✓ *.${domain}`);
+          if (data.wildcard.type === 'CNAME') {
+            updateDNSIndicator('wildcard', 'ok', `✓ CNAME → ${data.wildcard.target}`);
+          } else {
+            updateDNSIndicator('wildcard', 'ok', `✓ A → ${data.wildcard.ip}`);
+          }
         } else {
           updateDNSIndicator('wildcard', 'error', data.wildcard?.error || 'Not configured');
         }
         
         // SSL
         if (data.ssl?.valid) {
-          updateDNSIndicator('ssl', 'ok', `✓ Valid (${data.ssl.issuer || 'trusted'})`);
+          updateDNSIndicator('ssl', 'ok', `✓ ${data.ssl.issuer || 'Valid'}`);
         } else {
           updateDNSIndicator('ssl', data.ssl?.error ? 'error' : 'unknown', data.ssl?.error || 'Unknown');
+        }
+        
+        // Registrar/DNS Provider
+        if (data.registrar?.name) {
+          document.getElementById('dns-registrar').textContent = data.registrar.name;
+        } else {
+          document.getElementById('dns-registrar').textContent = 'Unknown';
+        }
+        
+        // Nameservers
+        if (data.registrar?.nameservers?.length) {
+          document.getElementById('dns-nameservers').textContent = data.registrar.nameservers.slice(0, 2).join(', ');
+          document.getElementById('dns-nameservers-row').style.display = 'flex';
         }
       }
     } catch (error) {
@@ -512,6 +546,7 @@
       updateDNSIndicator('a', 'error', 'Check failed');
       updateDNSIndicator('wildcard', 'error', 'Check failed');
       updateDNSIndicator('ssl', 'error', 'Check failed');
+      document.getElementById('dns-registrar').textContent = 'Error';
     }
   }
   
