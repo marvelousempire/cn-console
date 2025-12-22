@@ -36,13 +36,77 @@
     </div>
   </div>
 
-  <!-- TLD Console Setting -->
+  <!-- Apex Domain Configuration -->
+  <div class="apex-config-card" style="margin-bottom:20px">
+    <div class="apex-header">
+      <div class="apex-title">
+        <span class="apex-badge">APEX</span>
+        <span>Root Domain Configuration</span>
+      </div>
+      <div class="apex-subtitle">The apex (root) domain served at the top-level without any path prefix</div>
+    </div>
+
+    <div class="apex-body">
+      <!-- Domain Input -->
+      <div class="apex-domain-row">
+        <div class="apex-domain-input-wrap">
+          <span class="apex-protocol">https://</span>
+          <input type="text" id="apex-domain" class="apex-domain-input" 
+                 placeholder="yourdomain.com" 
+                 onchange="onDomainChange(this.value)"
+                 onkeydown="if(event.key==='Enter') checkDNS()">
+          <button class="apex-save-btn" onclick="saveDomain()" title="Save Domain">💾</button>
+        </div>
+        <div class="apex-console-select">
+          <label>Serves:</label>
+          <select id="apex-console-select" onchange="onConsoleChange(this.value)">
+            <option value="">Loading...</option>
+          </select>
+        </div>
+        <button class="sunday-btn secondary sm" onclick="checkDNS()">🔍 Check DNS</button>
+      </div>
+
+      <!-- DNS Status Indicators -->
+      <div class="dns-status-row">
+        <div class="dns-indicator" id="dns-a-status">
+          <div class="dns-dot unknown"></div>
+          <div class="dns-info">
+            <div class="dns-label">A Record</div>
+            <div class="dns-value" id="dns-a-value">Checking...</div>
+          </div>
+        </div>
+        <div class="dns-indicator" id="dns-wildcard-status">
+          <div class="dns-dot unknown"></div>
+          <div class="dns-info">
+            <div class="dns-label">Wildcard (*.domain)</div>
+            <div class="dns-value" id="dns-wildcard-value">Checking...</div>
+          </div>
+        </div>
+        <div class="dns-indicator" id="dns-ssl-status">
+          <div class="dns-dot unknown"></div>
+          <div class="dns-info">
+            <div class="dns-label">SSL/TLS</div>
+            <div class="dns-value" id="dns-ssl-value">Checking...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Server IP Info -->
+      <div class="server-info-row">
+        <span class="server-label">Server IP:</span>
+        <span class="server-value" id="server-ip">Detecting...</span>
+        <button class="copy-btn" onclick="copyServerIP()" title="Copy IP">📋</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TLD Console Selector Grid -->
   <div class="sunday-card" style="margin-bottom:20px">
     <div class="sunday-card__header" style="display:flex;justify-content:space-between;align-items:center">
       <div>
-        <h3 style="margin:0">🏠 TLD Console</h3>
+        <h3 style="margin:0">🏠 Select Apex Console</h3>
         <p style="margin:4px 0 0;color:var(--muted);font-size:12px">
-          The console served at the root domain (/)
+          Click to set which console serves at the root domain
         </p>
       </div>
       <span id="tldBadge" class="sunday-badge" style="background:var(--brand);color:white;padding:4px 12px;border-radius:20px;font-size:12px">
@@ -119,6 +183,170 @@
 </div>
 
 <style>
+  /* Apex Domain Card */
+  .apex-config-card {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+    border-radius: 16px;
+    padding: 24px;
+    color: white;
+    box-shadow: 0 8px 32px rgba(79, 70, 229, 0.3);
+  }
+  .apex-header { margin-bottom: 20px; }
+  .apex-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .apex-badge {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #1e1b4b;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+  }
+  .apex-subtitle {
+    font-size: 14px;
+    opacity: 0.75;
+  }
+  .apex-body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .apex-domain-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .apex-domain-input-wrap {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 4px;
+    flex: 1;
+    min-width: 280px;
+  }
+  .apex-protocol {
+    padding: 8px 12px;
+    font-size: 14px;
+    opacity: 0.7;
+    font-family: monospace;
+  }
+  .apex-domain-input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 10px 4px;
+    font-family: monospace;
+    outline: none;
+  }
+  .apex-domain-input::placeholder { color: rgba(255,255,255,0.4); }
+  .apex-save-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+  }
+  .apex-save-btn:hover { background: rgba(255,255,255,0.3); }
+  .apex-console-select {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .apex-console-select label {
+    font-size: 14px;
+    opacity: 0.8;
+  }
+  .apex-console-select select {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 8px;
+    color: white;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    min-width: 160px;
+  }
+  .apex-console-select select option {
+    background: #312e81;
+    color: white;
+  }
+
+  /* DNS Status Row */
+  .dns-status-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .dns-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 12px 16px;
+    flex: 1;
+    min-width: 180px;
+  }
+  .dns-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dns-dot.ok { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+  .dns-dot.error { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+  .dns-dot.unknown { background: #f59e0b; animation: blink 1.5s infinite; }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .dns-info { flex: 1; }
+  .dns-label {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-bottom: 2px;
+  }
+  .dns-value {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .server-info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    padding: 10px 14px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+  }
+  .server-label { opacity: 0.7; }
+  .server-value { font-family: monospace; font-weight: 600; }
+  .copy-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+  .copy-btn:hover { opacity: 1; }
+
   .console-option {
     padding: 12px;
     background: var(--bg);
@@ -179,6 +407,8 @@
 <script>
   let networkData = null;
   let currentTld = null;
+  let currentDomain = null;
+  let dnsStatus = { a: 'unknown', wildcard: 'unknown', ssl: 'unknown' };
 
   async function refreshNetworkStatus() {
     try {
@@ -192,11 +422,148 @@
       const tldRes = await fetch('/api/network/tld');
       const tldData = await tldRes.json();
       currentTld = tldData.tld;
+      currentDomain = tldData.domain || window.location.hostname;
+      
+      // Update domain input
+      document.getElementById('apex-domain').value = currentDomain;
+      
+      // Populate console select
+      populateConsoleSelect(tldData.consoles, tldData.available);
+      
+      // Get server IP
+      detectServerIP();
+      
+      // Check DNS
+      checkDNS();
       
       renderDashboard();
     } catch (err) {
       console.error('Failed to load network status:', err);
     }
+  }
+  
+  function populateConsoleSelect(consoles, available) {
+    const select = document.getElementById('apex-console-select');
+    const options = available || Object.keys(consoles || {});
+    
+    select.innerHTML = options.map(id => {
+      const c = consoles?.[id] || { name: id, icon: '🖥️' };
+      const selected = id === currentTld ? 'selected' : '';
+      return `<option value="${id}" ${selected}>${c.icon || '🖥️'} ${c.name}</option>`;
+    }).join('');
+  }
+  
+  async function detectServerIP() {
+    try {
+      const response = await fetch('/api/network/server-info');
+      if (response.ok) {
+        const data = await response.json();
+        document.getElementById('server-ip').textContent = data.ip || data.publicIP || 'Unknown';
+      } else {
+        document.getElementById('server-ip').textContent = 'Check failed';
+      }
+    } catch (error) {
+      document.getElementById('server-ip').textContent = 'N/A';
+    }
+  }
+  
+  async function checkDNS() {
+    const domain = document.getElementById('apex-domain').value.trim();
+    if (!domain || domain === 'localhost') {
+      updateDNSIndicator('a', 'ok', 'Localhost (dev)');
+      updateDNSIndicator('wildcard', 'ok', 'N/A (localhost)');
+      updateDNSIndicator('ssl', 'unknown', 'No SSL (dev)');
+      return;
+    }
+
+    // Set to checking
+    updateDNSIndicator('a', 'unknown', 'Checking...');
+    updateDNSIndicator('wildcard', 'unknown', 'Checking...');
+    updateDNSIndicator('ssl', 'unknown', 'Checking...');
+
+    try {
+      const response = await fetch('/api/network/dns-check?domain=' + encodeURIComponent(domain));
+      if (response.ok) {
+        const data = await response.json();
+        
+        // A Record
+        if (data.aRecord?.resolved) {
+          updateDNSIndicator('a', 'ok', `✓ → ${data.aRecord.ip}`);
+        } else {
+          updateDNSIndicator('a', 'error', data.aRecord?.error || 'Not pointing');
+        }
+        
+        // Wildcard
+        if (data.wildcard?.resolved) {
+          updateDNSIndicator('wildcard', 'ok', `✓ *.${domain}`);
+        } else {
+          updateDNSIndicator('wildcard', 'error', data.wildcard?.error || 'Not configured');
+        }
+        
+        // SSL
+        if (data.ssl?.valid) {
+          updateDNSIndicator('ssl', 'ok', `✓ Valid (${data.ssl.issuer || 'trusted'})`);
+        } else {
+          updateDNSIndicator('ssl', data.ssl?.error ? 'error' : 'unknown', data.ssl?.error || 'Unknown');
+        }
+      }
+    } catch (error) {
+      console.error('DNS check error:', error);
+      updateDNSIndicator('a', 'error', 'Check failed');
+      updateDNSIndicator('wildcard', 'error', 'Check failed');
+      updateDNSIndicator('ssl', 'error', 'Check failed');
+    }
+  }
+  
+  function updateDNSIndicator(type, status, text) {
+    const indicator = document.getElementById(`dns-${type}-status`);
+    const dot = indicator?.querySelector('.dns-dot');
+    const value = document.getElementById(`dns-${type}-value`);
+    
+    if (dot) dot.className = 'dns-dot ' + status;
+    if (value) value.textContent = text;
+    dnsStatus[type] = status;
+  }
+  
+  function onDomainChange(value) {
+    currentDomain = value.trim().toLowerCase();
+  }
+  
+  async function saveDomain() {
+    const domain = document.getElementById('apex-domain').value.trim().toLowerCase();
+    if (!domain) return;
+
+    try {
+      const response = await fetch('/api/network/domain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ domain })
+      });
+
+      if (response.ok) {
+        alert('✅ Domain saved: ' + domain);
+        checkDNS();
+      } else {
+        const data = await response.json();
+        alert('❌ Failed: ' + (data.error || 'Unknown error'));
+      }
+    } catch (error) {
+      alert('❌ Error: ' + error.message);
+    }
+  }
+  
+  async function onConsoleChange(consoleId) {
+    if (!consoleId || consoleId === currentTld) return;
+    await setTldConsole(consoleId);
+  }
+  
+  function copyServerIP() {
+    const ip = document.getElementById('server-ip').textContent;
+    navigator.clipboard.writeText(ip).then(() => {
+      alert('📋 Copied: ' + ip);
+    }).catch(() => {
+      prompt('Copy this IP:', ip);
+    });
   }
 
   function renderDashboard() {
