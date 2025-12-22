@@ -71,15 +71,17 @@
         <div class="dns-indicator" id="dns-a-status">
           <div class="dns-dot unknown"></div>
           <div class="dns-info">
-            <div class="dns-label">A Record</div>
+            <div class="dns-label">A Record (@)</div>
             <div class="dns-value" id="dns-a-value">Checking...</div>
+            <div class="dns-detail" id="dns-a-detail" style="font-size:10px;opacity:0.7;margin-top:2px"></div>
           </div>
         </div>
         <div class="dns-indicator" id="dns-wildcard-status">
           <div class="dns-dot unknown"></div>
           <div class="dns-info">
-            <div class="dns-label">Wildcard (*.domain)</div>
+            <div class="dns-label">Wildcard (*)</div>
             <div class="dns-value" id="dns-wildcard-value">Checking...</div>
+            <div class="dns-detail" id="dns-wildcard-detail" style="font-size:10px;opacity:0.7;margin-top:2px"></div>
           </div>
         </div>
         <div class="dns-indicator" id="dns-ssl-status">
@@ -87,6 +89,7 @@
           <div class="dns-info">
             <div class="dns-label">SSL/TLS</div>
             <div class="dns-value" id="dns-ssl-value">Checking...</div>
+            <div class="dns-detail" id="dns-ssl-detail" style="font-size:10px;opacity:0.7;margin-top:2px"></div>
           </div>
         </div>
       </div>
@@ -625,28 +628,39 @@
         const data = await response.json();
         
         // A Record
+        const aDetail = document.getElementById('dns-a-detail');
         if (data.aRecord?.resolved) {
-          updateDNSIndicator('a', 'ok', `✓ → ${data.aRecord.ip}`);
+          updateDNSIndicator('a', 'ok', `✓ POINTING`);
+          if (aDetail) aDetail.textContent = `@ → ${data.aRecord.ip}`;
+          document.getElementById('server-ip').textContent = data.aRecord.ip;
         } else {
-          updateDNSIndicator('a', 'error', data.aRecord?.error || 'Not pointing');
+          updateDNSIndicator('a', 'error', `✗ NOT POINTING`);
+          if (aDetail) aDetail.textContent = 'Domain not resolving to server';
         }
         
-        // Wildcard - show type (CNAME or A) and target
+        // Wildcard - show explicit status
+        const wildcardDetail = document.getElementById('dns-wildcard-detail');
         if (data.wildcard?.resolved) {
           if (data.wildcard.type === 'CNAME') {
-            updateDNSIndicator('wildcard', 'ok', `✓ CNAME → ${data.wildcard.target}`);
+            updateDNSIndicator('wildcard', 'ok', `✓ CONFIGURED`);
+            if (wildcardDetail) wildcardDetail.textContent = `*.${domain} → ${data.wildcard.target}`;
           } else {
-            updateDNSIndicator('wildcard', 'ok', `✓ A → ${data.wildcard.ip}`);
+            updateDNSIndicator('wildcard', 'ok', `✓ CONFIGURED`);
+            if (wildcardDetail) wildcardDetail.textContent = `*.${domain} → ${data.wildcard.ip}`;
           }
         } else {
-          updateDNSIndicator('wildcard', 'error', data.wildcard?.error || 'Not configured');
+          updateDNSIndicator('wildcard', 'error', `✗ NOT CONFIGURED`);
+          if (wildcardDetail) wildcardDetail.textContent = data.wildcard?.error || 'Add a * record in your DNS';
         }
         
         // SSL
+        const sslDetail = document.getElementById('dns-ssl-detail');
         if (data.ssl?.valid) {
-          updateDNSIndicator('ssl', 'ok', `✓ ${data.ssl.issuer || 'Valid'}`);
+          updateDNSIndicator('ssl', 'ok', `✓ SECURE`);
+          if (sslDetail) sslDetail.textContent = `Issued by ${data.ssl.issuer || 'Unknown'}`;
         } else {
-          updateDNSIndicator('ssl', data.ssl?.error ? 'error' : 'unknown', data.ssl?.error || 'Unknown');
+          updateDNSIndicator('ssl', 'error', `✗ NO SSL`);
+          if (sslDetail) sslDetail.textContent = data.ssl?.error || 'Certificate missing or invalid';
         }
         
         // Registrar/DNS Provider
