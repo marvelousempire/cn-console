@@ -473,7 +473,7 @@ async function renderLibraryModal() {
   return modalContent;
 }
 
-function filterLibrary(searchQuery) {
+async function filterLibrary(searchQuery) {
   if (!libraryData || !searchQuery) return;
 
   const query = String(searchQuery).toLowerCase().trim();
