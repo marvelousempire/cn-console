@@ -48,13 +48,20 @@
     }
   </style>
   
-  <!-- EARLY AUTH DETECTION -->
+  <!-- EARLY AUTH DETECTION - Runs before body renders to prevent flash -->
   <script>
     (function() {
       var hash = window.location.hash || '';
+      // Detect all auth-related routes (with or without leading slash)
       var isAuth = hash.indexOf('cartridge/auth') !== -1 || 
                    hash.indexOf('/login') !== -1 || 
-                   hash.indexOf('/register') !== -1;
+                   hash.indexOf('/register') !== -1 ||
+                   hash === '#login' ||
+                   hash === '#register' ||
+                   hash.indexOf('#login') !== -1 ||
+                   hash.indexOf('#register') !== -1 ||
+                   hash.indexOf('forgot-password') !== -1 ||
+                   hash.indexOf('reset-password') !== -1;
       if (isAuth) {
         document.documentElement.classList.add('is-auth-page');
       }
@@ -67,11 +74,16 @@
     (function() {
       function updateAuthPageUI() {
         const hash = window.location.hash || '';
+        const route = hash.replace(/^#\/?/, ''); // Remove # and optional /
         const isAuthPage = hash.includes('cartridge/auth') || 
                            hash.includes('/login') ||
                            hash.includes('/register') ||
                            hash.includes('forgot-password') ||
-                           hash.includes('reset-password');
+                           hash.includes('reset-password') ||
+                           route === 'login' ||
+                           route === 'register' ||
+                           route.startsWith('login') ||
+                           route.startsWith('register');
         
         document.documentElement.classList.toggle('is-auth-page', isAuthPage);
         document.body.classList.toggle('auth-page', isAuthPage);
