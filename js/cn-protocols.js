@@ -72,6 +72,11 @@ export async function initCNProtocols(root = document) {
     } catch {}
   }
 
+  // Generate anchor ID from heading text
+  function generateAnchorId(text) {
+    return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+
   async function renderToc() {
     if (!tocNav) return;
 
@@ -81,8 +86,9 @@ export async function initCNProtocols(root = document) {
                    heading.level === 2 ? '📄' :
                    heading.level === 3 ? '📝' : '•';
       const classes = `cn-toc-item lvl-${heading.level}`;
+      const anchorId = generateAnchorId(heading.text);
 
-      return `${indent}<a href="#" class="${classes}" data-heading="${heading.text}" data-index="${index}">
+      return `${indent}<a href="#${anchorId}" class="${classes}" data-heading="${heading.text}" data-index="${index}" data-anchor="${anchorId}">
         <span class="cn-toc-icon">${icon}</span>
         <span class="cn-toc-text">${heading.text}</span>
       </a>`;
@@ -95,17 +101,109 @@ export async function initCNProtocols(root = document) {
       totalSectionsEl.textContent = headings.length;
     }
 
-    // Add click handlers for TOC items
+    // Add click handlers for TOC items - smooth scroll to section
     tocNav.querySelectorAll('.cn-toc-item').forEach(item => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
+        const anchorId = item.dataset.anchor;
         const headingText = item.dataset.heading;
-        if (headingText && pickEl) {
-          pickEl.value = headingText;
-          render();
+        
+        // Find the heading element in the content
+        const targetHeading = readmeEl.querySelector(`[id="${anchorId}"], h1, h2, h3`);
+        const allHeadings = Array.from(readmeEl.querySelectorAll('h1, h2, h3'));
+        const matchingHeading = allHeadings.find(h => 
+          h.textContent.trim().toLowerCase() === headingText.toLowerCase() ||
+          h.id === anchorId
+        );
+        
+        if (matchingHeading) {
+          // Smooth scroll to the heading
+          matchingHeading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          
+          // Highlight the heading briefly
+          matchingHeading.style.transition = 'background-color 0.3s ease';
+          matchingHeading.style.backgroundColor = 'color-mix(in srgb, var(--brand) 20%, transparent)';
+          setTimeout(() => {
+            matchingHeading.style.backgroundColor = '';
+          }, 1500);
         }
+        
+        // Update active state
+        updateActiveTocItem(parseInt(item.dataset.index));
       });
     });
+
+    // Set up scroll listener for live tracking
+    setupScrollTracking();
+  }
+
+  // Track which section is currently visible and update TOC
+  function setupScrollTracking() {
+    let ticking = false;
+    
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          updateActiveTocFromScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+  }
+
+  function updateActiveTocFromScroll() {
+    if (!tocNav || !readmeEl) return;
+    
+    const allHeadings = Array.from(readmeEl.querySelectorAll('h1, h2, h3'));
+    if (allHeadings.length === 0) return;
+    
+    const scrollPosition = window.scrollY + 150; // Offset for header
+    
+    let activeIndex = 0;
+    
+    for (let i = 0; i < allHeadings.length; i++) {
+      const heading = allHeadings[i];
+      const rect = heading.getBoundingClientRect();
+      const elementTop = window.scrollY + rect.top;
+      
+      if (elementTop <= scrollPosition) {
+        activeIndex = i;
+      } else {
+        break;
+      }
+    }
+    
+    updateActiveTocItem(activeIndex);
+  }
+
+  function updateActiveTocItem(activeIndex) {
+    if (!tocNav) return;
+    
+    // Remove active class from all items
+    tocNav.querySelectorAll('.cn-toc-item').forEach(item => {
+      item.classList.remove('active');
+    });
+    
+    // Add active class to current item
+    const activeItem = tocNav.querySelector(`.cn-toc-item[data-index="${activeIndex}"]`);
+    if (activeItem) {
+      activeItem.classList.add('active');
+      
+      // Smooth scroll the TOC to keep active item visible
+      const tocContainer = tocNav.parentElement;
+      if (tocContainer) {
+        const itemRect = activeItem.getBoundingClientRect();
+        const containerRect = tocContainer.getBoundingClientRect();
+        
+        // Check if item is outside visible area
+        if (itemRect.top < containerRect.top || itemRect.bottom > containerRect.bottom) {
+          activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }
+    }
   }
 
   async function render() {

@@ -462,33 +462,94 @@ aside.sunday-md-aside nav.sunday-md-toc {
   transform: translateY(-1px);
 }
 
-/* CUSTOM TOC STYLING */
+/* CUSTOM TOC STYLING - READER APP STYLE */
+.cn-toc-nav {
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding: 8px 0;
+}
+
+.cn-toc-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.cn-toc-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cn-toc-nav::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 2px;
+  opacity: 0.5;
+}
+
+.cn-toc-nav::-webkit-scrollbar-thumb:hover {
+  background: var(--brand);
+}
+
 .cn-toc-item {
-  display: block;
-  padding: 8px 12px;
-  margin: 2px 0;
-  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  margin: 3px 8px;
+  border-radius: 10px;
   color: var(--muted);
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
   line-height: 1.4;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   border-left: 3px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.cn-toc-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: var(--brand);
+  transition: width 0.3s ease;
+  opacity: 0.1;
 }
 
 .cn-toc-item:hover {
   background: color-mix(in srgb, var(--brand) 8%, transparent);
   color: var(--ink);
-  transform: translateX(2px);
+  transform: translateX(4px);
+  text-decoration: none;
+}
+
+.cn-toc-item:hover::before {
+  width: 100%;
 }
 
 .cn-toc-item.active {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 15%, transparent), color-mix(in srgb, var(--brand) 8%, transparent));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 18%, transparent), color-mix(in srgb, var(--brand) 10%, transparent));
   color: var(--brand);
   font-weight: 600;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--brand) 20%, transparent);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--brand) 25%, transparent);
   border-left-color: var(--brand);
+  transform: translateX(6px);
+}
+
+.cn-toc-item.active::before {
+  width: 100%;
+  opacity: 0.05;
+}
+
+/* Pulse animation for active item */
+@keyframes tocPulse {
+  0%, 100% { box-shadow: 0 4px 12px color-mix(in srgb, var(--brand) 25%, transparent); }
+  50% { box-shadow: 0 4px 20px color-mix(in srgb, var(--brand) 40%, transparent); }
+}
+
+.cn-toc-item.active {
+  animation: tocPulse 2s ease-in-out infinite;
 }
 
 .cn-toc-icon {
