@@ -1,12 +1,51 @@
 <div class="sunday-card">
   <div class="sunday-card__header">
     <div>
-      <div class="sunday-text sunday-text--title">AI Console</div>
-      <div class="sunday-text sunday-text--muted">First-class Console view (embedded UI)</div>
+      <div class="sunday-text sunday-text--title">🤖 AI Console</div>
+      <div class="sunday-text sunday-text--muted">Chat with AI, manage models, and configure AI services</div>
     </div>
   </div>
-  <div class="sunday-card__body" style="padding: 0;">
-    <iframe class="ai-embed" src="cartridges/ai-console/index.html" title="AI Console Cartridge"></iframe>
+  <div class="sunday-card__body" style="padding: 0; min-height: 600px;">
+    <iframe 
+      id="ai-console-frame"
+      class="ai-embed" 
+      src="/cartridges/ai-console/index.html" 
+      title="AI Console Cartridge"
+      style="width: 100%; height: 600px; border: none; border-radius: 0 0 16px 16px;"
+    ></iframe>
   </div>
 </div>
+
+<style>
+  .ai-embed {
+    background: var(--surface, #0f131c);
+  }
+</style>
+
+<script>
+  // Resize iframe to fit content
+  (function() {
+    const frame = document.getElementById('ai-console-frame');
+    if (!frame) return;
+    
+    // Set minimum height
+    frame.style.minHeight = '600px';
+    
+    // Handle load errors gracefully
+    frame.addEventListener('error', () => {
+      frame.parentElement.innerHTML = `
+        <div style="padding: 24px; text-align: center;">
+          <div class="sunday-text sunday-text--title">AI Console Unavailable</div>
+          <div class="sunday-text sunday-text--muted" style="margin-top: 8px;">
+            The AI Console cartridge could not be loaded.
+          </div>
+          <a href="/cartridges/ai-console/index.html" target="_blank" 
+             style="display: inline-block; margin-top: 16px; padding: 8px 16px; background: var(--accent); color: var(--bg); border-radius: 8px; text-decoration: none;">
+            Open AI Console in New Tab
+          </a>
+        </div>
+      `;
+    });
+  })();
+</script>
 
