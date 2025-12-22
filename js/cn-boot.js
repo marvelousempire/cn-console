@@ -308,6 +308,15 @@ async function maybeInitCNPages() {
       return;
     }
 
+    if (r === 'cartridges') {
+      // Cartridges management is handled directly in the HTML page
+      // Just ensure the management interface is initialized
+      if (window.initCartridgesManagement) {
+        await window.initCartridgesManagement();
+      }
+      return;
+    }
+
     if (r === 'settings') {
       const mod = await import(`./cn-settings.js?v=${v}`);
       await mod.initCNSettings(document);

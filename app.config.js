@@ -37,12 +37,14 @@ export default {
     contributions: { page: 'contributions', title: 'Contributions', fallback: './html/contributions.html?v=20251217c' },
     protocols: { page: 'protocols', title: 'Protocols', fallback: './html/protocols.html?v=20251217c' },
     network: { page: 'network', title: 'Network', fallback: './html/network-settings.html?v=20251222a' },
+    cartridges: { page: 'cartridges', title: 'Cartridges', fallback: './html/cartridges.html?v=20251222a' },
     settings: { page: 'settings', title: 'Settings', fallback: './html/settings.html?v=20251219g' }
   },
 
   tabs: [
     { id: 'overview', label: 'Overview', icon: '🏛️' },
     { id: 'contributions', label: 'Contributions', icon: '🧩' },
+    { id: 'cartridges', label: 'Cartridges', icon: '📦' },
     { id: 'protocols', label: 'Protocols', icon: '📜' },
     { id: 'ai', label: 'AI', icon: '🤖' },
     { id: 'network', label: 'Network', icon: '🌐' },

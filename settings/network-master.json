@@ -14,7 +14,7 @@
   
   "routing": {
     "tld": {
-      "console": "cn-console",
+      "console": "quick-server",
       "description": "The console served at the root domain (/)",
       "options": ["cn-console", "quick-server", "ai-console", "hive-console", "sunday-console", "learnmappers-console", "marketplace-console"]
     },
