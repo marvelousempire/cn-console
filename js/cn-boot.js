@@ -161,6 +161,9 @@ function initHeaderUI() {
         localStorage.removeItem('sunday_refresh_token');
         try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
       } finally {
+        // Remove authenticated class and show login
+        document.documentElement.classList.remove('authenticated');
+        document.documentElement.classList.add('show-login');
         window.location.hash = '#login';
       }
     };
@@ -435,13 +438,35 @@ async function initApp() {
   } catch (e) {
     console.warn('[CN Boot] Auth client failed to load:', e);
   }
+  
   const hash = window.location.hash || '';
   const route = hash.replace(/^#/, '').replace(/^\//, '').split('?')[0] || '';
-  const isLogin = route === 'login';
+  const isLogin = route === 'login' || route === 'register' || 
+                  route === 'forgot-password' || route === 'reset-password';
 
-  if (auth && !auth.isAuthenticated() && !isLogin) {
-    if (hash && !hash.includes('#login')) sessionStorage.setItem('sunday_redirect_after_login', hash);
+  // 🔒 AUTH GATE: Verify authentication before showing any content
+  const isAuthenticated = auth ? auth.isAuthenticated() : !!localStorage.getItem('sunday_access_token');
+  
+  if (isAuthenticated) {
+    // User is authenticated - show the app
+    document.documentElement.classList.add('authenticated');
+    document.documentElement.classList.remove('show-login');
+    console.log('[CN Boot] ✅ User authenticated');
+  } else if (isLogin) {
+    // User on login page - show login (already handled by CSS)
+    document.documentElement.classList.add('show-login');
+    document.documentElement.classList.remove('authenticated');
+    console.log('[CN Boot] Showing login page');
+  } else {
+    // Not authenticated, not on login - redirect to login
+    console.log('[CN Boot] Not authenticated, redirecting to login');
+    if (hash && hash !== '#' && hash !== '#login') {
+      sessionStorage.setItem('sunday_redirect_after_login', hash);
+    }
+    document.documentElement.classList.add('show-login');
+    document.documentElement.classList.remove('authenticated');
     window.location.hash = '#login';
+    // Continue boot to render login page
   }
 
   // Wait for DOM to be ready before initializing Sunday framework

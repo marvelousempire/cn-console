@@ -5,24 +5,85 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CN Console — The Briefcase</title>
 
+  <!-- 🔒 AUTH-FIRST GATE: Hide EVERYTHING until authentication is verified -->
+  <style id="auth-gate-styles">
+    /* Hide all app content by default - nothing visible until auth check completes */
+    body { visibility: hidden !important; opacity: 0 !important; }
+    
+    /* Only show auth-gate-screen (loading/login) */
+    #auth-gate-screen { 
+      visibility: visible !important; 
+      opacity: 1 !important;
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--sunday-bg, #0b0c10);
+    }
+    
+    /* Once authenticated, show everything */
+    html.authenticated body { visibility: visible !important; opacity: 1 !important; }
+    html.authenticated #auth-gate-screen { display: none !important; }
+    
+    /* Auth page mode - hide chrome, show login */
+    html.show-login body { visibility: visible !important; opacity: 1 !important; }
+    html.show-login #auth-gate-screen { display: none !important; }
+    html.show-login .global-header,
+    html.show-login .tabs-container,
+    html.show-login .fab-button,
+    html.show-login .fab-container,
+    html.show-login [class*="fab"],
+    html.show-login #global-header-container,
+    html.show-login #mainTabs,
+    html.show-login .auth-hide {
+      display: none !important;
+      visibility: hidden !important;
+    }
+  </style>
+
   <!-- 🎨 EARLY THEME DETECTION - Prevents flash of wrong theme -->
   <script>
     (function() {
-      // Check saved preference first
       var saved = localStorage.getItem('sunday-theme') || localStorage.getItem('theme');
       var theme = saved;
-      
-      // If no saved preference, check system preference
       if (!theme) {
         var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
         theme = prefersDark ? 'dark' : 'light';
       }
-      
-      // Apply theme immediately (before CSS loads)
       if (theme === 'light') {
         document.documentElement.setAttribute('data-theme', 'light');
       }
-      // Dark is default in CSS, so no attribute needed
+    })();
+  </script>
+
+  <!-- 🔐 INSTANT AUTH CHECK - Before any content loads -->
+  <script>
+    (function() {
+      'use strict';
+      
+      // Check if user has a token (basic check - full validation happens in boot)
+      var token = localStorage.getItem('sunday_access_token');
+      var hash = window.location.hash || '';
+      var route = hash.replace(/^#\/?/, '').split('?')[0] || '';
+      var isLoginRoute = route === 'login' || route === 'register' || 
+                         route === 'forgot-password' || route === 'reset-password';
+      
+      if (token) {
+        // Has token - show app (full validation in boot.js)
+        document.documentElement.classList.add('authenticated');
+      } else if (isLoginRoute) {
+        // No token but on login page - show login
+        document.documentElement.classList.add('show-login');
+      } else {
+        // No token, not on login - redirect to login
+        if (hash && hash !== '#' && hash !== '#login') {
+          sessionStorage.setItem('sunday_redirect_after_login', hash);
+        }
+        window.location.hash = '#login';
+        document.documentElement.classList.add('show-login');
+      }
     })();
   </script>
 
@@ -69,45 +130,31 @@
       margin-top: 0 !important;
     }
   </style>
-  
-  <!-- EARLY AUTH DETECTION - Runs before body renders to prevent flash -->
-  <script>
-    (function() {
-      var hash = window.location.hash || '';
-      // Detect all auth-related routes (with or without leading slash)
-      var isAuth = hash.indexOf('cartridge/auth') !== -1 || 
-                   hash.indexOf('/login') !== -1 || 
-                   hash.indexOf('/register') !== -1 ||
-                   hash === '#login' ||
-                   hash === '#register' ||
-                   hash.indexOf('#login') !== -1 ||
-                   hash.indexOf('#register') !== -1 ||
-                   hash.indexOf('forgot-password') !== -1 ||
-                   hash.indexOf('reset-password') !== -1;
-      if (isAuth) {
-        document.documentElement.classList.add('is-auth-page');
-      }
-    })();
-  </script>
 </head>
 <body>
+  <!-- 🔒 AUTH GATE SCREEN - Shows while checking authentication -->
+  <div id="auth-gate-screen">
+    <div style="text-align: center; color: var(--sunday-text, #e9f3ff);">
+      <div style="font-size: 48px; margin-bottom: 16px; animation: pulse 1.5s ease-in-out infinite;">🧩</div>
+      <div style="font-size: 18px; font-weight: 600;">CN Console</div>
+      <div style="font-size: 14px; opacity: 0.6; margin-top: 8px;">Verifying access...</div>
+    </div>
+    <style>
+      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+  </div>
+
   <!-- Auth Page Detection - Hide UI chrome on login/register pages -->
   <script>
     (function() {
       function updateAuthPageUI() {
         const hash = window.location.hash || '';
-        const route = hash.replace(/^#\/?/, ''); // Remove # and optional /
-        const isAuthPage = hash.includes('cartridge/auth') || 
-                           hash.includes('/login') ||
-                           hash.includes('/register') ||
-                           hash.includes('forgot-password') ||
-                           hash.includes('reset-password') ||
-                           route === 'login' ||
-                           route === 'register' ||
-                           route.startsWith('login') ||
-                           route.startsWith('register');
+        const route = hash.replace(/^#\/?/, '').split('?')[0];
+        const isAuthPage = route === 'login' || route === 'register' || 
+                           route === 'forgot-password' || route === 'reset-password';
         
         document.documentElement.classList.toggle('is-auth-page', isAuthPage);
+        document.documentElement.classList.toggle('show-login', isAuthPage && !document.documentElement.classList.contains('authenticated'));
         document.body.classList.toggle('auth-page', isAuthPage);
         
         const elementsToHide = document.querySelectorAll(
@@ -124,16 +171,6 @@
       
       updateAuthPageUI();
       window.addEventListener('hashchange', updateAuthPageUI);
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', updateAuthPageUI);
-      }
-      const observer = new MutationObserver(updateAuthPageUI);
-      observer.observe(document.documentElement, { childList: true, subtree: true });
-      setTimeout(updateAuthPageUI, 0);
-      setTimeout(updateAuthPageUI, 100);
-      setTimeout(updateAuthPageUI, 300);
-      setTimeout(updateAuthPageUI, 500);
-      setTimeout(updateAuthPageUI, 1000);
     })();
   </script>
 

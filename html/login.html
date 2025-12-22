@@ -336,11 +336,18 @@
         const btnText = loginBtn.querySelector('.btn-text');
         if (btnText) btnText.textContent = '✓ Success!';
 
+        // Mark as authenticated and show app
+        document.documentElement.classList.add('authenticated');
+        document.documentElement.classList.remove('show-login', 'is-auth-page');
+        document.body.classList.remove('auth-page');
+
         // Redirect
         setTimeout(() => {
           const redirect = sessionStorage.getItem('sunday_redirect_after_login') || '#overview';
           sessionStorage.removeItem('sunday_redirect_after_login');
           window.location.hash = redirect;
+          // Reload to fully initialize app after login
+          window.location.reload();
         }, 500);
 
       } catch (error) {
