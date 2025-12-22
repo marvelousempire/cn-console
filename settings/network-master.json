@@ -9,14 +9,13 @@
   
   "network": {
     "name": "Sunday Console Network",
-    "description": "Unified console ecosystem powered by Sunday App Framework",
-    "domain": "thebriefcase.app"
+    "description": "Unified console ecosystem powered by Sunday App Framework"
   },
   
   "routing": {
     "tld": {
-      "console": "cn-console",
-      "description": "The console served at the root domain (/)",
+      "console": "${CONSOLE_FRAMEWORK_APEX:-cn-console}",
+      "description": "The console served at the root domain (/). Override with CONSOLE_FRAMEWORK_APEX env var.",
       "options": ["cn-console", "quick-server", "ai-console", "hive-console", "sunday-console", "learnmappers-console", "marketplace-console"]
     },
     "consoles": {

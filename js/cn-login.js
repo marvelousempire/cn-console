@@ -48,14 +48,21 @@ export async function initCNLogin(root = document) {
     setLoading(true);
 
     try {
-      const { getAuthClient } = await import('/core/auth-client.js');
+      const { getAuthClient } = await import('/sundayapp/core/auth-client.js');
       const auth = getAuthClient();
       await auth.login(email, password, remember);
 
-      // redirect back to intended route
-      const redirect = sessionStorage.getItem('sunday_redirect_after_login') || '#overview';
-      sessionStorage.removeItem('sunday_redirect_after_login');
-      window.location.hash = redirect;
+      // Ensure authentication state is set before redirect
+      console.log('[CN Login] Login successful, auth state:', auth.isAuthenticated());
+
+      // Small delay to ensure auth state is propagated
+      setTimeout(() => {
+        // redirect back to intended route
+        const redirect = sessionStorage.getItem('sunday_redirect_after_login') || '#overview';
+        sessionStorage.removeItem('sunday_redirect_after_login');
+        console.log('[CN Login] Redirecting to:', redirect);
+        window.location.hash = redirect;
+      }, 100);
     } catch (e2) {
       setError(e2?.message || String(e2));
       setLoading(false);

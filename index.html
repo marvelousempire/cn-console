@@ -172,13 +172,44 @@
       updateAuthPageUI();
       window.addEventListener('hashchange', updateAuthPageUI);
     })();
+
+    // Tab click handler for debugging and fallback navigation
+    function handleTabClick(event) {
+      const target = event.target.closest('a[data-route]');
+      if (target) {
+        event.preventDefault(); // Prevent default link behavior
+        const route = target.getAttribute('data-route');
+        console.log('[Tab Click]', route, target.getAttribute('href'));
+
+        // Try Sunday router first
+        if (window.Sunday && window.Sunday.router) {
+          console.log('[Router] Using Sunday router');
+          window.Sunday.router.navigate(route);
+        } else {
+          // Fallback: manually change hash and trigger navigation
+          console.log('[Fallback] Manual navigation');
+          window.location.hash = '#' + route;
+          // Trigger the navigation manually
+          setTimeout(() => {
+            if (window.maybeInitCNPages) {
+              window.maybeInitCNPages();
+            }
+          }, 10);
+        }
+      }
+    }
+
+    // Add hash change listener for debugging
+    window.addEventListener('hashchange', function() {
+      console.log('[Hash Change]', window.location.hash);
+    });
   </script>
 
   <div id="global-header-container" class="global-header auth-hide"></div>
 
   <div class="tabs-container auth-hide">
     <!-- Pre-render tabs so navigation is visible even if JS fails -->
-    <div class="tabs" id="mainTabs">
+    <div class="tabs" id="mainTabs" onclick="handleTabClick(event)">
       <a class="tab-btn" href="#overview" data-tab="overview" data-route="overview">
         <span class="tab-icon">🏛️</span>
         <span class="tab-label">Overview</span>

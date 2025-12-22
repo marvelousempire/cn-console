@@ -33,7 +33,7 @@ export default {
     overview: { page: 'overview', title: 'Overview', fallback: './html/overview.html?v=20251217c' },
     login: { page: 'login', title: 'Sign in', fallback: './html/login.html?v=20251222b' },
     ai: { page: 'ai', title: 'AI', fallback: './html/ai.html?v=20251222c' },
-    passwords: { page: 'passwords', title: 'Passwords', fallback: './cartridges/passwords/index.html' },
+    passwords: { page: 'passwords', title: 'Passwords', fallback: './html/standalone-passwords.html' },
     // Cache-bust: server sets long cache headers for static assets.
     contributions: { page: 'contributions', title: 'Contributions', fallback: './html/contributions.html?v=20251217c' },
     protocols: { page: 'protocols', title: 'Protocols', fallback: './html/protocols.html?v=20251217c' },

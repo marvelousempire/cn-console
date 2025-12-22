@@ -445,13 +445,44 @@ async function initApp() {
                   route === 'forgot-password' || route === 'reset-password';
 
   // 🔒 AUTH GATE: Verify authentication before showing any content
-  const isAuthenticated = auth ? auth.isAuthenticated() : !!localStorage.getItem('sunday_access_token');
-  
+  // Check multiple sources for authentication state
+  let isAuthenticated = false;
+
+  try {
+    // Check auth client first
+    if (auth && typeof auth.isAuthenticated === 'function') {
+      isAuthenticated = auth.isAuthenticated();
+      console.log('[CN Boot] Auth client check:', isAuthenticated);
+    }
+
+    // Fallback to localStorage
+    if (!isAuthenticated) {
+      const token = localStorage.getItem('sunday_access_token');
+      const user = localStorage.getItem('sunday_user');
+      isAuthenticated = !!(token && user);
+      console.log('[CN Boot] localStorage check - token:', !!token, 'user:', !!user, 'authenticated:', isAuthenticated);
+    }
+
+    // Additional fallback - check if we just logged in (within last 30 seconds)
+    if (!isAuthenticated) {
+      const lastLogin = localStorage.getItem('sunday_last_login');
+      if (lastLogin && (Date.now() - parseInt(lastLogin)) < 30000) {
+        console.log('[CN Boot] Recent login detected, allowing access');
+        isAuthenticated = true;
+      }
+    }
+  } catch (authError) {
+    console.warn('[CN Boot] Auth check error:', authError);
+    isAuthenticated = false;
+  }
+
+  console.log('[CN Boot] Final auth state:', isAuthenticated, 'isLogin:', isLogin);
+
   if (isAuthenticated) {
     // User is authenticated - show the app
     document.documentElement.classList.add('authenticated');
     document.documentElement.classList.remove('show-login');
-    console.log('[CN Boot] ✅ User authenticated');
+    console.log('[CN Boot] ✅ User authenticated - showing app');
   } else if (isLogin) {
     // User on login page - show login (already handled by CSS)
     document.documentElement.classList.add('show-login');
@@ -460,8 +491,10 @@ async function initApp() {
   } else {
     // Not authenticated, not on login - redirect to login
     console.log('[CN Boot] Not authenticated, redirecting to login');
+    console.log('[CN Boot] Current hash:', hash, 'isLogin:', isLogin);
     if (hash && hash !== '#' && hash !== '#login') {
       sessionStorage.setItem('sunday_redirect_after_login', hash);
+      console.log('[CN Boot] Saved redirect URL:', hash);
     }
     document.documentElement.classList.add('show-login');
     document.documentElement.classList.remove('authenticated');

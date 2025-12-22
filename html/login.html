@@ -327,10 +327,12 @@
       hideError();
 
       try {
-        const { getAuthClient } = await import('/core/auth-client.js');
+        const { getAuthClient } = await import('/sundayapp/core/auth-client.js');
         const auth = getAuthClient();
+        console.log('[Login] Attempting login for:', email);
 
         await auth.login(email, password, rememberMe);
+        console.log('[Login] Login successful, auth state:', auth.isAuthenticated());
 
         // Show success briefly
         const btnText = loginBtn.querySelector('.btn-text');
