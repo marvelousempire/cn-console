@@ -414,12 +414,12 @@ async function initApp() {
   }
 
   setBoot('Checking session…');
-  const auth = getAuthClient();
+  const auth = typeof getAuthClient === 'function' ? getAuthClient() : null;
   const hash = window.location.hash || '';
   const route = hash.replace(/^#/, '').replace(/^\//, '').split('?')[0] || '';
   const isLogin = route === 'login';
 
-  if (!auth.isAuthenticated() && !isLogin) {
+  if (auth && !auth.isAuthenticated() && !isLogin) {
     if (hash && !hash.includes('#login')) sessionStorage.setItem('sunday_redirect_after_login', hash);
     window.location.hash = '#login';
   }
