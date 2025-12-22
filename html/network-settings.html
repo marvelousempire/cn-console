@@ -119,10 +119,11 @@
       <div>
         <h3 style="margin:0">🔗 Subdomain Records</h3>
         <p style="margin:4px 0 0;color:var(--muted);font-size:12px">
-          Check individual subdomains or scan common ones
+          Console subdomains auto-checked • Add custom subdomains to test
         </p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="sunday-btn secondary sm" onclick="loadConsoleSubdomains()">🔄 Refresh</button>
         <button class="sunday-btn secondary sm" onclick="scanCommonSubdomains()">🔍 Scan Common</button>
         <button class="sunday-btn ghost sm" onclick="clearSubdomains()">🗑️ Clear</button>
       </div>
@@ -439,6 +440,18 @@
     border-color: var(--line);
     opacity: 0.6;
   }
+  .subdomain-card.is-console {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 5%, var(--bg));
+  }
+  .subdomain-card.is-console.resolved {
+    border-color: var(--success);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 5%, var(--bg)), color-mix(in srgb, var(--success) 8%, var(--bg)));
+  }
+  .subdomain-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
   .subdomain-dot {
     width: 10px;
     height: 10px;
@@ -454,6 +467,25 @@
     font-size: 13px;
     color: var(--ink);
     margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .subdomain-badge {
+    font-size: 10px;
+    font-weight: 500;
+    background: var(--accent);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .subdomain-url {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'SF Mono', Monaco, monospace;
+    margin-bottom: 3px;
   }
   .subdomain-value {
     font-size: 11px;
@@ -574,6 +606,9 @@
       
       // Check DNS
       checkDNS();
+      
+      // Load console subdomains automatically
+      loadConsoleSubdomains();
       
       renderDashboard();
     } catch (err) {
@@ -739,6 +774,42 @@
   // Subdomain Checker
   let subdomainResults = [];
   const COMMON_SUBDOMAINS = ['www', 'api', 'app', 'mail', 'cdn', 'static', 'assets', 'img', 'images', 'admin', 'dashboard', 'portal', 'dev', 'staging', 'test', 'beta'];
+  
+  // Known console subdomains - these are the ones we're actively using
+  const CONSOLE_SUBDOMAINS = [
+    { name: 'quick', label: 'Quick Server', icon: '⚡', isConsole: true },
+    { name: 'ai', label: 'AI Console', icon: '🤖', isConsole: true },
+    { name: 'cn', label: 'CN Console', icon: '🧩', isConsole: true },
+    { name: 'hive', label: 'Hive Console', icon: '🐝', isConsole: true },
+    { name: 'sunday', label: 'Sunday Console', icon: '🌞', isConsole: true },
+    { name: 'learn', label: 'LearnMappers', icon: '🗺️', isConsole: true },
+    { name: 'marketplace', label: 'Marketplace', icon: '🛒', isConsole: true },
+    { name: 'app', label: 'App', icon: '📱', isConsole: true },
+  ];
+  
+  // Auto-load console subdomains on page init
+  async function loadConsoleSubdomains() {
+    const domain = document.getElementById('apex-domain').value.trim();
+    if (!domain || domain === 'localhost') return;
+    
+    // Add console subdomains with checking status
+    subdomainResults = CONSOLE_SUBDOMAINS.map(sub => ({
+      name: sub.name,
+      label: sub.label,
+      icon: sub.icon,
+      isConsole: true,
+      status: 'checking',
+      type: null,
+      value: 'Checking...'
+    }));
+    renderSubdomains();
+    
+    // Check each one
+    for (const sub of CONSOLE_SUBDOMAINS) {
+      await checkSubdomainDNS(sub.name);
+      await new Promise(r => setTimeout(r, 50));
+    }
+  }
 
   async function checkSubdomain() {
     const input = document.getElementById('subdomain-input');
@@ -768,20 +839,27 @@
       return;
     }
     
-    // Clear and add all common subdomains with checking status
-    subdomainResults = COMMON_SUBDOMAINS.map(name => ({
-      name,
-      status: 'checking',
-      type: null,
-      value: 'Checking...'
-    }));
+    // Keep console subdomains, add common ones that aren't already there
+    const existingNames = new Set(subdomainResults.map(s => s.name));
+    const newSubdomains = COMMON_SUBDOMAINS.filter(name => !existingNames.has(name));
+    
+    // Add common subdomains with checking status
+    for (const name of newSubdomains) {
+      subdomainResults.push({
+        name,
+        status: 'checking',
+        type: null,
+        value: 'Checking...',
+        isConsole: false
+      });
+    }
     renderSubdomains();
     
-    // Check each subdomain
-    for (const subdomain of COMMON_SUBDOMAINS) {
+    // Check each new subdomain
+    for (const subdomain of newSubdomains) {
       await checkSubdomainDNS(subdomain);
       // Small delay to not overwhelm
-      await new Promise(r => setTimeout(r, 100));
+      await new Promise(r => setTimeout(r, 50));
     }
   }
 
@@ -796,15 +874,17 @@
       if (response.ok) {
         const data = await response.json();
         
-        // Update the result
+        // Update the result, preserving existing properties
         const idx = subdomainResults.findIndex(s => s.name === subdomain);
         if (idx !== -1) {
+          const existing = subdomainResults[idx];
           subdomainResults[idx] = {
+            ...existing, // Preserve label, icon, isConsole
             name: subdomain,
             fullDomain,
             status: data.resolved ? 'ok' : 'error',
             type: data.type || null,
-            value: data.resolved ? (data.type === 'CNAME' ? data.target : data.ip) : 'Not found',
+            value: data.resolved ? (data.type === 'CNAME' ? data.target : data.ip) : 'Not configured',
             ip: data.ip,
             target: data.target,
             viaWildcard: data.viaWildcard
@@ -824,6 +904,7 @@
 
   function renderSubdomains() {
     const container = document.getElementById('subdomain-results');
+    const domain = document.getElementById('apex-domain').value.trim();
     
     if (subdomainResults.length === 0) {
       container.innerHTML = `
@@ -835,12 +916,24 @@
       return;
     }
     
-    container.innerHTML = subdomainResults.map(s => `
-      <div class="subdomain-card ${s.status === 'ok' ? 'resolved' : s.status === 'error' ? 'unresolved' : ''}">
+    // Sort: consoles first, then by name
+    const sorted = [...subdomainResults].sort((a, b) => {
+      if (a.isConsole && !b.isConsole) return -1;
+      if (!a.isConsole && b.isConsole) return 1;
+      return a.name.localeCompare(b.name);
+    });
+    
+    container.innerHTML = sorted.map(s => `
+      <div class="subdomain-card ${s.status === 'ok' ? 'resolved' : s.status === 'error' ? 'unresolved' : ''} ${s.isConsole ? 'is-console' : ''}">
         <div class="subdomain-dot ${s.status}"></div>
+        ${s.icon ? `<div class="subdomain-icon">${s.icon}</div>` : ''}
         <div class="subdomain-info">
-          <div class="subdomain-name">${s.name}</div>
-          <div class="subdomain-value" title="${s.value}">${s.value}${s.viaWildcard ? ' (via *)' : ''}</div>
+          <div class="subdomain-name">
+            ${s.label || s.name}
+            ${s.isConsole ? '<span class="subdomain-badge">Console</span>' : ''}
+          </div>
+          <div class="subdomain-url">${s.name}.${domain}</div>
+          <div class="subdomain-value" title="${s.value}">${s.status === 'ok' ? '✓ ' : s.status === 'error' ? '✗ ' : ''}${s.value}${s.viaWildcard ? ' (via wildcard)' : ''}</div>
         </div>
         ${s.type ? `<div class="subdomain-type">${s.type}</div>` : ''}
       </div>
