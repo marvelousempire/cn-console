@@ -175,7 +175,7 @@
 /* Library Grid */
 .briefcase-library-section__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
 
@@ -291,6 +291,12 @@
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .briefcase-library-section__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .briefcase-library-modal {
     max-height: 100vh;
