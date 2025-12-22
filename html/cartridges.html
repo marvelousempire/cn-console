@@ -257,12 +257,24 @@
 <script>
   let cartridgeRegistry = [];
 
-  // Initialize
-  (async function initCartridgesPage() {
+  // Initialize - wait for DOM elements to be ready
+  async function initCartridgesPage() {
+    // Check if our elements exist
+    if (!document.getElementById('cartridge-list')) {
+      requestAnimationFrame(initCartridgesPage);
+      return;
+    }
     await loadCartridgeRegistry();
     renderCartridgeList();
     updateStats();
-  })();
+  }
+  
+  // Start initialization
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCartridgesPage);
+  } else {
+    requestAnimationFrame(initCartridgesPage);
+  }
 
   async function loadCartridgeRegistry() {
     try {

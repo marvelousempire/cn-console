@@ -200,11 +200,23 @@
   let networkData = { tld: '', consoles: {} };
   const currentConsole = 'cn-console';
 
-  // Initialize
-  (async function initConsolesPage() {
+  // Initialize - wait for DOM elements to be ready
+  async function initConsolesPage() {
+    // Check if our elements exist
+    if (!document.getElementById('console-grid')) {
+      requestAnimationFrame(initConsolesPage);
+      return;
+    }
     await loadNetworkData();
     renderConsoles();
-  })();
+  }
+  
+  // Start initialization
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initConsolesPage);
+  } else {
+    requestAnimationFrame(initConsolesPage);
+  }
 
   async function loadNetworkData() {
     try {

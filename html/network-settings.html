@@ -970,8 +970,24 @@
     return mb.toFixed(1) + ' MB';
   }
 
-  // Load on page init
-  refreshNetworkStatus();
+  // Load on page init - wait for DOM to be ready
+  function initPage() {
+    // Check if our elements exist
+    if (!document.getElementById('healthyCount')) {
+      // Elements not ready yet, try again
+      requestAnimationFrame(initPage);
+      return;
+    }
+    refreshNetworkStatus();
+  }
+  
+  // Start initialization
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPage);
+  } else {
+    // DOM already ready, but use requestAnimationFrame to ensure elements are rendered
+    requestAnimationFrame(initPage);
+  }
   
   // Auto-refresh every 30 seconds
   setInterval(refreshNetworkStatus, 30000);
