@@ -1,601 +1,421 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cartridges - CN Console</title>
-</head>
-<body>
-  <div class="tab-content">
-    <div class="cn-section">
-      <div class="cn-section__header">
-        <h2 class="cn-section__title">
-          <span class="cn-section__icon">📦</span>
-          Cartridge Management
-        </h2>
-        <p class="cn-section__description">
-          Manage all Console-Cartridges in the Contribution Network ecosystem
-        </p>
+<div class="sunday-container" data-cn-page="cartridges">
+  <div class="sunday-card" style="margin-bottom: 16px;">
+    <div class="sunday-card__header">
+      <div>
+        <div class="sunday-text sunday-text--title">📦 Cartridges</div>
+        <div class="sunday-text sunday-text--muted">Modular capability bundles registered in the Contribution Network</div>
       </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+        <button class="sunday-btn" onclick="refreshCartridges()">🔄 Refresh</button>
+        <button class="sunday-btn sunday-btn--secondary" onclick="scanForNewCartridges()">🔍 Scan</button>
+      </div>
+    </div>
+  </div>
 
-      <div class="cn-section__body">
-        <!-- Cartridge Controls -->
-        <div class="cn-card" style="margin-bottom: 24px;">
-          <div class="cn-card__header">
-            <h3 class="cn-card__title">Quick Actions</h3>
-          </div>
-          <div class="cn-card__body">
-            <div class="cn-button-group">
-              <button class="cn-btn cn-btn--primary" onclick="refreshCartridges()">
-                <span>🔄</span> Refresh Registry
-              </button>
-              <button class="cn-btn cn-btn--secondary" onclick="scanForNewCartridges()">
-                <span>🔍</span> Scan for New
-              </button>
-              <button class="cn-btn cn-btn--info" onclick="showCartridgeStats()">
-                <span>📊</span> View Stats
-              </button>
-            </div>
-          </div>
-        </div>
+  <div class="cn-stats-row" id="cartridge-stats">
+    <div class="cn-stat-card">
+      <div class="cn-stat-value" id="stat-total">-</div>
+      <div class="cn-stat-label">Total Cartridges</div>
+    </div>
+    <div class="cn-stat-card">
+      <div class="cn-stat-value" id="stat-active">-</div>
+      <div class="cn-stat-label">Active</div>
+    </div>
+    <div class="cn-stat-card">
+      <div class="cn-stat-value" id="stat-consoles">-</div>
+      <div class="cn-stat-label">Console Cartridges</div>
+    </div>
+    <div class="cn-stat-card">
+      <div class="cn-stat-value" id="stat-utilities">-</div>
+      <div class="cn-stat-label">Utilities</div>
+    </div>
+  </div>
 
-        <!-- Cartridge List -->
-        <div class="cn-card">
-          <div class="cn-card__header">
-            <h3 class="cn-card__title">Registered Cartridges</h3>
-            <div class="cn-card__actions">
-              <span id="cartridge-count" class="cn-badge cn-badge--info">Loading...</span>
-            </div>
-          </div>
-          <div class="cn-card__body">
-            <div id="cartridge-list" class="cn-cartridge-grid">
-              <div class="cn-loading">
-                <div class="cn-loading__spinner">⏳</div>
-                <div class="cn-loading__text">Loading cartridge registry...</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Cartridge Details Modal -->
-        <div id="cartridge-modal" class="cn-modal" style="display: none;">
-          <div class="cn-modal__overlay" onclick="closeCartridgeModal()"></div>
-          <div class="cn-modal__content">
-            <div class="cn-modal__header">
-              <h3 id="cartridge-modal-title" class="cn-modal__title">Cartridge Details</h3>
-              <button class="cn-modal__close" onclick="closeCartridgeModal()">×</button>
-            </div>
-            <div id="cartridge-modal-body" class="cn-modal__body">
-              <!-- Modal content will be populated dynamically -->
-            </div>
-          </div>
+  <div class="sunday-card">
+    <div class="sunday-card__header">
+      <div class="sunday-text sunday-text--title">Registered Cartridges</div>
+      <span id="cartridge-count" class="cn-badge">Loading...</span>
+    </div>
+    <div class="sunday-card__body">
+      <div id="cartridge-list" class="cn-grid">
+        <div class="cn-loading">
+          <div class="cn-loading__spinner">⏳</div>
+          <div class="cn-loading__text">Loading cartridge registry...</div>
         </div>
       </div>
     </div>
   </div>
 
-  <style>
-    .cn-cartridge-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 16px;
-    }
+  <!-- Cartridge Details Modal -->
+  <div id="cartridge-modal" class="cn-modal" style="display: none;">
+    <div class="cn-modal__overlay" onclick="closeCartridgeModal()"></div>
+    <div class="cn-modal__content">
+      <div class="cn-modal__header">
+        <h3 id="cartridge-modal-title" class="cn-modal__title">Cartridge Details</h3>
+        <button class="cn-modal__close" onclick="closeCartridgeModal()">×</button>
+      </div>
+      <div id="cartridge-modal-body" class="cn-modal__body"></div>
+    </div>
+  </div>
+</div>
 
-    .cn-cartridge-card {
-      background: var(--card, #ffffff);
-      border: 1px solid var(--line, #e5e7eb);
-      border-radius: 12px;
-      padding: 20px;
-      transition: all 0.2s ease;
-    }
+<style>
+  .cn-stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .cn-stat-card {
+    background: var(--card, #fff);
+    border: 1px solid var(--line, #e5e7eb);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .cn-stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--brand, #8b5cf6);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .cn-stat-label {
+    font-size: 13px;
+    color: var(--muted, #6b7280);
+  }
 
-    .cn-cartridge-card:hover {
-      border-color: var(--brand, #8b5cf6);
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.1);
-    }
+  .cn-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
 
-    .cn-cartridge-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
+  .cn-cartridge-card {
+    background: var(--card, #fff);
+    border: 1px solid var(--line, #e5e7eb);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .cn-cartridge-card:hover {
+    border-color: var(--brand, #8b5cf6);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.1);
+  }
 
-    .cn-cartridge-icon {
-      font-size: 24px;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--bg, #f9fafb);
-      border-radius: 8px;
-    }
+  .cn-cartridge-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .cn-cartridge-icon {
+    font-size: 32px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg, #f9fafb);
+    border-radius: 10px;
+  }
+  .cn-cartridge-info h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink, #1f2937);
+  }
+  .cn-cartridge-type {
+    font-size: 12px;
+    color: var(--muted, #6b7280);
+    text-transform: capitalize;
+  }
 
-    .cn-cartridge-info h4 {
-      margin: 0 0 4px 0;
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--ink, #1f2937);
-    }
+  .cn-cartridge-description {
+    font-size: 14px;
+    color: var(--muted, #6b7280);
+    line-height: 1.5;
+    flex: 1;
+  }
 
-    .cn-cartridge-type {
-      font-size: 12px;
-      color: var(--muted, #6b7280);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+  .cn-cartridge-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+  }
+  .cn-cartridge-meta-label {
+    color: var(--muted, #6b7280);
+  }
+  .cn-cartridge-meta-value {
+    font-weight: 600;
+    color: var(--ink, #1f2937);
+  }
+  .cn-cartridge-status--active { color: #10b981; }
+  .cn-cartridge-status--inactive { color: #f59e0b; }
 
-    .cn-cartridge-description {
-      color: var(--muted, #6b7280);
-      font-size: 14px;
-      line-height: 1.5;
-      margin-bottom: 16px;
-    }
+  .cn-cartridge-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .cn-cartridge-actions .sunday-btn {
+    flex: 1;
+    font-size: 12px;
+    padding: 8px 12px;
+  }
 
-    .cn-cartridge-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 16px;
-      font-size: 12px;
-    }
+  .cn-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted, #6b7280);
+  }
+  .cn-empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  .cn-empty-state-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink, #1f2937);
+    margin-bottom: 8px;
+  }
 
-    .cn-cartridge-meta-item {
-      display: flex;
-      justify-content: space-between;
-    }
+  .cn-loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted, #6b7280);
+  }
+  .cn-loading__spinner {
+    font-size: 32px;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
 
-    .cn-cartridge-meta-label {
-      color: var(--muted, #6b7280);
-    }
+  .cn-badge {
+    background: var(--brand, #8b5cf6);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
 
-    .cn-cartridge-meta-value {
-      color: var(--ink, #1f2937);
-      font-weight: 500;
-    }
+  .cn-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  .cn-modal__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+  }
+  .cn-modal__content {
+    position: relative;
+    background: var(--card, #fff);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+  .cn-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid var(--line, #e5e7eb);
+  }
+  .cn-modal__title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .cn-modal__close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--muted, #6b7280);
+  }
+  .cn-modal__body {
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+</style>
 
-    .cn-cartridge-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+<script>
+  let cartridgeRegistry = [];
 
-    .cn-cartridge-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+  // Initialize
+  (async function initCartridgesPage() {
+    await loadCartridgeRegistry();
+    renderCartridgeList();
+    updateStats();
+  })();
 
-    .cn-cartridge-status--active {
-      background: #dcfce7;
-      color: #166534;
-    }
-
-    .cn-cartridge-status--inactive {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .cn-button-group {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .cn-modal {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .cn-modal__overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(2px);
-    }
-
-    .cn-modal__content {
-      position: relative;
-      background: var(--card, #ffffff);
-      border-radius: 12px;
-      width: 90%;
-      max-width: 600px;
-      max-height: 80vh;
-      overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-
-    .cn-modal__header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 20px;
-      border-bottom: 1px solid var(--line, #e5e7eb);
-    }
-
-    .cn-modal__title {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--ink, #1f2937);
-    }
-
-    .cn-modal__close {
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: var(--muted, #6b7280);
-      padding: 4px;
-    }
-
-    .cn-modal__body {
-      padding: 20px;
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .cn-form-group {
-      margin-bottom: 16px;
-    }
-
-    .cn-form-label {
-      display: block;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--ink, #1f2937);
-      margin-bottom: 4px;
-    }
-
-    .cn-form-input {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid var(--line, #e5e7eb);
-      border-radius: 6px;
-      font-size: 14px;
-    }
-
-    .cn-form-input:focus {
-      outline: none;
-      border-color: var(--brand, #8b5cf6);
-      box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
-    }
-
-    @media (max-width: 768px) {
-      .cn-cartridge-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .cn-cartridge-actions {
-        flex-direction: column;
-      }
-
-      .cn-button-group {
-        flex-direction: column;
-      }
-    }
-  </style>
-
-  <script>
-    let cartridgeRegistry = [];
-
-    // Initialize
-    async function initCartridgesPage() {
-      await loadCartridgeRegistry();
-      renderCartridgeList();
-    }
-
-    // Load cartridge registry from CN
-    async function loadCartridgeRegistry() {
-      try {
-        const response = await fetch('/api/cn/contributions');
-        if (response.ok) {
-          cartridgeRegistry = await response.json();
-        } else {
-          console.warn('Failed to load CN registry, trying local fallback');
-          // Fallback to local registry
-          const localResponse = await fetch('/ContributionNetwork/registry/cn-registry.json');
-          if (localResponse.ok) {
-            const data = await localResponse.json();
-            cartridgeRegistry = data.contributions || [];
-          }
-        }
-      } catch (error) {
-        console.error('Error loading cartridge registry:', error);
-        cartridgeRegistry = [];
-      }
-    }
-
-    // Render cartridge list
-    function renderCartridgeList() {
-      const container = document.getElementById('cartridge-list');
-      const countEl = document.getElementById('cartridge-count');
-
-      if (!container) return;
-
-      // Update count
-      countEl.textContent = `${cartridgeRegistry.length} cartridges`;
-
-      if (cartridgeRegistry.length === 0) {
-        container.innerHTML = `
-          <div class="cn-empty-state">
-            <div style="font-size: 48px; margin-bottom: 16px;">📦</div>
-            <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">No cartridges found</div>
-            <div style="color: var(--muted);">Cartridges will appear here once registered in the CN.</div>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = cartridgeRegistry.map(cartridge => `
-        <div class="cn-cartridge-card">
-          <div class="cn-cartridge-header">
-            <div class="cn-cartridge-icon">${getCartridgeIcon(cartridge.type)}</div>
-            <div class="cn-cartridge-info">
-              <h4>${cartridge.name}</h4>
-              <div class="cn-cartridge-type">${cartridge.type}</div>
-            </div>
-          </div>
-
-          <div class="cn-cartridge-description">
-            ${cartridge.description || cartridge.tagline || 'No description available'}
-          </div>
-
-          <div class="cn-cartridge-meta">
-            <div class="cn-cartridge-meta-item">
-              <span class="cn-cartridge-meta-label">Status</span>
-              <span class="cn-cartridge-status cn-cartridge-status--${cartridge.active !== false ? 'active' : 'inactive'}">
-                ${cartridge.active !== false ? '🟢 Active' : '🟡 Inactive'}
-              </span>
-            </div>
-            <div class="cn-cartridge-meta-item">
-              <span class="cn-cartridge-meta-label">Subdomain</span>
-              <span class="cn-cartridge-meta-value">${getCartridgeSubdomain(cartridge)}</span>
-            </div>
-          </div>
-
-          <div class="cn-cartridge-actions">
-            <button class="cn-btn cn-btn--small cn-btn--primary" onclick="openCartridge('${cartridge.id}')">
-              🚀 Open
-            </button>
-            <button class="cn-btn cn-btn--small cn-btn--secondary" onclick="configureCartridge('${cartridge.id}')">
-              ⚙️ Configure
-            </button>
-            <button class="cn-btn cn-btn--small cn-btn--info" onclick="viewCartridgeDetails('${cartridge.id}')">
-              📋 Details
-            </button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // Get cartridge icon based on type
-    function getCartridgeIcon(type) {
-      const icons = {
-        'console-cartridge': '📦',
-        'console': '🖥️',
-        'cartridge': '🔧',
-        'framework': '🏗️',
-        'utility': '🛠️'
-      };
-      return icons[type] || '📦';
-    }
-
-    // Get cartridge subdomain
-    function getCartridgeSubdomain(cartridge) {
-      if (cartridge.hosts && cartridge.hosts.length > 0) {
-        return cartridge.hosts[0].replace('.thebriefcase.app', '');
-      }
-      if (cartridge.consoleId) {
-        return cartridge.consoleId;
-      }
-      return cartridge.id || 'unknown';
-    }
-
-    // Actions
-    function openCartridge(cartridgeId) {
-      const cartridge = cartridgeRegistry.find(c => c.id === cartridgeId);
-      if (!cartridge) return;
-
-      const subdomain = getCartridgeSubdomain(cartridge);
-      const url = `https://${subdomain}.thebriefcase.app`;
-      window.open(url, '_blank');
-    }
-
-    function configureCartridge(cartridgeId) {
-      const cartridge = cartridgeRegistry.find(c => c.id === cartridgeId);
-      if (!cartridge) return;
-
-      showCartridgeModal(cartridge, 'configure');
-    }
-
-    function viewCartridgeDetails(cartridgeId) {
-      const cartridge = cartridgeRegistry.find(c => c.id === cartridgeId);
-      if (!cartridge) return;
-
-      showCartridgeModal(cartridge, 'details');
-    }
-
-    // Modal functions
-    function showCartridgeModal(cartridge, mode = 'details') {
-      const modal = document.getElementById('cartridge-modal');
-      const title = document.getElementById('cartridge-modal-title');
-      const body = document.getElementById('cartridge-modal-body');
-
-      if (!modal || !title || !body) return;
-
-      title.textContent = mode === 'configure' ? `Configure ${cartridge.name}` : `${cartridge.name} Details`;
-
-      if (mode === 'configure') {
-        body.innerHTML = renderConfigureForm(cartridge);
+  async function loadCartridgeRegistry() {
+    try {
+      const response = await fetch('/api/cn/contributions');
+      if (response.ok) {
+        const data = await response.json();
+        // Handle both direct array and { contributions: [] } format
+        cartridgeRegistry = Array.isArray(data) ? data : (data.contributions || []);
       } else {
-        body.innerHTML = renderDetailsView(cartridge);
+        console.warn('Failed to load CN contributions, using fallback');
+        cartridgeRegistry = getFallbackCartridges();
       }
-
-      modal.style.display = 'flex';
+    } catch (error) {
+      console.error('Error loading cartridge registry:', error);
+      cartridgeRegistry = getFallbackCartridges();
     }
+  }
 
-    function closeCartridgeModal() {
-      const modal = document.getElementById('cartridge-modal');
-      if (modal) modal.style.display = 'none';
-    }
+  function getFallbackCartridges() {
+    // Fallback list of known cartridges
+    return [
+      { id: 'ai-console', name: 'AI Console', type: 'console', description: 'AI features, Ollama, and model management', active: true, icon: '🤖' },
+      { id: 'quick-actions', name: 'Quick Actions', type: 'cartridge', description: 'FAB-based action menu', active: true, icon: '⚡' },
+      { id: 'site-manager', name: 'Site Manager', type: 'cartridge', description: 'WordPress site management tools', active: true, icon: '🌐' },
+      { id: 'console-template', name: 'Console Template Wizard', type: 'cartridge', description: 'Create new console templates', active: true, icon: '📋' },
+      { id: 'clone-wizard', name: 'Clone Wizard', type: 'cartridge', description: 'Site cloning utility', active: true, icon: '📁' },
+      { id: 'dns-manager', name: 'DNS Manager', type: 'cartridge', description: 'Domain and DNS management', active: true, icon: '🔗' },
+    ];
+  }
 
-    function renderConfigureForm(cartridge) {
-      const subdomain = getCartridgeSubdomain(cartridge);
+  function updateStats() {
+    const total = cartridgeRegistry.length;
+    const active = cartridgeRegistry.filter(c => c.active !== false).length;
+    const consoles = cartridgeRegistry.filter(c => c.type === 'console' || c.type === 'console-cartridge').length;
+    const utilities = cartridgeRegistry.filter(c => c.type === 'cartridge' || c.type === 'utility').length;
 
-      return `
-        <form id="cartridge-config-form" onsubmit="saveCartridgeConfig(event, '${cartridge.id}')">
-          <div class="cn-form-group">
-            <label class="cn-form-label" for="cartridge-name">Name</label>
-            <input type="text" id="cartridge-name" class="cn-form-input" value="${cartridge.name}" required>
-          </div>
+    document.getElementById('stat-total').textContent = total;
+    document.getElementById('stat-active').textContent = active;
+    document.getElementById('stat-consoles').textContent = consoles;
+    document.getElementById('stat-utilities').textContent = utilities;
+  }
 
-          <div class="cn-form-group">
-            <label class="cn-form-label" for="cartridge-subdomain">Subdomain</label>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <input type="text" id="cartridge-subdomain" class="cn-form-input" value="${subdomain}" required>
-              <span style="color: var(--muted);">.thebriefcase.app</span>
-            </div>
-          </div>
+  function renderCartridgeList() {
+    const container = document.getElementById('cartridge-list');
+    const countEl = document.getElementById('cartridge-count');
 
-          <div class="cn-form-group">
-            <label class="cn-form-label" for="cartridge-description">Description</label>
-            <textarea id="cartridge-description" class="cn-form-input" rows="3">${cartridge.description || ''}</textarea>
-          </div>
+    if (!container) return;
 
-          <div class="cn-form-group">
-            <label style="display: flex; align-items: center; gap: 8px;">
-              <input type="checkbox" id="cartridge-active" ${cartridge.active !== false ? 'checked' : ''}>
-              <span>Active</span>
-            </label>
-          </div>
+    countEl.textContent = `${cartridgeRegistry.length} registered`;
 
-          <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
-            <button type="button" class="cn-btn cn-btn--secondary" onclick="closeCartridgeModal()">Cancel</button>
-            <button type="submit" class="cn-btn cn-btn--primary">Save Changes</button>
-          </div>
-        </form>
-      `;
-    }
-
-    function renderDetailsView(cartridge) {
-      const subdomain = getCartridgeSubdomain(cartridge);
-
-      return `
-        <div class="cartridge-details">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
-            <div>
-              <strong>Type:</strong> ${cartridge.type}
-            </div>
-            <div>
-              <strong>Status:</strong> ${cartridge.active !== false ? 'Active' : 'Inactive'}
-            </div>
-            <div>
-              <strong>ID:</strong> ${cartridge.id}
-            </div>
-            <div>
-              <strong>Subdomain:</strong> ${subdomain}.thebriefcase.app
-            </div>
-          </div>
-
-          <div style="margin-bottom: 16px;">
-            <strong>Description:</strong>
-            <p style="margin-top: 4px; color: var(--muted);">${cartridge.description || 'No description available'}</p>
-          </div>
-
-          ${cartridge.tags ? `
-            <div style="margin-bottom: 16px;">
-              <strong>Tags:</strong>
-              <div style="margin-top: 4px;">
-                ${cartridge.tags.map(tag => `<span class="cn-badge cn-badge--info" style="margin-right: 4px;">${tag}</span>`).join('')}
-              </div>
-            </div>
-          ` : ''}
-
-          <div style="display: flex; gap: 12px; justify-content: flex-end;">
-            <button class="cn-btn cn-btn--secondary" onclick="closeCartridgeModal()">Close</button>
-            <button class="cn-btn cn-btn--primary" onclick="configureCartridge('${cartridge.id}')">Configure</button>
-          </div>
+    if (cartridgeRegistry.length === 0) {
+      container.innerHTML = `
+        <div class="cn-empty-state" style="grid-column: 1 / -1;">
+          <div class="cn-empty-state-icon">📦</div>
+          <div class="cn-empty-state-title">No cartridges found</div>
+          <div>Cartridges will appear here once registered in the Contribution Network.</div>
         </div>
       `;
+      return;
     }
 
-    // Save configuration
-    async function saveCartridgeConfig(event, cartridgeId) {
-      event.preventDefault();
+    container.innerHTML = cartridgeRegistry.map(cartridge => `
+      <div class="cn-cartridge-card">
+        <div class="cn-cartridge-header">
+          <div class="cn-cartridge-icon">${cartridge.icon || getCartridgeIcon(cartridge.type)}</div>
+          <div class="cn-cartridge-info">
+            <h4>${cartridge.name}</h4>
+            <div class="cn-cartridge-type">${cartridge.type}</div>
+          </div>
+        </div>
+        <div class="cn-cartridge-description">
+          ${cartridge.description || cartridge.tagline || 'No description available'}
+        </div>
+        <div class="cn-cartridge-meta">
+          <div>
+            <span class="cn-cartridge-meta-label">Status: </span>
+            <span class="cn-cartridge-status cn-cartridge-status--${cartridge.active !== false ? 'active' : 'inactive'}">
+              ${cartridge.active !== false ? '🟢 Active' : '🟡 Inactive'}
+            </span>
+          </div>
+        </div>
+        <div class="cn-cartridge-actions">
+          <button class="sunday-btn" onclick="openCartridge('${cartridge.id}')">🚀 Open</button>
+          <button class="sunday-btn sunday-btn--secondary" onclick="viewCartridgeDetails('${cartridge.id}')">📋 Details</button>
+        </div>
+      </div>
+    `).join('');
+  }
 
-      const form = event.target;
-      const name = form.querySelector('#cartridge-name').value;
-      const subdomain = form.querySelector('#cartridge-subdomain').value;
-      const description = form.querySelector('#cartridge-description').value;
-      const active = form.querySelector('#cartridge-active').checked;
+  function getCartridgeIcon(type) {
+    const icons = {
+      'console-cartridge': '📦',
+      'console': '🖥️',
+      'cartridge': '🔧',
+      'framework': '🏗️',
+      'utility': '🛠️'
+    };
+    return icons[type] || '📦';
+  }
 
-      // In a real implementation, this would save to the registry
-      // For now, just show a success message
-      alert(`Configuration saved for ${name}!\n\nSubdomain: ${subdomain}.thebriefcase.app\nStatus: ${active ? 'Active' : 'Inactive'}`);
-
-      closeCartridgeModal();
-      await refreshCartridges();
-    }
-
-    // Utility functions
-    async function refreshCartridges() {
-      await loadCartridgeRegistry();
+  function refreshCartridges() {
+    const container = document.getElementById('cartridge-list');
+    container.innerHTML = `
+      <div class="cn-loading" style="grid-column: 1 / -1;">
+        <div class="cn-loading__spinner">⏳</div>
+        <div class="cn-loading__text">Refreshing cartridge registry...</div>
+      </div>
+    `;
+    loadCartridgeRegistry().then(() => {
       renderCartridgeList();
-    }
+      updateStats();
+    });
+  }
 
-    function scanForNewCartridges() {
-      alert('Scanning for new cartridges...\n\nThis would check for new cartridges in the ecosystem and automatically register them.');
-    }
+  function scanForNewCartridges() {
+    alert('🔍 Scanning for new cartridges in the workspace...\n\nThis feature will scan local directories for unregistered cartridges.');
+  }
 
-    function showCartridgeStats() {
-      const total = cartridgeRegistry.length;
-      const active = cartridgeRegistry.filter(c => c.active !== false).length;
-      const inactive = total - active;
-      const types = {};
-      cartridgeRegistry.forEach(c => {
-        types[c.type] = (types[c.type] || 0) + 1;
-      });
+  function openCartridge(cartridgeId) {
+    const cartridge = cartridgeRegistry.find(c => c.id === cartridgeId);
+    if (!cartridge) return;
 
-      let stats = `Cartridge Statistics:\n\n`;
-      stats += `Total: ${total}\n`;
-      stats += `Active: ${active}\n`;
-      stats += `Inactive: ${inactive}\n\n`;
-      stats += `By Type:\n`;
-      Object.entries(types).forEach(([type, count]) => {
-        stats += `${type}: ${count}\n`;
-      });
-
-      alert(stats);
-    }
-
-    // Initialize when page loads
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initCartridgesPage);
+    if (cartridge.type === 'console') {
+      window.location.hash = `#${cartridgeId}`;
     } else {
-      initCartridgesPage();
+      window.location.hash = `#cartridge/${cartridgeId}`;
     }
+  }
 
-    // Export functions for global access
-    window.refreshCartridges = refreshCartridges;
-    window.scanForNewCartridges = scanForNewCartridges;
-    window.showCartridgeStats = showCartridgeStats;
-    window.openCartridge = openCartridge;
-    window.configureCartridge = configureCartridge;
-    window.viewCartridgeDetails = viewCartridgeDetails;
-    window.closeCartridgeModal = closeCartridgeModal;
-    window.saveCartridgeConfig = saveCartridgeConfig;
-  </script>
-</body>
-</html>
+  function viewCartridgeDetails(cartridgeId) {
+    const cartridge = cartridgeRegistry.find(c => c.id === cartridgeId);
+    if (!cartridge) return;
+
+    const modal = document.getElementById('cartridge-modal');
+    const title = document.getElementById('cartridge-modal-title');
+    const body = document.getElementById('cartridge-modal-body');
+
+    title.textContent = cartridge.name;
+    body.innerHTML = `
+      <div style="display: grid; gap: 16px;">
+        <div><strong>ID:</strong> ${cartridge.id}</div>
+        <div><strong>Type:</strong> ${cartridge.type}</div>
+        <div><strong>Status:</strong> ${cartridge.active !== false ? '🟢 Active' : '🟡 Inactive'}</div>
+        <div><strong>Description:</strong> ${cartridge.description || 'No description'}</div>
+        ${cartridge.version ? `<div><strong>Version:</strong> ${cartridge.version}</div>` : ''}
+        ${cartridge.author ? `<div><strong>Author:</strong> ${cartridge.author}</div>` : ''}
+      </div>
+    `;
+
+    modal.style.display = 'flex';
+  }
+
+  function closeCartridgeModal() {
+    document.getElementById('cartridge-modal').style.display = 'none';
+  }
+</script>

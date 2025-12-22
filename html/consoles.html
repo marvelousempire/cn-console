@@ -1,0 +1,451 @@
+<div class="sunday-container" data-cn-page="consoles">
+  <div class="sunday-card" style="margin-bottom: 16px;">
+    <div class="sunday-card__header">
+      <div>
+        <div class="sunday-text sunday-text--title">🖥️ Consoles</div>
+        <div class="sunday-text sunday-text--muted">All dashboard surfaces in the Contribution Network</div>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+        <button class="sunday-btn" onclick="refreshConsoles()">🔄 Refresh</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TLD Indicator -->
+  <div class="cn-tld-banner" id="tld-banner">
+    <div class="cn-tld-label">🌐 Root Domain (TLD)</div>
+    <div class="cn-tld-value" id="tld-console-name">Loading...</div>
+    <button class="sunday-btn sunday-btn--small" onclick="changeTLD()">Change</button>
+  </div>
+
+  <!-- Console Grid -->
+  <div id="console-grid" class="cn-console-grid">
+    <div class="cn-loading">
+      <div class="cn-loading__spinner">⏳</div>
+      <div class="cn-loading__text">Loading consoles...</div>
+    </div>
+  </div>
+
+  <!-- TLD Change Modal -->
+  <div id="tld-modal" class="cn-modal" style="display: none;">
+    <div class="cn-modal__overlay" onclick="closeTLDModal()"></div>
+    <div class="cn-modal__content">
+      <div class="cn-modal__header">
+        <h3 class="cn-modal__title">Change Root Domain Console</h3>
+        <button class="cn-modal__close" onclick="closeTLDModal()">×</button>
+      </div>
+      <div class="cn-modal__body">
+        <p style="margin-bottom: 16px; color: var(--muted);">
+          Select which console should be served at the root domain.
+        </p>
+        <div id="tld-options" class="cn-tld-options"></div>
+        <div style="margin-top: 20px; text-align: right;">
+          <button class="sunday-btn sunday-btn--secondary" onclick="closeTLDModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cn-tld-banner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+  .cn-tld-label {
+    font-size: 14px;
+    opacity: 0.9;
+  }
+  .cn-tld-value {
+    font-size: 18px;
+    font-weight: 700;
+    flex: 1;
+  }
+  .cn-tld-banner .sunday-btn--small {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  .cn-tld-banner .sunday-btn--small:hover {
+    background: rgba(255,255,255,0.3);
+  }
+
+  .cn-console-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+  }
+
+  .cn-console-card {
+    background: var(--card, #fff);
+    border: 1px solid var(--line, #e5e7eb);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  .cn-console-card:hover {
+    border-color: var(--brand, #8b5cf6);
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.1);
+    transform: translateY(-2px);
+  }
+  .cn-console-card.is-tld {
+    border-color: #8b5cf6;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(99, 102, 241, 0.05) 100%);
+  }
+  .cn-console-card.is-tld::after {
+    content: 'ROOT';
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+  .cn-console-card.is-current::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 10px;
+    height: 10px;
+    background: #10b981;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .cn-console-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .cn-console-icon {
+    font-size: 40px;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg, #f9fafb);
+    border-radius: 14px;
+  }
+  .cn-console-info h4 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink, #1f2937);
+  }
+  .cn-console-path {
+    font-size: 13px;
+    color: var(--muted, #6b7280);
+    font-family: monospace;
+  }
+
+  .cn-console-description {
+    font-size: 14px;
+    color: var(--muted, #6b7280);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .cn-console-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .cn-console-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+  }
+  .cn-console-status-dot.offline { background: #ef4444; }
+  .cn-console-status-dot.unknown { background: #f59e0b; }
+
+  .cn-console-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .cn-console-actions .sunday-btn {
+    flex: 1;
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+
+  .cn-loading {
+    text-align: center;
+    padding: 60px;
+    color: var(--muted, #6b7280);
+    grid-column: 1 / -1;
+  }
+  .cn-loading__spinner {
+    font-size: 32px;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .cn-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  .cn-modal__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+  }
+  .cn-modal__content {
+    position: relative;
+    background: var(--card, #fff);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+  .cn-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid var(--line, #e5e7eb);
+  }
+  .cn-modal__title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .cn-modal__close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--muted, #6b7280);
+  }
+  .cn-modal__body {
+    padding: 20px;
+  }
+
+  .cn-tld-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .cn-tld-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1px solid var(--line, #e5e7eb);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .cn-tld-option:hover {
+    border-color: var(--brand, #8b5cf6);
+    background: rgba(139, 92, 246, 0.05);
+  }
+  .cn-tld-option.selected {
+    border-color: var(--brand, #8b5cf6);
+    background: rgba(139, 92, 246, 0.1);
+  }
+  .cn-tld-option-icon { font-size: 24px; }
+  .cn-tld-option-name { font-weight: 600; }
+  .cn-tld-option-path { font-size: 12px; color: var(--muted); font-family: monospace; }
+</style>
+
+<script>
+  let networkData = { tld: '', consoles: {} };
+  const currentConsole = 'cn-console';
+
+  // Initialize
+  (async function initConsolesPage() {
+    await loadNetworkData();
+    renderConsoles();
+  })();
+
+  async function loadNetworkData() {
+    try {
+      const response = await fetch('/api/network/tld');
+      if (response.ok) {
+        networkData = await response.json();
+      } else {
+        console.warn('Failed to load network data, using fallback');
+        networkData = getFallbackNetworkData();
+      }
+    } catch (error) {
+      console.error('Error loading network data:', error);
+      networkData = getFallbackNetworkData();
+    }
+  }
+
+  function getFallbackNetworkData() {
+    return {
+      tld: 'cn-console',
+      available: ['cn-console', 'quick-server', 'ai-console', 'hive-console', 'sunday-console', 'learnmappers-console', 'marketplace-console'],
+      consoles: {
+        'cn-console': { path: '/cn-console', name: 'CN Console', icon: '🧩', description: 'Contribution Network hub' },
+        'quick-server': { path: '/quick-server', name: 'Quick Server', icon: '⚡', description: 'Server administration' },
+        'ai-console': { path: '/ai-console', name: 'AI Console', icon: '🤖', description: 'AI features & models' },
+        'hive-console': { path: '/hive-console', name: 'Hive Console', icon: '🐝', description: 'God mode admin' },
+        'sunday-console': { path: '/sunday-console', name: 'Sunday Console', icon: '🌞', description: 'Framework admin' },
+        'learnmappers-console': { path: '/learnmappers-console', name: 'LearnMappers', icon: '🗺️', description: 'Learning platform' },
+        'marketplace-console': { path: '/marketplace-console', name: 'Marketplace', icon: '🛒', description: 'Commerce hub' }
+      }
+    };
+  }
+
+  function renderConsoles() {
+    const grid = document.getElementById('console-grid');
+    const tldName = document.getElementById('tld-console-name');
+    const consoles = networkData.consoles || {};
+
+    // Update TLD banner
+    const tldConsole = consoles[networkData.tld] || { name: networkData.tld };
+    tldName.textContent = `${tldConsole.icon || '🖥️'} ${tldConsole.name}`;
+
+    // Render console cards
+    const consoleIds = Object.keys(consoles);
+    if (consoleIds.length === 0) {
+      grid.innerHTML = `
+        <div class="cn-loading">
+          <div style="font-size: 48px; margin-bottom: 16px;">🖥️</div>
+          <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">No consoles configured</div>
+          <div>Add consoles in the Network Settings.</div>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = consoleIds.map(id => {
+      const console = consoles[id];
+      const isTLD = id === networkData.tld;
+      const isCurrent = id === currentConsole;
+
+      return `
+        <div class="cn-console-card ${isTLD ? 'is-tld' : ''} ${isCurrent ? 'is-current' : ''}">
+          <div class="cn-console-header">
+            <div class="cn-console-icon">${console.icon || '🖥️'}</div>
+            <div class="cn-console-info">
+              <h4>${console.name}</h4>
+              <div class="cn-console-path">${console.path}</div>
+            </div>
+          </div>
+          <div class="cn-console-description">
+            ${console.description || 'No description available'}
+          </div>
+          <div class="cn-console-status">
+            <div class="cn-console-status-dot"></div>
+            <span>Online</span>
+          </div>
+          <div class="cn-console-actions">
+            <button class="sunday-btn" onclick="openConsole('${id}')">🚀 Open</button>
+            ${!isTLD ? `<button class="sunday-btn sunday-btn--secondary" onclick="setAsTLD('${id}')">🌐 Set as Root</button>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function refreshConsoles() {
+    const grid = document.getElementById('console-grid');
+    grid.innerHTML = `
+      <div class="cn-loading">
+        <div class="cn-loading__spinner">⏳</div>
+        <div class="cn-loading__text">Refreshing consoles...</div>
+      </div>
+    `;
+    loadNetworkData().then(() => renderConsoles());
+  }
+
+  function openConsole(consoleId) {
+    const console = networkData.consoles[consoleId];
+    if (!console) return;
+
+    // If it's the TLD, go to root
+    if (consoleId === networkData.tld) {
+      window.open('/', '_blank');
+    } else {
+      window.open(console.path, '_blank');
+    }
+  }
+
+  async function setAsTLD(consoleId) {
+    if (!confirm(`Set ${networkData.consoles[consoleId]?.name || consoleId} as the root domain console?`)) return;
+
+    try {
+      const response = await fetch('/api/network/tld', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ console: consoleId })
+      });
+
+      if (response.ok) {
+        networkData.tld = consoleId;
+        renderConsoles();
+        alert('✅ Root domain updated! The change will take effect on next request.');
+      } else {
+        const data = await response.json();
+        alert('❌ Failed: ' + (data.error || 'Unknown error'));
+      }
+    } catch (error) {
+      alert('❌ Error: ' + error.message);
+    }
+  }
+
+  function changeTLD() {
+    const modal = document.getElementById('tld-modal');
+    const options = document.getElementById('tld-options');
+    const consoles = networkData.consoles || {};
+    const available = networkData.available || Object.keys(consoles);
+
+    options.innerHTML = available.map(id => {
+      const console = consoles[id] || { name: id, icon: '🖥️', path: `/${id}` };
+      const isSelected = id === networkData.tld;
+
+      return `
+        <div class="cn-tld-option ${isSelected ? 'selected' : ''}" onclick="selectTLD('${id}')">
+          <div class="cn-tld-option-icon">${console.icon}</div>
+          <div>
+            <div class="cn-tld-option-name">${console.name}</div>
+            <div class="cn-tld-option-path">${console.path}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    modal.style.display = 'flex';
+  }
+
+  function closeTLDModal() {
+    document.getElementById('tld-modal').style.display = 'none';
+  }
+
+  function selectTLD(consoleId) {
+    closeTLDModal();
+    setAsTLD(consoleId);
+  }
+</script>
+
