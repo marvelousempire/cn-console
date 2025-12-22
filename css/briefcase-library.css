@@ -446,3 +446,149 @@
   }
 }
 
+/* ==========================================================================
+   CN Protocols Page - Sticky Sidebar Layout
+   ========================================================================== */
+
+.cn-protocols-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  min-height: 600px;
+}
+
+.cn-protocols-sidebar {
+  position: sticky;
+  top: 20px;
+  width: 280px;
+  flex-shrink: 0;
+}
+
+.cn-toc-container {
+  background: var(--bg, rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cn-toc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid var(--line, rgba(255, 255, 255, 0.1));
+  background: var(--card, rgba(255, 255, 255, 0.03));
+}
+
+.cn-toc-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink, #ffffff);
+}
+
+.cn-toc-count {
+  font-size: 12px;
+  color: var(--muted, rgba(255, 255, 255, 0.6));
+  background: var(--brand, #3b82f6);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.cn-toc-nav {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.cn-toc-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cn-toc-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cn-toc-nav::-webkit-scrollbar-thumb {
+  background: var(--muted, rgba(255, 255, 255, 0.3));
+  border-radius: 3px;
+}
+
+.cn-toc-nav::-webkit-scrollbar-thumb:hover {
+  background: var(--brand, #3b82f6);
+}
+
+.cn-toc-item {
+  display: block;
+  padding: 8px 16px;
+  color: var(--ink, #ffffff);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.cn-toc-item:hover {
+  background: var(--hover, rgba(255, 255, 255, 0.05));
+  color: var(--brand, #3b82f6);
+  border-left-color: var(--brand, #3b82f6);
+  text-decoration: none;
+}
+
+.cn-toc-item.active {
+  background: var(--active, rgba(59, 130, 246, 0.1));
+  color: var(--brand, #3b82f6);
+  border-left-color: var(--brand, #3b82f6);
+  font-weight: 600;
+}
+
+.cn-toc-item.lvl-1 {
+  font-weight: 600;
+  padding-left: 16px;
+}
+
+.cn-toc-item.lvl-2 {
+  padding-left: 32px;
+  font-size: 12px;
+}
+
+.cn-toc-item.lvl-3 {
+  padding-left: 48px;
+  font-size: 12px;
+  color: var(--muted, rgba(255, 255, 255, 0.7));
+}
+
+.cn-protocols-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Responsive: hide sidebar on small screens */
+@media (max-width: 1024px) {
+  .cn-protocols-layout {
+    flex-direction: column;
+  }
+
+  .cn-protocols-sidebar {
+    position: static;
+    width: 100%;
+    order: -1;
+  }
+
+  .cn-toc-container {
+    max-height: 300px;
+  }
+
+  .cn-toc-nav {
+    max-height: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .cn-protocols-sidebar {
+    display: none;
+  }
+}
+

@@ -5,7 +5,7 @@
 
 This document tracks issues encountered in the CN Console and their resolutions for future reference.
 
-> **See Also:** Quick Server maintains its own issue log at `quick-server/docs/ISSUE-LOG.md` for server-side issues.
+> **See Also:** Quick Server maintains its own issue log at `quick-server/docs/ISSUE-LOG-QUICK-SERVER-CONFIRMED-FIXES.md` for server-side issues.
 
 ---
 

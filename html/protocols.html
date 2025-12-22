@@ -16,7 +16,26 @@
         <button id="cnClear" class="sunday-btn">Clear</button>
       </div>
 
-      <div id="cnReadme" class="sunday-markdown">Loading…</div>
+      <!-- Split layout: sidebar + content -->
+      <div class="cn-protocols-layout">
+        <!-- Sticky Table of Contents Sidebar -->
+        <div class="cn-protocols-sidebar">
+          <div class="cn-toc-container">
+            <div class="cn-toc-header">
+              <span class="cn-toc-title">📋 Contents</span>
+              <span class="cn-toc-count" id="cnTocCount">0</span>
+            </div>
+            <nav class="cn-toc-nav" id="cnTocNav">
+              <!-- TOC will be generated here -->
+            </nav>
+          </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="cn-protocols-content">
+          <div id="cnReadme" class="sunday-markdown">Loading…</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

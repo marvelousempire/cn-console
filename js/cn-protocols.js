@@ -9,6 +9,8 @@ export async function initCNProtocols(root = document) {
   page.dataset.cnBound = '1';
 
   const readmeEl = page.querySelector('#cnReadme');
+  const tocNav = page.querySelector('#cnTocNav');
+  const tocCount = page.querySelector('#cnTocCount');
   const pickEl = page.querySelector('#cnSection');
   const searchEl = page.querySelector('#cnSectionSearch');
   const clearBtn = page.querySelector('#cnClear');
@@ -70,12 +72,100 @@ export async function initCNProtocols(root = document) {
     } catch {}
   }
 
+  function generateTocHtml() {
+    if (!tocNav || !headings.length) return;
+
+    const tocItems = headings.map((heading, index) => {
+      const indent = heading.level - 1;
+      const icon = heading.level === 1 ? '📖' :
+                   heading.level === 2 ? '📄' :
+                   heading.level === 3 ? '📝' : '•';
+      const classes = `cn-toc-item lvl-${heading.level}`;
+
+      return `<a href="#" class="${classes}" data-heading="${heading.text}" data-index="${index}" style="padding-left: ${16 + indent * 16}px;">
+        <span style="margin-right: 8px;">${icon}</span>
+        <span>${heading.text}</span>
+      </a>`;
+    }).join('');
+
+    tocNav.innerHTML = tocItems;
+
+    // Update count
+    if (tocCount) {
+      tocCount.textContent = headings.length;
+    }
+
+    // Add click handlers
+    tocNav.querySelectorAll('.cn-toc-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const headingText = item.dataset.heading;
+        if (headingText && pickEl) {
+          pickEl.value = headingText;
+          render();
+          // Scroll to the selected section
+          setTimeout(() => {
+            const headingElement = readmeEl.querySelector(`[data-md-anchor="${headingText.toLowerCase().replace(/[^a-z0-9]+/g, '-')}"]`);
+            if (headingElement) {
+              headingElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 100);
+        }
+      });
+    });
+  }
+
+  function updateActiveTocItem() {
+    if (!tocNav) return;
+
+    const headingsInContent = Array.from(readmeEl.querySelectorAll('h1, h2, h3'));
+    const scrollPosition = window.scrollY + 100; // Offset for header
+
+    let activeIndex = -1;
+    for (let i = 0; i < headingsInContent.length; i++) {
+      const heading = headingsInContent[i];
+      const rect = heading.getBoundingClientRect();
+      const elementTop = window.scrollY + rect.top;
+
+      if (elementTop <= scrollPosition) {
+        activeIndex = i;
+      } else {
+        break;
+      }
+    }
+
+    // Remove active class from all items
+    tocNav.querySelectorAll('.cn-toc-item').forEach(item => {
+      item.classList.remove('active');
+    });
+
+    // Add active class to current item
+    if (activeIndex >= 0) {
+      const activeItem = tocNav.querySelector(`.cn-toc-item[data-index="${activeIndex}"]`);
+      if (activeItem) {
+        activeItem.classList.add('active');
+        // Scroll TOC to keep active item visible
+        activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }
+
   async function render() {
     const section = (pickEl?.value || '').trim();
     setSectionInUrl(section);
 
     const { mountMarkdown } = await import('/core/markdown.js');
-    mountMarkdown(readmeEl, md, { toc: true, tocMaxDepth: 3, layout: 'split', sectionHeading: section || undefined });
+    await mountMarkdown(readmeEl, md, { toc: false, tocMaxDepth: 3, layout: 'single', sectionHeading: section || undefined });
+
+    // Generate our custom TOC after content is rendered
+    generateTocHtml();
+
+    // Set up scroll listener for active TOC highlighting
+    const handleScroll = () => updateActiveTocItem();
+    window.addEventListener('scroll', handleScroll);
+
+    // Initial active state update
+    setTimeout(updateActiveTocItem, 200);
   }
 
   async function init() {
