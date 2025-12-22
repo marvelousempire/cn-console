@@ -1,11 +1,38 @@
-<div style="padding:20px;max-width:900px;margin:0 auto">
+<div style="padding:20px;max-width:1400px;margin:0 auto">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
     <span style="font-size:32px">🌐</span>
     <div>
-      <h2 style="margin:0">Network Master Settings</h2>
+      <h2 style="margin:0">Network Command Center</h2>
       <p style="margin:4px 0 0;color:var(--muted);font-size:13px">
-        Configure network-wide settings that apply to all consoles
+        Monitor and manage all consoles, services, and connections across the network
       </p>
+    </div>
+    <button class="sunday-btn secondary sm" style="margin-left:auto" onclick="refreshNetworkStatus()">
+      🔄 Refresh
+    </button>
+  </div>
+
+  <!-- Health Overview -->
+  <div class="sunday-card" style="margin-bottom:20px;background:linear-gradient(135deg, var(--card) 0%, color-mix(in srgb, var(--brand) 5%, var(--card)) 100%)">
+    <div class="sunday-card__body" style="padding:20px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:20px;text-align:center">
+        <div>
+          <div style="font-size:36px;font-weight:800" id="healthyCount">--</div>
+          <div style="font-size:11px;color:var(--muted)">Healthy Services</div>
+        </div>
+        <div>
+          <div style="font-size:36px;font-weight:800;color:var(--brand)" id="totalConsoles">--</div>
+          <div style="font-size:11px;color:var(--muted)">Total Consoles</div>
+        </div>
+        <div>
+          <div style="font-size:36px;font-weight:800;color:var(--success)" id="pm2Running">--</div>
+          <div style="font-size:11px;color:var(--muted)">PM2 Processes</div>
+        </div>
+        <div>
+          <div style="font-size:36px;font-weight:800;color:var(--accent)" id="activePorts">--</div>
+          <div style="font-size:11px;color:var(--muted)">Active Ports</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -23,53 +50,80 @@
       </span>
     </div>
     <div class="sunday-card__body">
-      <div class="console-grid" id="consoleGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+      <div class="console-grid" id="consoleGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px">
         <!-- Console options will be loaded here -->
       </div>
     </div>
   </div>
 
-  <!-- Network Info -->
+  <!-- Console Status Grid -->
   <div class="sunday-card" style="margin-bottom:20px">
     <div class="sunday-card__header">
-      <h3 style="margin:0">📊 Network Status</h3>
+      <h3 style="margin:0">📊 Console Status</h3>
     </div>
-    <div class="sunday-card__body">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px" id="networkStats">
-        <div class="stat-item" style="text-align:center;padding:16px;background:var(--bg);border-radius:8px">
-          <div style="font-size:24px;font-weight:800;color:var(--brand)" id="consoleCount">--</div>
-          <div style="font-size:11px;color:var(--muted)">Consoles</div>
-        </div>
-        <div class="stat-item" style="text-align:center;padding:16px;background:var(--bg);border-radius:8px">
-          <div style="font-size:24px;font-weight:800;color:var(--success)" id="onlineCount">--</div>
-          <div style="font-size:11px;color:var(--muted)">Online</div>
-        </div>
-        <div class="stat-item" style="text-align:center;padding:16px;background:var(--bg);border-radius:8px">
-          <div style="font-size:24px;font-weight:800;color:var(--ink)" id="lastUpdated">--</div>
-          <div style="font-size:11px;color:var(--muted)">Last Updated</div>
-        </div>
+    <div class="sunday-card__body" style="padding:0">
+      <div id="consoleStatusGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--line)">
+        <!-- Console status cards will be loaded here -->
       </div>
     </div>
   </div>
 
-  <!-- Raw Settings -->
-  <div class="sunday-card">
-    <div class="sunday-card__header" style="display:flex;justify-content:space-between;align-items:center">
-      <h3 style="margin:0">⚙️ Raw Configuration</h3>
-      <button class="sunday-btn secondary sm" onclick="toggleRawView()">Show JSON</button>
+  <!-- PM2 Processes -->
+  <div class="sunday-card" style="margin-bottom:20px">
+    <div class="sunday-card__header">
+      <h3 style="margin:0">⚙️ PM2 Processes</h3>
     </div>
-    <div class="sunday-card__body" id="rawSettingsContainer" style="display:none">
-      <pre id="rawSettings" style="background:var(--bg);padding:16px;border-radius:8px;overflow:auto;max-height:400px;font-size:12px;margin:0"></pre>
+    <div class="sunday-card__body" style="padding:0;overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:13px" id="pm2Table">
+        <thead>
+          <tr style="background:var(--bg)">
+            <th style="padding:12px 16px;text-align:left;font-weight:600">Name</th>
+            <th style="padding:12px 16px;text-align:left;font-weight:600">Status</th>
+            <th style="padding:12px 16px;text-align:left;font-weight:600">PID</th>
+            <th style="padding:12px 16px;text-align:left;font-weight:600">Memory</th>
+            <th style="padding:12px 16px;text-align:left;font-weight:600">CPU</th>
+            <th style="padding:12px 16px;text-align:left;font-weight:600">Restarts</th>
+            <th style="padding:12px 16px;text-align:left;font-weight:600">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="pm2TableBody">
+          <tr><td colspan="7" style="padding:20px;text-align:center;color:var(--muted)">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Active Ports -->
+  <div class="sunday-card" style="margin-bottom:20px">
+    <div class="sunday-card__header">
+      <h3 style="margin:0">🔌 Active Ports</h3>
+    </div>
+    <div class="sunday-card__body">
+      <div id="portsGrid" style="display:flex;flex-wrap:wrap;gap:8px">
+        <!-- Port badges will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Traefik Routes -->
+  <div class="sunday-card">
+    <div class="sunday-card__header">
+      <h3 style="margin:0">🚦 Traefik Routes</h3>
+    </div>
+    <div class="sunday-card__body">
+      <div id="traefikRoutes" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px">
+        <!-- Traefik routes will be loaded here -->
+      </div>
     </div>
   </div>
 </div>
 
 <style>
   .console-option {
-    padding: 16px;
+    padding: 12px;
     background: var(--bg);
     border: 2px solid var(--line);
-    border-radius: 12px;
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.15s;
     text-align: center;
@@ -82,97 +136,161 @@
     border-color: var(--brand);
     background: color-mix(in srgb, var(--brand) 10%, transparent);
   }
-  .console-option .icon {
-    font-size: 28px;
-    margin-bottom: 8px;
+  .console-option .icon { font-size: 24px; margin-bottom: 6px; }
+  .console-option .name { font-weight: 600; font-size: 12px; }
+  
+  .console-status-card {
+    padding: 16px;
+    background: var(--card);
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
-  .console-option .name {
-    font-weight: 600;
-    font-size: 13px;
-    margin-bottom: 4px;
+  .console-status-card .icon { font-size: 28px; }
+  .console-status-card .info { flex: 1; }
+  .console-status-card .name { font-weight: 600; font-size: 14px; }
+  .console-status-card .path { font-size: 11px; color: var(--muted); font-family: monospace; }
+  .console-status-card .status-dot {
+    width: 10px; height: 10px; border-radius: 50%;
   }
-  .console-option .path {
-    font-size: 10px;
-    color: var(--muted);
+  .console-status-card .status-dot.healthy { background: var(--success); box-shadow: 0 0 6px var(--success); }
+  .console-status-card .status-dot.unhealthy { background: var(--error); }
+  
+  .port-badge {
+    padding: 6px 12px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 6px;
     font-family: monospace;
+    font-size: 12px;
   }
+  .port-badge.important { border-color: var(--brand); background: color-mix(in srgb, var(--brand) 10%, transparent); }
+  
+  .traefik-route {
+    padding: 12px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .traefik-route .host { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+  .traefik-route .name { font-size: 11px; color: var(--muted); }
 </style>
 
 <script>
+  let networkData = null;
   let currentTld = null;
-  let networkSettings = null;
 
-  async function loadNetworkSettings() {
+  async function refreshNetworkStatus() {
     try {
-      const response = await fetch('/api/network/tld');
-      const data = await response.json();
+      // Get network status
+      const statusRes = await fetch('/api/network-status/status');
+      networkData = await statusRes.json();
       
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to load');
-      }
+      if (!networkData.success) throw new Error(networkData.error);
       
-      currentTld = data.tld;
-      networkSettings = data;
+      // Get TLD info
+      const tldRes = await fetch('/api/network/tld');
+      const tldData = await tldRes.json();
+      currentTld = tldData.tld;
       
-      // Update TLD badge
-      document.getElementById('tldBadge').textContent = currentTld;
-      
-      // Update console count
-      document.getElementById('consoleCount').textContent = Object.keys(data.consoles).length;
-      document.getElementById('onlineCount').textContent = Object.keys(data.consoles).length; // TODO: real check
-      
-      // Render console options
-      renderConsoleOptions(data.consoles, data.tld);
-      
-      // Load full settings for raw view
-      const settingsRes = await fetch('/api/network/settings');
-      const settingsData = await settingsRes.json();
-      if (settingsData.success) {
-        document.getElementById('rawSettings').textContent = JSON.stringify(settingsData.settings, null, 2);
-        document.getElementById('lastUpdated').textContent = 
-          new Date(settingsData.settings._meta?.lastUpdated).toLocaleDateString();
-      }
-      
+      renderDashboard();
     } catch (err) {
-      console.error('Failed to load network settings:', err);
-      document.getElementById('consoleGrid').innerHTML = `
-        <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--error)">
-          Failed to load network settings: ${err.message}
-        </div>
-      `;
+      console.error('Failed to load network status:', err);
     }
   }
 
-  function renderConsoleOptions(consoles, currentTld) {
-    const grid = document.getElementById('consoleGrid');
-    
-    const consoleList = [
-      { id: 'cn-console', icon: '🧩', name: 'CN Console', path: '/' },
-      { id: 'quick-server', icon: '⚡', name: 'Quick Server', path: '/quick-server' },
-      { id: 'ai-console', icon: '🤖', name: 'AI Console', path: '/ai-console' },
-      { id: 'hive-console', icon: '🐝', name: 'Hive Console', path: '/hive-console' },
-      { id: 'sunday-console', icon: '🌞', name: 'Sunday Console', path: '/sunday-console' },
-      { id: 'learnmappers-console', icon: '🗺️', name: 'LearnMappers', path: '/learnmappers-console' },
-      { id: 'marketplace-console', icon: '🛒', name: 'Marketplace', path: '/marketplace-console' }
-    ];
-    
-    grid.innerHTML = consoleList.map(c => `
+  function renderDashboard() {
+    if (!networkData) return;
+
+    // Health overview
+    document.getElementById('healthyCount').textContent = networkData.health?.healthy || 0;
+    document.getElementById('totalConsoles').textContent = networkData.consoles?.length || 0;
+    document.getElementById('pm2Running').textContent = networkData.pm2?.filter(p => p.status === 'online').length || 0;
+    document.getElementById('activePorts').textContent = networkData.ports?.length || 0;
+
+    // TLD badge
+    document.getElementById('tldBadge').textContent = currentTld || 'Unknown';
+
+    // Console grid for TLD selection
+    const consoleGrid = document.getElementById('consoleGrid');
+    consoleGrid.innerHTML = networkData.consoles.map(c => `
       <div class="console-option ${c.id === currentTld ? 'selected' : ''}" 
            onclick="setTldConsole('${c.id}')"
-           data-console="${c.id}">
+           title="${c.healthy ? 'Healthy' : 'Not responding'}">
         <div class="icon">${c.icon}</div>
         <div class="name">${c.name}</div>
-        <div class="path">${c.id === currentTld ? '/ (TLD)' : c.path}</div>
       </div>
     `).join('');
+
+    // Console status grid
+    const statusGrid = document.getElementById('consoleStatusGrid');
+    statusGrid.innerHTML = networkData.consoles.map(c => `
+      <div class="console-status-card">
+        <div class="icon">${c.icon}</div>
+        <div class="info">
+          <div class="name">${c.name}</div>
+          <div class="path">${c.isTLD ? '/ (TLD)' : c.path || ':' + c.port}</div>
+        </div>
+        <div class="status-dot ${c.healthy ? 'healthy' : 'unhealthy'}" 
+             title="${c.healthy ? 'Healthy' : 'Not responding'}"></div>
+      </div>
+    `).join('');
+
+    // PM2 table
+    const pm2Body = document.getElementById('pm2TableBody');
+    if (networkData.pm2?.length) {
+      pm2Body.innerHTML = networkData.pm2.map(p => `
+        <tr>
+          <td style="padding:12px 16px;font-weight:600">${p.name}</td>
+          <td style="padding:12px 16px">
+            <span style="padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;
+              background:${p.status === 'online' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'};
+              color:${p.status === 'online' ? 'var(--success)' : 'var(--error)'}">
+              ${p.status}
+            </span>
+          </td>
+          <td style="padding:12px 16px;font-family:monospace;font-size:12px">${p.pid || '-'}</td>
+          <td style="padding:12px 16px">${formatBytes(p.memory)}</td>
+          <td style="padding:12px 16px">${p.cpu?.toFixed(1) || 0}%</td>
+          <td style="padding:12px 16px">${p.restarts || 0}</td>
+          <td style="padding:12px 16px">
+            <button class="sunday-btn ghost sm" onclick="restartPm2('${p.name}')">🔄</button>
+          </td>
+        </tr>
+      `).join('');
+    } else {
+      pm2Body.innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--muted)">No PM2 processes found</td></tr>';
+    }
+
+    // Ports grid
+    const portsGrid = document.getElementById('portsGrid');
+    const importantPorts = [80, 443, 8001, 8888, 8890, 8902];
+    portsGrid.innerHTML = networkData.ports
+      .sort((a, b) => a.port - b.port)
+      .map(p => `
+        <div class="port-badge ${importantPorts.includes(p.port) ? 'important' : ''}">
+          :${p.port} ${p.process ? `(${p.process})` : ''}
+        </div>
+      `).join('');
+
+    // Traefik routes
+    const traefikDiv = document.getElementById('traefikRoutes');
+    if (networkData.traefik?.routers?.length) {
+      traefikDiv.innerHTML = networkData.traefik.routers.map(r => `
+        <div class="traefik-route">
+          <div class="host">🌐 ${r.host}</div>
+          <div class="name">${r.name}</div>
+        </div>
+      `).join('');
+    } else {
+      traefikDiv.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">No Traefik routes found</div>';
+    }
   }
 
   async function setTldConsole(consoleId) {
     if (consoleId === currentTld) return;
     
-    if (!confirm(`Set ${consoleId} as the TLD console?\n\nVisitors to your domain will see this console first.`)) {
-      return;
-    }
+    if (!confirm(`Set ${consoleId} as the TLD console?`)) return;
     
     try {
       const response = await fetch('/api/network/tld', {
@@ -182,28 +300,40 @@
       });
       
       const data = await response.json();
+      if (!data.success) throw new Error(data.error);
       
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to update');
-      }
-      
-      // Refresh
-      await loadNetworkSettings();
-      
-      // Show success
-      alert(`✅ TLD console changed to ${consoleId}\n\nThe root domain now serves ${consoleId}.`);
-      
+      await refreshNetworkStatus();
+      alert(`✅ TLD console changed to ${consoleId}`);
     } catch (err) {
-      alert(`❌ Failed to update TLD: ${err.message}`);
+      alert(`❌ Failed: ${err.message}`);
     }
   }
 
-  function toggleRawView() {
-    const container = document.getElementById('rawSettingsContainer');
-    container.style.display = container.style.display === 'none' ? 'block' : 'none';
+  async function restartPm2(name) {
+    if (!confirm(`Restart ${name}?`)) return;
+    
+    try {
+      const response = await fetch(`/api/network-status/pm2/${name}/restart`, { method: 'POST' });
+      const data = await response.json();
+      
+      if (!data.success) throw new Error(data.error);
+      
+      alert(`✅ Restarted ${name}`);
+      setTimeout(refreshNetworkStatus, 2000);
+    } catch (err) {
+      alert(`❌ Failed: ${err.message}`);
+    }
+  }
+
+  function formatBytes(bytes) {
+    if (!bytes) return '-';
+    const mb = bytes / (1024 * 1024);
+    return mb.toFixed(1) + ' MB';
   }
 
   // Load on page init
-  loadNetworkSettings();
+  refreshNetworkStatus();
+  
+  // Auto-refresh every 30 seconds
+  setInterval(refreshNetworkStatus, 30000);
 </script>
-
