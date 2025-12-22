@@ -136,6 +136,7 @@ function initHeaderUI() {
       if (r === 'protocols') return 'Protocols';
       if (r === 'ai') return 'AI';
       if (r === 'settings') return 'Settings';
+      if (r === 'passwords') return 'Passwords';
       return r;
     };
 
@@ -322,6 +323,14 @@ async function maybeInitCNPages() {
       await mod.initCNSettings(document);
       return;
     }
+
+    if (r === 'passwords') {
+      const mod = await import(`./cartridges/passwords/passwords.js?v=${v}`);
+      if (mod.initPasswordsPage) {
+        mod.initPasswordsPage();
+      }
+      return;
+    }
   } catch (e) {
     console.warn('[CN] Init failed:', e);
   }
@@ -444,8 +453,15 @@ async function initApp() {
 
   setBoot('Starting console…');
   console.log('[CN Boot] Initializing Sunday framework...');
-  await Sunday.init(config);
-  console.log('[CN Boot] ✅ Sunday framework initialized');
+  console.log('[CN Boot] Config:', config);
+  try {
+    await Sunday.init(config);
+    console.log('[CN Boot] ✅ Sunday framework initialized');
+  } catch (initError) {
+    console.error('[CN Boot] ❌ Sunday init failed:', initError);
+    setBoot('Sunday initialization failed - check console');
+    throw initError;
+  }
   clearTimeout(hangTimer);
 
   // Defensive: ensure tabs render even if router didn't.

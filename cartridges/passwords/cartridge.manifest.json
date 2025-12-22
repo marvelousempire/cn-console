@@ -1,0 +1,12 @@
+{
+  "name": "Passwords Console",
+  "description": "Centralized password management, generation, storage, and security",
+  "version": "1.0.0",
+  "author": "CN Console",
+  "icon": "🔐",
+  "color": "#ef4444",
+  "category": "security",
+  "tags": ["passwords", "security", "authentication", "vault"],
+  "permissions": ["auth:read", "auth:write", "users:read"],
+  "dependencies": ["auth", "users"]
+}
