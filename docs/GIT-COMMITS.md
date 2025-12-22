@@ -1,7 +1,47 @@
-# Git Commit Messages for The Briefcase Library Feature
+# Git Commit Messages for CN Console
 
 **Created:** 2025-01-22  
-**Last Updated:** 2025-01-22
+**Last Updated:** Monday Dec 22, 2025
+
+---
+
+## Bug Fix: JavaScript Block Scoping Issue in cn-boot.js
+
+**Date:** Monday Dec 22, 2025  
+**Severity:** Critical (Console would not start)
+
+```
+fix: resolve JavaScript block scoping issue preventing console startup
+
+The CN Console was failing to start with error at cn-boot.js:442
+"Sunday.init(config) failed - config is undefined"
+
+Root Cause:
+- Variables `config` and `AuthGuard` were declared with `const` inside
+  a try-catch block (lines 352-373)
+- Due to JavaScript's block scoping for const/let, these variables were
+  NOT available outside the try-catch block
+- When `Sunday.init(config)` was called at line 442, `config` was undefined
+
+Fix:
+- Hoisted variable declarations to function scope: `let config, AuthGuard;`
+- Changed assignments inside try-catch to use the function-scoped variables
+- Updated cache-buster in index.html to force browser refresh
+
+Files:
+- js/cn-boot.js: Fixed variable scoping
+- index.html: Updated cache-buster version
+
+Lesson Learned:
+- When using try-catch blocks in async functions, ensure variables that
+  need to be used AFTER the try-catch are declared at function scope
+- const/let have BLOCK scope, not function scope like var
+- Always test that imported modules are in scope where they're used
+```
+
+---
+
+## The Briefcase Library Feature
 
 ## Commit 1: Add The Briefcase Library Modal Component
 

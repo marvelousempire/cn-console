@@ -349,22 +349,27 @@ async function initApp() {
   } catch (e) {
     // Non-fatal
   }
+  // Declare variables at function scope so they're available throughout initApp
+  let config, AuthGuard;
+  
   try {
     setBoot('Loading Sunday framework…');
     console.log('[CN Boot] Importing Sunday framework...');
-    const { Sunday } = await import('/sundayapp/index.js');
+    // Sunday already imported at top of initApp
     console.log('[CN Boot] ✅ Sunday framework loaded');
 
     setBoot('Loading console config…');
     console.log('[CN Boot] Importing config...');
-    const { default: config } = await import('./../app.config.js?v=20251219a');
+    const configModule = await import('./../app.config.js?v=20251222b');
+    config = configModule.default;
     console.log('[CN Boot] ✅ Config loaded');
 
     setBoot('Loading auth…');
     console.log('[CN Boot] Auth client will be loaded on demand');
 
     console.log('[CN Boot] Importing auth guard...');
-    const { AuthGuard } = await import('/sundayapp/core/auth-guard.js');
+    const authGuardModule = await import('/sundayapp/core/auth-guard.js');
+    AuthGuard = authGuardModule.AuthGuard;
     console.log('[CN Boot] ✅ Auth guard loaded');
   } catch (importError) {
     console.error('[CN Boot] ❌ Import failed:', importError);
@@ -414,7 +419,8 @@ async function initApp() {
   setBoot('Checking session…');
   let auth = null;
   try {
-    const { getAuthClient } = await import('/core/auth-client.js');
+    console.log('[CN Boot] Importing auth client...');
+    const { getAuthClient } = await import('/sundayapp/core/auth-client.js');
     auth = getAuthClient();
     console.log('[CN Boot] ✅ Auth client loaded');
   } catch (e) {
@@ -427,6 +433,13 @@ async function initApp() {
   if (auth && !auth.isAuthenticated() && !isLogin) {
     if (hash && !hash.includes('#login')) sessionStorage.setItem('sunday_redirect_after_login', hash);
     window.location.hash = '#login';
+  }
+
+  // Wait for DOM to be ready before initializing Sunday framework
+  if (document.readyState === 'loading') {
+    await new Promise(resolve => {
+      document.addEventListener('DOMContentLoaded', resolve);
+    });
   }
 
   setBoot('Starting console…');
