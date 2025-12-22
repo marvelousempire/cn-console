@@ -361,9 +361,7 @@ async function initApp() {
     console.log('[CN Boot] ✅ Config loaded');
 
     setBoot('Loading auth…');
-    console.log('[CN Boot] Importing auth client...');
-    const { getAuthClient } = await import('/core/auth-client.js');
-    console.log('[CN Boot] ✅ Auth client loaded');
+    console.log('[CN Boot] Auth client will be loaded on demand');
 
     console.log('[CN Boot] Importing auth guard...');
     const { AuthGuard } = await import('/sundayapp/core/auth-guard.js');
@@ -414,9 +412,13 @@ async function initApp() {
   }
 
   setBoot('Checking session…');
-  const auth = typeof getAuthClient === 'function' ? getAuthClient() : null;
-  if (!auth) {
-    console.warn('[CN Boot] Auth client not available, skipping session check');
+  let auth = null;
+  try {
+    const { getAuthClient } = await import('/core/auth-client.js');
+    auth = getAuthClient();
+    console.log('[CN Boot] ✅ Auth client loaded');
+  } catch (e) {
+    console.warn('[CN Boot] Auth client failed to load:', e);
   }
   const hash = window.location.hash || '';
   const route = hash.replace(/^#/, '').replace(/^\//, '').split('?')[0] || '';
