@@ -33,22 +33,119 @@ function getOrigin() {
   }
 }
 
-function getLiveLinks(c) {
+async function getCNTLD() {
+  try {
+    // Try to get TLD from CN network settings
+    const res = await fetch('/api/cn/network-settings', { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.tld) return data.tld;
+      if (data?.network?.tld) return data.network.tld;
+    }
+  } catch {}
+  
+  // Fallback: extract from current host or use default
+  try {
+    const host = window.location.hostname;
+    if (host.includes('thebriefcase.app')) return 'thebriefcase.app';
+    if (host.includes('.')) {
+      const parts = host.split('.');
+      if (parts.length >= 2) {
+        return parts.slice(-2).join('.'); // Get last two parts (e.g., "thebriefcase.app")
+      }
+    }
+  } catch {}
+  
+  return 'thebriefcase.app'; // Default fallback
+}
+
+function getConsoleSubdomain(c) {
+  const r = c?.runtime || {};
+  const consoleId = r.consoleId || c.id || '';
+  
+  // First check if subdomain is explicitly set
+  if (r.subdomain !== undefined && r.subdomain !== null) {
+    return r.subdomain; // Can be empty string for root domain
+  }
+  
+  // Check if hosts array has subdomain info
+  const hosts = Array.isArray(r.hosts) ? r.hosts : [];
+  for (const host of hosts) {
+    const h = String(host || '').trim();
+    if (h.includes('.')) {
+      const parts = h.split('.');
+      if (parts.length >= 2 && parts[0] !== 'www') {
+        return parts[0]; // Return subdomain part
+      }
+    }
+  }
+  
+  // Derive from consoleId (e.g., "ai-console" -> "ai-console" or "quick-server" -> "quick")
+  if (consoleId) {
+    // Map known console IDs to subdomains
+    const subdomainMap = {
+      'quick-server': 'quick',
+      'reader-platform': 'reader',
+      'ai-console': 'ai-console',
+      'cn-console': 'cn-console',
+      'sunday-console': null, // Root domain
+      'learnmappers': 'learnmappers',
+      'learnmappers-console': 'learnmappers'
+    };
+    
+    if (subdomainMap[consoleId] !== undefined) {
+      return subdomainMap[consoleId];
+    }
+    
+    // Default: use consoleId as-is, but clean it up
+    return consoleId.replace(/-console$/, '').replace(/-/g, '');
+  }
+  
+  return null;
+}
+
+async function getLiveLinks(c) {
   const r = c?.runtime || {};
   const out = [];
+  const type = c.type || '';
+
+  // For console-type contributions, add "Open Console" button with subdomain
+  if (type === 'console' || type === 'console-cartridge' || type === 'admin-core') {
+    const subdomain = getConsoleSubdomain(c);
+    if (subdomain) {
+      const tld = await getCNTLD();
+      const proto = (window.location?.protocol === 'http:') ? 'http:' : 'https:';
+      out.push({
+        label: 'Open Console',
+        href: `${proto}//${subdomain}.${tld}/`,
+        priority: 1 // High priority for console links
+      });
+    } else if (c.id === 'sunday-console' || c.id === 'sunday-framework') {
+      // Sunday Console is at root
+      const tld = await getCNTLD();
+      const proto = (window.location?.protocol === 'http:') ? 'http:' : 'https:';
+      out.push({
+        label: 'Open Console',
+        href: `${proto}//${tld}/`,
+        priority: 1
+      });
+    }
+  }
 
   const mountPath = r.mountPath || (r.consoleId ? `/${r.consoleId}` : '');
   if (mountPath) {
     out.push({
       label: 'Open here',
-      href: `${getOrigin()}${mountPath.startsWith('/') ? mountPath : '/' + mountPath}`
+      href: `${getOrigin()}${mountPath.startsWith('/') ? mountPath : '/' + mountPath}`,
+      priority: 2
     });
   }
 
   if (r.cartridgePath) {
     out.push({
       label: 'Open cartridge',
-      href: `${getOrigin()}${r.cartridgePath.startsWith('/') ? r.cartridgePath : '/' + r.cartridgePath}`
+      href: `${getOrigin()}${r.cartridgePath.startsWith('/') ? r.cartridgePath : '/' + r.cartridgePath}`,
+      priority: 3
     });
   }
 
@@ -59,10 +156,14 @@ function getLiveLinks(c) {
     const proto = (window.location?.protocol === 'http:') ? 'http:' : 'https:';
     out.push({
       label: `Open on ${host}`,
-      href: `${proto}//${h}/`
+      href: `${proto}//${h}/`,
+      priority: 4
     });
   }
 
+  // Sort by priority, then remove duplicates
+  out.sort((a, b) => (a.priority || 99) - (b.priority || 99));
+  
   const seen = new Set();
   return out.filter(l => {
     if (!l?.href) return false;
@@ -112,11 +213,26 @@ async function loadLibraryData() {
                 },
                 description: console.description || '',
                 runtime: {
+                  consoleId: console.id,
                   mountPath: console.internalPath || console.url || '',
-                  hosts: console.subdomain ? [`${console.subdomain}.thebriefcase.app`] : []
+                  hosts: console.subdomain ? [`${console.subdomain}.thebriefcase.app`] : (console.isRoot ? ['thebriefcase.app'] : []),
+                  subdomain: console.subdomain || null
                 },
                 _source: 'sunday-registry'
               });
+            } else {
+              // Update existing console with subdomain info from Sunday registry
+              const existing = contributions.find(c => c.id === console.id || c.name === console.name);
+              if (existing && !existing.runtime) {
+                existing.runtime = {};
+              }
+              if (existing?.runtime) {
+                existing.runtime.subdomain = console.subdomain || existing.runtime.subdomain;
+                existing.runtime.consoleId = console.id || existing.runtime.consoleId;
+                if (console.subdomain && !existing.runtime.hosts) {
+                  existing.runtime.hosts = [`${console.subdomain}.thebriefcase.app`];
+                }
+              }
             }
           });
         }
@@ -221,7 +337,7 @@ function getTypeLabel(type) {
   return typeMap[type] || type || 'Other';
 }
 
-function renderLibraryCard(c) {
+async function renderLibraryCard(c) {
   const emoji = c.emoji || '📦';
   const name = c.name || c.id || 'Unknown';
   const tagline = c.tagline || '';
@@ -231,12 +347,18 @@ function renderLibraryCard(c) {
   const status = c.status || 'unknown';
   const category = c.category || '';
   const type = c.type || 'other';
-  const liveLinks = getLiveLinks(c);
+  const liveLinks = await getLiveLinks(c);
 
   const links = [];
+  // Prioritize "Open Console" for console types
+  const consoleLink = liveLinks.find(l => l.label === 'Open Console');
+  if (consoleLink) links.push(consoleLink);
+  
   if (repoUrl) links.push({ label: 'Repository', href: repoUrl });
   if (docUrl) links.push({ label: 'CN Documentation', href: docUrl });
-  liveLinks.forEach(l => links.push(l));
+  
+  // Add other live links (excluding console link already added)
+  liveLinks.filter(l => l.label !== 'Open Console').forEach(l => links.push(l));
 
   return `
     <div class="briefcase-library-card">
@@ -255,14 +377,18 @@ function renderLibraryCard(c) {
       </div>
       ${links.length > 0 ? `
         <div class="briefcase-library-card__links">
-          ${links.map(l => `<a href="${escapeHtml(l.href)}" target="_blank" rel="noreferrer" class="briefcase-library-link">${escapeHtml(l.label)} →</a>`).join('')}
+          ${links.map(l => {
+            const isConsole = l.label === 'Open Console';
+            const linkClass = isConsole ? 'briefcase-library-link briefcase-library-link-console' : 'briefcase-library-link';
+            return `<a href="${escapeHtml(l.href)}" target="_blank" rel="noreferrer" class="${linkClass}">${escapeHtml(l.label)} →</a>`;
+          }).join('')}
         </div>
       ` : ''}
     </div>
   `;
 }
 
-function renderLibrarySection(type, contributions, label, emoji) {
+async function renderLibrarySection(type, contributions, label, emoji) {
   if (!contributions || contributions.length === 0) return '';
 
   // Count active and inactive
@@ -273,6 +399,8 @@ function renderLibrarySection(type, contributions, label, emoji) {
     ? `<span class="briefcase-library-section__count"><span class="count-active">${active} active</span><span class="count-separator"> • </span><span class="count-inactive">${inactive} inactive</span></span>`
     : `<span class="briefcase-library-section__count"><span class="count-active">${active} active</span></span>`;
 
+  const cards = await Promise.all(contributions.map(c => renderLibraryCard(c)));
+
   return `
     <div class="briefcase-library-section">
       <div class="briefcase-library-section__header">
@@ -281,7 +409,7 @@ function renderLibrarySection(type, contributions, label, emoji) {
         ${countDisplay}
       </div>
       <div class="briefcase-library-section__grid">
-        ${contributions.map(c => renderLibraryCard(c)).join('')}
+        ${cards.join('')}
       </div>
     </div>
   `;
@@ -292,7 +420,7 @@ async function renderLibraryModal() {
   const organized = organizeByType(data.contributions);
 
   // Organize sections with proper grouping
-  const sections = [
+  const sectionPromises = [
     // Frameworks (Sunday, Handbook, Utility)
     renderLibrarySection('framework', organized.framework.concat(organized['framework-utility']), 'Frameworks (Sunday, Handbook, Utility)', '🌞'),
     // Admin Core
@@ -312,7 +440,9 @@ async function renderLibraryModal() {
     renderLibrarySection('handbook', organized.handbook, 'Handbooks', '📚'),
     // Other (catch-all)
     renderLibrarySection('other', organized.other, 'Other', '📦')
-  ].filter(s => s).join('');
+  ];
+  
+  const sections = (await Promise.all(sectionPromises)).filter(s => s).join('');
 
   const modalContent = `
     <div class="briefcase-library-modal">
@@ -367,20 +497,22 @@ function filterLibrary(searchQuery) {
   const contentEl = document.getElementById('briefcaseLibraryContent');
   if (!contentEl) return;
 
-  // Organize sections with proper grouping (same as renderLibraryModal)
-  const sections = [
-    renderLibrarySection('framework', organized.framework.concat(organized['framework-utility']), 'Frameworks (Sunday, Handbook, Utility)', '🌞'),
-    renderLibrarySection('admin-core', organized['admin-core'], 'Admin Core', '🌞'),
-    renderLibrarySection('console', organized.console.concat(organized['console-cartridge']), 'Consoles', '🖥️'),
-    renderLibrarySection('cartridge', organized.cartridge.concat(organized['utility-cartridge']), 'Cartridges', '📦'),
-    renderLibrarySection('app', organized.app, 'Apps', '📱'),
-    renderLibrarySection('page', organized.page, 'Pages', '📄'),
-    renderLibrarySection('component', organized.component, 'Components', '🧩'),
-    renderLibrarySection('tool', organized.tool, 'Tools', '⚙️'),
-    renderLibrarySection('system', organized.system, 'Systems', '🏗️'),
-    renderLibrarySection('handbook', organized.handbook, 'Handbooks', '📚'),
-    renderLibrarySection('other', organized.other, 'Other', '📦')
-  ].filter(s => s).join('');
+    // Organize sections with proper grouping (same as renderLibraryModal)
+    const sectionPromises = [
+      renderLibrarySection('framework', organized.framework.concat(organized['framework-utility']), 'Frameworks (Sunday, Handbook, Utility)', '🌞'),
+      renderLibrarySection('admin-core', organized['admin-core'], 'Admin Core', '🌞'),
+      renderLibrarySection('console', organized.console.concat(organized['console-cartridge']), 'Consoles', '🖥️'),
+      renderLibrarySection('cartridge', organized.cartridge.concat(organized['utility-cartridge']), 'Cartridges', '📦'),
+      renderLibrarySection('app', organized.app, 'Apps', '📱'),
+      renderLibrarySection('page', organized.page, 'Pages', '📄'),
+      renderLibrarySection('component', organized.component, 'Components', '🧩'),
+      renderLibrarySection('tool', organized.tool, 'Tools', '⚙️'),
+      renderLibrarySection('system', organized.system, 'Systems', '🏗️'),
+      renderLibrarySection('handbook', organized.handbook, 'Handbooks', '📚'),
+      renderLibrarySection('other', organized.other, 'Other', '📦')
+    ];
+    
+    const sections = (await Promise.all(sectionPromises)).filter(s => s).join('');
 
   contentEl.innerHTML = sections || '<div class="briefcase-library-empty">No matches found</div>';
 }

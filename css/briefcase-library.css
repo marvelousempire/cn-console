@@ -399,6 +399,20 @@
   transform: translateY(-1px);
 }
 
+/* Special styling for "Open Console" links */
+.briefcase-library-link-console {
+  background: color-mix(in srgb, rgba(34, 197, 94, 1) 12%, transparent) !important;
+  border-color: rgba(34, 197, 94, 0.4) !important;
+  color: rgba(34, 197, 94, 1) !important;
+  font-weight: 700 !important;
+}
+
+.briefcase-library-link-console:hover {
+  background: color-mix(in srgb, rgba(34, 197, 94, 1) 20%, transparent) !important;
+  border-color: rgba(34, 197, 94, 0.6) !important;
+  color: rgba(34, 197, 94, 1) !important;
+}
+
 .briefcase-library-empty {
   padding: 60px 20px;
   text-align: center;
