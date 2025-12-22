@@ -110,6 +110,39 @@
     </div>
   </div>
 
+  <!-- Subdomain Checker -->
+  <div class="sunday-card" style="margin-bottom:20px">
+    <div class="sunday-card__header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div>
+        <h3 style="margin:0">🔗 Subdomain Records</h3>
+        <p style="margin:4px 0 0;color:var(--muted);font-size:12px">
+          Check individual subdomains or scan common ones
+        </p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="sunday-btn secondary sm" onclick="scanCommonSubdomains()">🔍 Scan Common</button>
+        <button class="sunday-btn ghost sm" onclick="clearSubdomains()">🗑️ Clear</button>
+      </div>
+    </div>
+    <div class="sunday-card__body">
+      <!-- Subdomain Input -->
+      <div class="subdomain-input-row">
+        <input type="text" id="subdomain-input" class="subdomain-input" 
+               placeholder="Enter subdomain (e.g., api, www, cdn)"
+               onkeydown="if(event.key==='Enter') checkSubdomain()">
+        <button class="sunday-btn primary sm" onclick="checkSubdomain()">Check</button>
+      </div>
+      
+      <!-- Subdomain Results -->
+      <div id="subdomain-results" class="subdomain-grid">
+        <div class="subdomain-empty">
+          <span>🔗</span>
+          <span>Enter a subdomain above or click "Scan Common" to check multiple</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- TLD Console Selector Grid -->
   <div class="sunday-card" style="margin-bottom:20px">
     <div class="sunday-card__header" style="display:flex;justify-content:space-between;align-items:center">
@@ -362,6 +395,94 @@
   }
   .copy-btn:hover { opacity: 1; }
 
+  /* Subdomain Checker */
+  .subdomain-input-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .subdomain-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 14px;
+  }
+  .subdomain-input:focus {
+    outline: none;
+    border-color: var(--brand);
+  }
+  .subdomain-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .subdomain-card {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .subdomain-card.resolved {
+    border-color: var(--success);
+    background: color-mix(in srgb, var(--success) 5%, var(--bg));
+  }
+  .subdomain-card.unresolved {
+    border-color: var(--line);
+    opacity: 0.6;
+  }
+  .subdomain-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .subdomain-dot.ok { background: var(--success); }
+  .subdomain-dot.error { background: var(--error); }
+  .subdomain-dot.checking { background: var(--warning); animation: blink 1s infinite; }
+  .subdomain-info { flex: 1; min-width: 0; }
+  .subdomain-name {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .subdomain-value {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .subdomain-type {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--line);
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .subdomain-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .subdomain-empty span:first-child {
+    font-size: 32px;
+    opacity: 0.5;
+  }
+
   .console-option {
     padding: 12px;
     background: var(--bg);
@@ -599,6 +720,122 @@
     }).catch(() => {
       prompt('Copy this IP:', ip);
     });
+  }
+
+  // Subdomain Checker
+  let subdomainResults = [];
+  const COMMON_SUBDOMAINS = ['www', 'api', 'app', 'mail', 'cdn', 'static', 'assets', 'img', 'images', 'admin', 'dashboard', 'portal', 'dev', 'staging', 'test', 'beta'];
+
+  async function checkSubdomain() {
+    const input = document.getElementById('subdomain-input');
+    const subdomain = input.value.trim().toLowerCase().replace(/\s+/g, '');
+    if (!subdomain) return;
+    
+    input.value = '';
+    
+    // Don't add duplicates
+    if (subdomainResults.find(s => s.name === subdomain)) {
+      renderSubdomains();
+      return;
+    }
+    
+    // Add with checking status
+    subdomainResults.unshift({ name: subdomain, status: 'checking', type: null, value: 'Checking...' });
+    renderSubdomains();
+    
+    // Check the subdomain
+    await checkSubdomainDNS(subdomain);
+  }
+
+  async function scanCommonSubdomains() {
+    const domain = document.getElementById('apex-domain').value.trim();
+    if (!domain) {
+      alert('Please enter a domain first');
+      return;
+    }
+    
+    // Clear and add all common subdomains with checking status
+    subdomainResults = COMMON_SUBDOMAINS.map(name => ({
+      name,
+      status: 'checking',
+      type: null,
+      value: 'Checking...'
+    }));
+    renderSubdomains();
+    
+    // Check each subdomain
+    for (const subdomain of COMMON_SUBDOMAINS) {
+      await checkSubdomainDNS(subdomain);
+      // Small delay to not overwhelm
+      await new Promise(r => setTimeout(r, 100));
+    }
+  }
+
+  async function checkSubdomainDNS(subdomain) {
+    const domain = document.getElementById('apex-domain').value.trim();
+    if (!domain) return;
+    
+    const fullDomain = `${subdomain}.${domain}`;
+    
+    try {
+      const response = await fetch(`/api/network/subdomain-check?subdomain=${encodeURIComponent(fullDomain)}`);
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Update the result
+        const idx = subdomainResults.findIndex(s => s.name === subdomain);
+        if (idx !== -1) {
+          subdomainResults[idx] = {
+            name: subdomain,
+            fullDomain,
+            status: data.resolved ? 'ok' : 'error',
+            type: data.type || null,
+            value: data.resolved ? (data.type === 'CNAME' ? data.target : data.ip) : 'Not found',
+            ip: data.ip,
+            target: data.target,
+            viaWildcard: data.viaWildcard
+          };
+        }
+      }
+    } catch (error) {
+      const idx = subdomainResults.findIndex(s => s.name === subdomain);
+      if (idx !== -1) {
+        subdomainResults[idx].status = 'error';
+        subdomainResults[idx].value = 'Check failed';
+      }
+    }
+    
+    renderSubdomains();
+  }
+
+  function renderSubdomains() {
+    const container = document.getElementById('subdomain-results');
+    
+    if (subdomainResults.length === 0) {
+      container.innerHTML = `
+        <div class="subdomain-empty">
+          <span>🔗</span>
+          <span>Enter a subdomain above or click "Scan Common" to check multiple</span>
+        </div>
+      `;
+      return;
+    }
+    
+    container.innerHTML = subdomainResults.map(s => `
+      <div class="subdomain-card ${s.status === 'ok' ? 'resolved' : s.status === 'error' ? 'unresolved' : ''}">
+        <div class="subdomain-dot ${s.status}"></div>
+        <div class="subdomain-info">
+          <div class="subdomain-name">${s.name}</div>
+          <div class="subdomain-value" title="${s.value}">${s.value}${s.viaWildcard ? ' (via *)' : ''}</div>
+        </div>
+        ${s.type ? `<div class="subdomain-type">${s.type}</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  function clearSubdomains() {
+    subdomainResults = [];
+    renderSubdomains();
   }
 
   function renderDashboard() {
