@@ -140,11 +140,40 @@ export async function initCNProtocols(root = document) {
   // Track which section is currently visible and update TOC
   function setupScrollTracking() {
     let ticking = false;
+    const sidebar = page.querySelector('.cn-sidebar');
+    const navBar = page.querySelector('.cn-nav-bar');
+    const contentLayout = page.querySelector('.cn-content-layout');
     
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           updateActiveTocFromScroll();
+          
+          // Make sidebar sticky after scrolling past the nav bar
+          if (sidebar && navBar && contentLayout) {
+            const navBarRect = navBar.getBoundingClientRect();
+            const navBarBottom = navBarRect.bottom;
+            const contentLayoutRect = contentLayout.getBoundingClientRect();
+            
+            if (navBarBottom <= 0) {
+              // Nav bar is above viewport - make sidebar sticky
+              if (!sidebar.classList.contains('is-sticky')) {
+                sidebar.classList.add('is-sticky');
+                contentLayout.classList.add('has-sticky-sidebar');
+                
+                // Position the sidebar relative to the content layout
+                sidebar.style.left = `${contentLayoutRect.left}px`;
+              }
+            } else {
+              // Nav bar is still visible - sidebar flows normally
+              if (sidebar.classList.contains('is-sticky')) {
+                sidebar.classList.remove('is-sticky');
+                contentLayout.classList.remove('has-sticky-sidebar');
+                sidebar.style.left = '';
+              }
+            }
+          }
+          
           ticking = false;
         });
         ticking = true;
@@ -152,6 +181,10 @@ export async function initCNProtocols(root = document) {
     };
     
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+    
+    // Initial check
+    handleScroll();
   }
 
   function updateActiveTocFromScroll() {
