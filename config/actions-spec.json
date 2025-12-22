@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "CN Console Actions",
+  "version": "1.0.0",
+  "description": "Action specification for CN Console - Contribution Network",
+  "actions": [
+    {
+      "id": "navigateToTab",
+      "description": "Navigate to a specific tab/view",
+      "file": "js/cn-boot.js",
+      "inputs": ["tabId"],
+      "outputs": ["DOM"],
+      "rules": [
+        "Update URL hash",
+        "Load tab content",
+        "Update active tab styling"
+      ]
+    },
+    {
+      "id": "login",
+      "description": "Authenticate user",
+      "file": "js/cn-login.js",
+      "inputs": ["email", "password", "rememberMe"],
+      "outputs": ["authToken"],
+      "rules": [
+        "Validate credentials",
+        "Store tokens in localStorage",
+        "Redirect to intended page"
+      ]
+    },
+    {
+      "id": "logout",
+      "description": "Sign out current user",
+      "file": "js/cn-boot.js",
+      "inputs": [],
+      "outputs": [],
+      "rules": [
+        "Clear tokens from localStorage",
+        "Redirect to login page"
+      ]
+    },
+    {
+      "id": "loadContributions",
+      "description": "Fetch CN contributions from registry",
+      "file": "js/cn-contributions.js",
+      "inputs": [],
+      "outputs": ["contributions"],
+      "rules": [
+        "Fetch from /api/cn/contributions",
+        "Display in grid layout",
+        "Handle loading/error states"
+      ]
+    },
+    {
+      "id": "loadProtocols",
+      "description": "Fetch CN protocols from registry",
+      "file": "js/cn-protocols.js",
+      "inputs": [],
+      "outputs": ["protocols"],
+      "rules": [
+        "Fetch from /api/cn/registry",
+        "Extract protocols section",
+        "Display protocol cards"
+      ]
+    }
+  ]
+}
+
