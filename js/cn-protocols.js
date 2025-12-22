@@ -15,9 +15,6 @@ export async function initCNProtocols(root = document) {
   const clearBtn = page.querySelector('#cnClear');
   const totalSectionsEl = page.querySelector('#cnTotalSections');
 
-  // Check if we have the new HTML structure
-  const hasNewStructure = tocNav && totalSectionsEl;
-
   let md = '';
   let headings = [];
 
@@ -76,43 +73,39 @@ export async function initCNProtocols(root = document) {
   }
 
   async function renderToc() {
-    if (!tocNav || !hasNewStructure) return;
+    if (!tocNav) return;
 
-    try {
-      const tocItems = headings.map((heading, index) => {
-        const indent = '  '.repeat(Math.max(0, heading.level - 1));
-        const icon = heading.level === 1 ? '📖' :
-                     heading.level === 2 ? '📄' :
-                     heading.level === 3 ? '📝' : '•';
-        const classes = `cn-toc-item lvl-${heading.level}`;
+    const tocItems = headings.map((heading, index) => {
+      const indent = '  '.repeat(Math.max(0, heading.level - 1));
+      const icon = heading.level === 1 ? '📖' :
+                   heading.level === 2 ? '📄' :
+                   heading.level === 3 ? '📝' : '•';
+      const classes = `cn-toc-item lvl-${heading.level}`;
 
-        return `${indent}<a href="#" class="${classes}" data-heading="${heading.text}" data-index="${index}">
-          <span class="cn-toc-icon">${icon}</span>
-          <span class="cn-toc-text">${heading.text}</span>
-        </a>`;
-      }).join('\n');
+      return `${indent}<a href="#" class="${classes}" data-heading="${heading.text}" data-index="${index}">
+        <span class="cn-toc-icon">${icon}</span>
+        <span class="cn-toc-text">${heading.text}</span>
+      </a>`;
+    }).join('\n');
 
-      tocNav.innerHTML = tocItems;
+    tocNav.innerHTML = tocItems;
 
-      // Update total sections count
-      if (totalSectionsEl) {
-        totalSectionsEl.textContent = headings.length;
-      }
-
-      // Add click handlers for TOC items
-      tocNav.querySelectorAll('.cn-toc-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-          e.preventDefault();
-          const headingText = item.dataset.heading;
-          if (headingText && pickEl) {
-            pickEl.value = headingText;
-            render();
-          }
-        });
-      });
-    } catch (error) {
-      console.warn('TOC rendering failed:', error);
+    // Update total sections count
+    if (totalSectionsEl) {
+      totalSectionsEl.textContent = headings.length;
     }
+
+    // Add click handlers for TOC items
+    tocNav.querySelectorAll('.cn-toc-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const headingText = item.dataset.heading;
+        if (headingText && pickEl) {
+          pickEl.value = headingText;
+          render();
+        }
+      });
+    });
   }
 
   async function render() {
@@ -144,11 +137,7 @@ export async function initCNProtocols(root = document) {
 
       headings = extractHeadings(md);
       renderOptions('');
-
-      // Only render TOC if we have the new HTML structure
-      if (hasNewStructure) {
-        renderToc();
-      }
+      renderToc();
 
       const urlSection = getSectionFromUrl();
       if (urlSection && pickEl) {
