@@ -99,6 +99,7 @@
     <div class="cn-settings-tabs" id="cnSettingsTabs">
       <button class="cn-settings-tab active" type="button" data-tab="addons">🧩 Add-ons</button>
       <button class="cn-settings-tab" type="button" data-tab="cache">🗑️ Cache</button>
+      <button class="cn-settings-tab" type="button" data-tab="tld">🌐 TLD</button>
       <button class="cn-settings-tab" type="button" data-tab="diagnostics">💚 Diagnostics</button>
       <button class="cn-settings-tab" type="button" data-tab="about">ℹ️ About</button>
     </div>
@@ -115,6 +116,27 @@
         <div class="cn-settings-sub">Use this when the browser is stuck on old JS/CSS. It’s a true cache-buster (service worker + CacheStorage clear).</div>
         <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
           <button class="cn-settings-btn danger" id="cnClearCache">🗑️ Clear Cache + Reload</button>
+        </div>
+      </div>
+
+      <div class="cn-settings-card" data-panel="tld" style="display:none">
+        <div class="cn-settings-title">🌐 TLD Management</div>
+        <div class="cn-settings-sub">Assign custom domains (TLDs) to consoles. Changes require DNS updates and may take time to propagate.</div>
+
+        <div style="margin-top:16px;">
+          <div id="tldConsoleList" style="display:grid; gap:12px;">
+            <!-- TLD assignments will be loaded here -->
+          </div>
+
+          <div style="margin-top:20px; padding:16px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px;">
+            <h4 style="margin:0 0 8px 0; font-size:14px; font-weight:800;">⚠️ Important Notes</h4>
+            <ul style="margin:0; padding-left:20px; font-size:12px; color:var(--muted);">
+              <li>TLD changes require updating DNS records (A/CNAME)</li>
+              <li>SSL certificates are automatically provisioned via Let's Encrypt</li>
+              <li>Changes take effect immediately but DNS propagation may take 5-30 minutes</li>
+              <li>Traefik configuration is automatically updated</li>
+            </ul>
+          </div>
         </div>
       </div>
 

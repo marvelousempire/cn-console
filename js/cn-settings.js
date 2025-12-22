@@ -219,6 +219,145 @@ export async function initCNSettings(root = document) {
   if (diagAssetVersion) diagAssetVersion.textContent = assetVersion || '—';
   if (diagHost) diagHost.textContent = window.location.host;
 
+  // TLD Management
+  const tldListEl = page.querySelector('#tldConsoleList');
+
+  async function loadTLDConfig() {
+    try {
+      const response = await fetch('/api/network/master-config');
+      if (!response.ok) throw new Error('Failed to load TLD config');
+      return await response.json();
+    } catch (error) {
+      console.error('Error loading TLD config:', error);
+      return null;
+    }
+  }
+
+  async function renderTLDList() {
+    if (!tldListEl) return;
+
+    const config = await loadTLDConfig();
+    if (!config?.consoles) {
+      tldListEl.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center;">Unable to load TLD configuration</div>';
+      return;
+    }
+
+    tldListEl.innerHTML = Object.entries(config.consoles)
+      .filter(([id, console]) => console.tld || (console.aliases && console.aliases.length > 0))
+      .map(([id, console]) => `
+        <div class="cn-setting-row" style="flex-direction:column;align-items:stretch;gap:12px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:20px;">${console.icon || '🖥️'}</span>
+            <div style="flex:1;">
+              <div class="cn-setting-title">${escapeHtml(console.name || id)}</div>
+              <div class="cn-setting-desc">${escapeHtml(console.description || '')}</div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            ${console.tld ? `
+              <div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg);border:1px solid var(--line);border-radius:6px;">
+                <span style="font-size:12px;color:var(--muted);font-weight:600;">TLD:</span>
+                <code style="flex:1;font-family:monospace;background:var(--card);padding:2px 6px;border-radius:4px;">${escapeHtml(console.tld)}</code>
+                <button class="cn-settings-btn" style="padding:4px 8px;font-size:11px;" onclick="editTLD('${id}', 'tld', '${escapeAttr(console.tld)}')">✏️</button>
+              </div>
+            ` : ''}
+
+            ${console.aliases && console.aliases.length > 0 ? `
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="font-size:12px;color:var(--muted);font-weight:600;">Aliases:</span>
+                  <button class="cn-settings-btn" style="padding:4px 8px;font-size:11px;" onclick="addTLDAlias('${id}')">+ Add</button>
+                </div>
+                ${console.aliases.map(alias => `
+                  <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg);border:1px solid var(--line);border-radius:4px;margin-left:20px;">
+                    <code style="flex:1;font-family:monospace;font-size:12px;">${escapeHtml(alias)}</code>
+                    <button class="cn-settings-btn danger" style="padding:2px 6px;font-size:10px;" onclick="removeTLDAlias('${id}', '${escapeAttr(alias)}')">🗑️</button>
+                  </div>
+                `).join('')}
+              </div>
+            ` : `
+              <div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg);border:1px solid var(--line);border-radius:6px;">
+                <span style="font-size:12px;color:var(--muted);font-weight:600;">Aliases:</span>
+                <span style="font-size:12px;color:var(--muted);">none</span>
+                <button class="cn-settings-btn" style="padding:4px 8px;font-size:11px;" onclick="addTLDAlias('${id}')">+ Add</button>
+              </div>
+            `}
+          </div>
+        </div>
+      `).join('') || '<div style="color:var(--muted);padding:20px;text-align:center;">No consoles have TLD assignments</div>';
+  }
+
+  // Make functions global for onclick handlers
+  window.editTLD = async (consoleId, type, currentValue) => {
+    const newValue = prompt(`${type.toUpperCase()} for ${consoleId}:`, currentValue);
+    if (!newValue || newValue === currentValue) return;
+
+    try {
+      const response = await fetch('/api/network/tld-assignment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ consoleId, type, value: newValue })
+      });
+
+      if (!response.ok) throw new Error('Failed to update TLD');
+
+      toast('TLD updated successfully');
+      await renderTLDList();
+    } catch (error) {
+      toast(`Error: ${error.message}`);
+    }
+  };
+
+  window.addTLDAlias = async (consoleId) => {
+    const alias = prompt('New alias domain:');
+    if (!alias) return;
+
+    try {
+      const response = await fetch('/api/network/tld-assignment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ consoleId, type: 'add-alias', value: alias })
+      });
+
+      if (!response.ok) throw new Error('Failed to add alias');
+
+      toast('Alias added successfully');
+      await renderTLDList();
+    } catch (error) {
+      toast(`Error: ${error.message}`);
+    }
+  };
+
+  window.removeTLDAlias = async (consoleId, alias) => {
+    if (!confirm(`Remove alias "${alias}" from ${consoleId}?`)) return;
+
+    try {
+      const response = await fetch('/api/network/tld-assignment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ consoleId, type: 'remove-alias', value: alias })
+      });
+
+      if (!response.ok) throw new Error('Failed to remove alias');
+
+      toast('Alias removed successfully');
+      await renderTLDList();
+    } catch (error) {
+      toast(`Error: ${error.message}`);
+    }
+  };
+
+  // Load TLD list when TLD tab is activated
+  const tldTab = page.querySelector('[data-tab="tld"]');
+  if (tldTab) {
+    const originalClick = tldTab.onclick;
+    tldTab.addEventListener('click', async () => {
+      if (originalClick) originalClick();
+      setTimeout(() => renderTLDList(), 100); // Allow panel to show first
+    });
+  }
+
   // Default panel
   setActivePanel('addons');
 
