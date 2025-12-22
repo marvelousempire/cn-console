@@ -12,6 +12,12 @@
  * - Everything in TheBriefcase.App
  * 
  * Similar to Elementor Library - a full arsenal of everything available.
+ * 
+ * Can run as:
+ * - Standalone Console at library.thebriefcase.app
+ * - Installable Cartridge in any console
+ * 
+ * Auto-detects mode based on context.
  */
 
 const CN_DOCS_BASE = 'https://github.com/marvelousempire/ContributionNetwork/blob/main/contributions/';
@@ -517,7 +523,46 @@ function filterLibrary(searchQuery) {
   contentEl.innerHTML = sections || '<div class="briefcase-library-empty">No matches found</div>';
 }
 
+/**
+ * Detect if running as standalone console or as cartridge
+ */
+function isStandaloneMode() {
+  // Check if we're at the library subdomain or standalone path
+  const host = window.location.hostname;
+  const path = window.location.pathname;
+  
+  if (host.includes('library.thebriefcase.app') || host === 'library.thebriefcase.app') {
+    return true;
+  }
+  
+  if (path.includes('/briefcase-library') && !path.includes('/cartridges/')) {
+    return true;
+  }
+  
+  // If library modal is the main content (not a modal), we're standalone
+  const mainContent = document.querySelector('#contentContainer, main, [role="main"]');
+  if (mainContent && mainContent.querySelector('.briefcase-library-modal')) {
+    return true;
+  }
+  
+  return false;
+}
+
 async function openBriefcaseLibrary() {
+  const standalone = isStandaloneMode();
+  
+  if (standalone) {
+    // In standalone mode, render directly in main content area
+    const container = document.querySelector('#contentContainer, main, [role="main"]') || document.body;
+    if (container) {
+      const modalHtml = await renderLibraryModal();
+      // Remove modal wrapper for standalone - render content directly
+      container.innerHTML = modalHtml.replace('briefcase-library-modal', 'briefcase-library-standalone');
+      return;
+    }
+  }
+  
+  // Modal mode (cartridge/embedded)
   if (!libraryModal) {
     libraryModal = document.createElement('div');
     libraryModal.id = 'briefcaseLibraryModal';
