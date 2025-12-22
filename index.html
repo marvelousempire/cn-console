@@ -5,6 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CN Console — The Briefcase</title>
 
+  <!-- 🎨 EARLY THEME DETECTION - Prevents flash of wrong theme -->
+  <script>
+    (function() {
+      // Check saved preference first
+      var saved = localStorage.getItem('sunday-theme') || localStorage.getItem('theme');
+      var theme = saved;
+      
+      // If no saved preference, check system preference
+      if (!theme) {
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        theme = prefersDark ? 'dark' : 'light';
+      }
+      
+      // Apply theme immediately (before CSS loads)
+      if (theme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+      // Dark is default in CSS, so no attribute needed
+    })();
+  </script>
+
   <!-- 🌞 Sunday App Framework - Core CSS -->
   <link rel="stylesheet" href="/sundayapp/css/tokens.css">
   <link rel="stylesheet" href="/sundayapp/css/base.css">
