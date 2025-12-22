@@ -314,6 +314,12 @@ export async function initCNContributions(root = document) {
   const page = root.querySelector('[data-cn-page="contributions"]');
   if (!page) return false;
 
+  // If the page has the new static structure (cn-overview-card), skip loading
+  if (page.querySelector('.cn-overview-card')) {
+    // Static content - no loading needed
+    return true;
+  }
+
   // Ensure we only bind once per page mount.
   if (page.dataset.cnBound === '1') return true;
   page.dataset.cnBound = '1';

@@ -240,7 +240,8 @@ async function initFAB() {
     await import('/sundayapp/components/modals/quick-actions.js');
     const { default: FAB } = await import('/sundayapp/components/buttons/fab.js');
 
-    const fab = new FAB({
+    // Quick Actions FAB (bottom-right)
+    const quickActionsFab = new FAB({
       position: 'bottom-right',
       icon: '⚡',
       label: '',
@@ -249,7 +250,26 @@ async function initFAB() {
       onClick: () => window.QuickActionsModal?.open?.(),
     });
 
-    fab.appendToBody();
+    quickActionsFab.appendToBody();
+
+    // The Briefcase Library FAB (bottom-left)
+    const libraryFab = new FAB({
+      position: 'bottom-left',
+      icon: '📚',
+      label: '',
+      variant: 'brand',
+      size: 'medium',
+      onClick: async () => {
+        try {
+          await import('./cn-library.js');
+          window.openBriefcaseLibrary?.();
+        } catch (e) {
+          console.error('[CN] Library FAB failed:', e);
+        }
+      },
+    });
+
+    libraryFab.appendToBody();
   } catch (e) {
     console.warn('[CN] FAB init failed:', e);
   }

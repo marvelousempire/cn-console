@@ -1,49 +1,542 @@
 <div class="sunday-container" data-cn-page="contributions">
-  <div class="sunday-card" style="margin-bottom: 16px;">
-    <div class="sunday-card__header">
+  <div class="cn-overview-card">
+    <div class="cn-overview-head">
       <div>
-        <div class="sunday-text sunday-text--title">Contribution Network</div>
-        <div class="sunday-text sunday-text--muted">
-          Browse every Contribution (consoles, cartridges, tools, systems) from the CN registry.
-        </div>
+        <div class="cn-overview-title">The Briefcase — Contribution Network Structure</div>
+        <div class="cn-overview-sub">The Operating System inside The Briefcase: building blocks that snap together.</div>
       </div>
-      <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
-        <a class="sunday-btn" id="cnOpenRegistry" target="_blank" rel="noreferrer">Open registry</a>
-        <a class="sunday-btn" id="cnOpenRepo" target="_blank" rel="noreferrer">Open CN repo</a>
+      <div class="cn-toggle">
+        <button id="cnSimpleBtn" class="cn-toggle-btn active" type="button" onclick="switchCnView('simple')">Beginner</button>
+        <button id="cnAdvancedBtn" class="cn-toggle-btn" type="button" onclick="switchCnView('advanced')">Advanced</button>
       </div>
     </div>
 
-    <div class="sunday-card__body">
-      <div class="cn-ecosystem">
-        <div class="cn-ecosystem__label sunday-text sunday-text--muted">Network Structure (Beginner Map)</div>
-        <div id="cnBeginnerRow" class="cn-ecosystem__row"></div>
+    <div id="cnSimple">
+      <div class="cn-node cn-node-network">
+        <div class="cn-node-title">🤝 Contribution Network</div>
+        <div class="cn-node-desc">The Operating System inside The Briefcase. The association + registry (source of truth). Contributions are the work; Members are the beneficiaries.</div>
+        <div class="cn-node-expanded">
+          <p><strong>The Briefcase</strong> is the complete ecosystem containing all Consoles, Cartridges, Apps, Pages, Components, Handbooks, Frameworks, and everything in TheBriefcase.App.</p>
+          <p>Inside The Briefcase exists an <strong>Operating System called "Contribution Network"</strong> (CN). The Contribution Network is an <strong>In Good Faith With Clean Hands Association</strong> that organizes and links <strong>Applications of Works</strong> — frameworks, tools, and systems created for the benefit of trustees, families, and communities.</p>
+          <p>At its core, the CN operates as a <strong>Federated Association</strong> where each contribution maintains its own repository, documentation, and governance while being linked through a central registry. This registry serves as the single source of truth for all contributions, their relationships, dependencies, and metadata.</p>
+          <div class="cn-principles">
+            <h4>Core Principles</h4>
+            <ul>
+              <li><strong>In Good Faith With Clean Hands:</strong> All works are contributed with integrity and transparency</li>
+              <li><strong>Federated Structure:</strong> Each contribution maintains autonomy while being part of the network</li>
+              <li><strong>Registry as Truth:</strong> The CN registry is the authoritative source for all contribution metadata</li>
+              <li><strong>Member Beneficiaries:</strong> The network exists to benefit its members and their communities</li>
+            </ul>
+          </div>
+        </div>
       </div>
 
-      <div class="cn-ecosystem">
-        <div class="cn-ecosystem__label sunday-text sunday-text--muted">Ecosystem</div>
-        <div id="cnEcosystemRow" class="cn-ecosystem__row"></div>
+      <div class="cn-structure-diagram">
+        <div class="cn-node cn-node-settings">
+          <div class="cn-node-title">
+            <span class="cn-step-num-inline">1</span>
+            Configure CN Network Settings
+          </div>
+          <div class="cn-node-desc">Network configuration, routing, TLD, and network-master.json</div>
+          <div class="cn-node-expanded">
+            <p><strong>Step 1:</strong> Set up the Contribution Network configuration. This includes network settings, routing, TLD configuration, and network-master.json settings that control how the entire network operates.</p>
+            <p>The CN Network settings provide the foundation for all contributions to connect and coordinate. Configure routing rules, domain mappings, and network-wide policies that govern how contributions interact.</p>
+          </div>
+          <div class="cn-contributions-carousel" data-type="settings">
+            <div class="cn-carousel-header">
+              <span class="cn-carousel-label">Network Settings Contributions</span>
+              <div class="cn-carousel-nav">
+                <button class="cn-carousel-btn" onclick="scrollCarousel('settings', -1)">◀</button>
+                <button class="cn-carousel-btn" onclick="scrollCarousel('settings', 1)">▶</button>
+              </div>
+            </div>
+            <div class="cn-carousel-track" id="carousel-settings">
+              <div class="cn-carousel-loading">Loading…</div>
+            </div>
+          </div>
+        </div>
+        <div class="cn-node cn-node-framework">
+          <div class="cn-node-title">
+            <span class="cn-step-num-inline">2</span>
+            Framework
+          </div>
+          <div class="cn-node-desc">The engine + shared services</div>
+          <div class="cn-node-expanded">
+            <p><strong>Step 2:</strong> Build or use the Framework — the engine + shared services. This provides the foundational infrastructure (authentication, routing, data persistence, API layer) that all other contributions build upon.</p>
+            <p>The Framework includes:</p>
+            <ul>
+              <li><strong>Core Services:</strong> Authentication, routing, data persistence, API layer</li>
+              <li><strong>Shared Libraries:</strong> Common utilities, helpers, and abstractions</li>
+              <li><strong>Runtime Engine:</strong> Execution environment, module loading, lifecycle management</li>
+              <li><strong>Integration Layer:</strong> APIs for connecting cartridges, apps, and external services</li>
+            </ul>
+            <p>If you're building a Framework contribution, create the core engine. Otherwise, build on an existing Framework like SundayApp.</p>
+          </div>
+          <div class="cn-contributions-carousel" data-type="framework">
+            <div class="cn-carousel-header">
+              <span class="cn-carousel-label">Framework Contributions</span>
+              <div class="cn-carousel-nav">
+                <button class="cn-carousel-btn" onclick="scrollCarousel('framework', -1)">◀</button>
+                <button class="cn-carousel-btn" onclick="scrollCarousel('framework', 1)">▶</button>
+              </div>
+            </div>
+            <div class="cn-carousel-track" id="carousel-framework">
+              <div class="cn-carousel-loading">Loading…</div>
+            </div>
+          </div>
+        </div>
+        <div class="cn-node cn-node-console">
+          <div class="cn-node-title">
+            <span class="cn-step-num-inline">3</span>
+            Console
+          </div>
+          <div class="cn-node-desc">A dashboard UI surface (like this)</div>
+          <div class="cn-node-expanded">
+            <p><strong>Step 3:</strong> Create a Console — a dashboard UI surface that routes users to contributions. Consoles provide navigation, discovery, and integration points.</p>
+            <p>Each console:</p>
+            <ul>
+              <li><strong>Routes Users:</strong> Provides navigation and access to all CN contributions (repos + docs)</li>
+              <li><strong>Unified Interface:</strong> Presents a consistent experience across different contribution types</li>
+              <li><strong>Discovery:</strong> Helps users find and understand available contributions</li>
+              <li><strong>Integration Point:</strong> Connects users to cartridges, apps, and services</li>
+            </ul>
+            <p>Examples: CN Console, Quick Server, Reader Platform. This CN Console is itself a Console contribution.</p>
+          </div>
+          <div class="cn-contributions-carousel" data-type="console">
+            <div class="cn-carousel-header">
+              <span class="cn-carousel-label">Console Contributions</span>
+              <div class="cn-carousel-nav">
+                <button class="cn-carousel-btn" onclick="scrollCarousel('console', -1)">◀</button>
+                <button class="cn-carousel-btn" onclick="scrollCarousel('console', 1)">▶</button>
+              </div>
+            </div>
+            <div class="cn-carousel-track" id="carousel-console">
+              <div class="cn-carousel-loading">Loading…</div>
+            </div>
+          </div>
+        </div>
+        <div class="cn-node cn-node-cartridge">
+          <div class="cn-node-title">
+            <span class="cn-step-num-inline">4</span>
+            Cartridge
+          </div>
+          <div class="cn-node-desc">A plug‑in feature bundle</div>
+          <div class="cn-node-expanded">
+            <p><strong>Step 4:</strong> Build a Cartridge — a plug-in feature bundle that extends Framework capabilities. Cartridges are self-contained with UI, logic, configuration, and documentation.</p>
+            <p>Cartridges include:</p>
+            <ul>
+              <li><strong>Modular Design:</strong> Independent, reusable components that can be added or removed</li>
+              <li><strong>Complete Features:</strong> Include UI, logic, configuration, and documentation</li>
+              <li><strong>Standardized Structure:</strong> Follow consistent patterns for discovery and integration</li>
+              <li><strong>Dependency Management:</strong> Can depend on other cartridges or Framework services</li>
+            </ul>
+            <p>Examples: AI Console, WordPress Manager, Docker Manager, Settings Hub.</p>
+          </div>
+          <div class="cn-contributions-carousel" data-type="cartridge">
+            <div class="cn-carousel-header">
+              <span class="cn-carousel-label">Cartridge Contributions</span>
+              <div class="cn-carousel-nav">
+                <button class="cn-carousel-btn" onclick="scrollCarousel('cartridge', -1)">◀</button>
+                <button class="cn-carousel-btn" onclick="scrollCarousel('cartridge', 1)">▶</button>
+              </div>
+            </div>
+            <div class="cn-carousel-track" id="carousel-cartridge">
+              <div class="cn-carousel-loading">Loading…</div>
+            </div>
+          </div>
+        </div>
+        <div class="cn-node cn-node-app">
+          <div class="cn-node-title">
+            <span class="cn-step-num-inline">5</span>
+            App
+          </div>
+          <div class="cn-node-desc">A module inside a cartridge</div>
+          <div class="cn-node-expanded">
+            <p><strong>Step 5:</strong> Develop an App — a module inside a cartridge that provides specific capabilities. Apps handle focused functionality within the cartridge's context.</p>
+            <p>Apps provide:</p>
+            <ul>
+              <li><strong>Focused Functionality:</strong> Each app handles a specific domain or use case</li>
+              <li><strong>Cartridge Context:</strong> Operates within the cartridge's namespace and resources</li>
+              <li><strong>Reusable Components:</strong> Can be shared across cartridges when appropriate</li>
+              <li><strong>API Integration:</strong> Connects to backend services and external APIs</li>
+            </ul>
+            <p>Apps enable cartridges to organize complex functionality into manageable, cohesive units.</p>
+          </div>
+          <div class="cn-contributions-carousel" data-type="app">
+            <div class="cn-carousel-header">
+              <span class="cn-carousel-label">App Contributions</span>
+              <div class="cn-carousel-nav">
+                <button class="cn-carousel-btn" onclick="scrollCarousel('app', -1)">◀</button>
+                <button class="cn-carousel-btn" onclick="scrollCarousel('app', 1)">▶</button>
+              </div>
+            </div>
+            <div class="cn-carousel-track" id="carousel-app">
+              <div class="cn-carousel-loading">Loading…</div>
+            </div>
+          </div>
+        </div>
+        <div class="cn-node cn-node-page">
+          <div class="cn-node-title">
+            <span class="cn-step-num-inline">6</span>
+            Page
+          </div>
+          <div class="cn-node-desc">A screen / route</div>
+          <div class="cn-node-expanded">
+            <p><strong>Step 6:</strong> Create a Page — a screen or route that users interact with. Pages are built from reusable UI components and compose the user experience.</p>
+            <p>Pages include:</p>
+            <ul>
+              <li><strong>User Interface:</strong> The visual presentation and interaction layer</li>
+              <li><strong>Route Mapping:</strong> Each page corresponds to a specific URL or route</li>
+              <li><strong>Component Composition:</strong> Built from reusable UI components</li>
+              <li><strong>State Management:</strong> Handles local state and data fetching</li>
+            </ul>
+            <p>Pages are the atomic units of user experience, combining components, data, and interactions into cohesive screens.</p>
+          </div>
+          <div class="cn-contributions-carousel" data-type="page">
+            <div class="cn-carousel-header">
+              <span class="cn-carousel-label">Page Contributions</span>
+              <div class="cn-carousel-nav">
+                <button class="cn-carousel-btn" onclick="scrollCarousel('page', -1)">◀</button>
+                <button class="cn-carousel-btn" onclick="scrollCarousel('page', 1)">▶</button>
+              </div>
+            </div>
+            <div class="cn-carousel-track" id="carousel-page">
+              <div class="cn-carousel-loading">Loading…</div>
+            </div>
+          </div>
+        </div>
+        <div class="cn-node cn-node-component">
+          <div class="cn-node-title">
+            <span class="cn-step-num-inline">7</span>
+            Component
+          </div>
+          <div class="cn-node-desc">A reusable UI building block</div>
+          <div class="cn-node-expanded">
+            <p><strong>Step 7:</strong> Build Components — reusable UI building blocks that compose Pages. Components are the foundational elements that create consistent, maintainable interfaces.</p>
+            <p>Components provide:</p>
+            <ul>
+              <li><strong>Reusability:</strong> Used across multiple pages and contexts</li>
+              <li><strong>Consistency:</strong> Ensure uniform design and behavior</li>
+              <li><strong>Modularity:</strong> Encapsulate specific functionality and styling</li>
+              <li><strong>Composability:</strong> Combine to build complex interfaces</li>
+            </ul>
+            <p>Components are the building blocks that Pages use to create user interfaces. They handle specific UI patterns, interactions, and visual elements that can be reused throughout the application.</p>
+          </div>
+          <div class="cn-contributions-carousel" data-type="component">
+            <div class="cn-carousel-header">
+              <span class="cn-carousel-label">Component Contributions</span>
+              <div class="cn-carousel-nav">
+                <button class="cn-carousel-btn" onclick="scrollCarousel('component', -1)">◀</button>
+                <button class="cn-carousel-btn" onclick="scrollCarousel('component', 1)">▶</button>
+              </div>
+            </div>
+            <div class="cn-carousel-track" id="carousel-component">
+              <div class="cn-carousel-loading">Loading…</div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="cn-controls">
-        <input id="cnSearch" class="cn-input" placeholder="Search contributions (name, type, tagline, repo)…" />
-        <select id="cnType" class="cn-select">
-          <option value="">All types</option>
-        </select>
-        <select id="cnStatus" class="cn-select">
-          <option value="">All status</option>
-          <option value="active">Active</option>
-          <option value="planned">Planned</option>
-          <option value="archived">Archived</option>
-        </select>
-        <button id="cnReload" class="sunday-btn">Reload</button>
+      <div class="cn-inventory">
+        <div class="cn-overview-sub" style="margin-bottom:8px">Current inventory (by type)</div>
+        <div id="cnCounts" class="cn-pill-row">
+          <span class="cn-pill">Loading…</span>
+        </div>
       </div>
+    </div>
 
-      <div class="cn-meta">
-        <div id="cnMeta" class="sunday-text sunday-text--muted">Loading…</div>
+    <div id="cnAdvanced" style="display:none">
+      <div id="cnAdvancedMd" class="sunday-markdown">
+        <h2>Advanced Network Architecture</h2>
+        
+        <h3>Federated Association Model</h3>
+        <p>The Contribution Network operates as a <strong>Federated Association</strong> where each contribution maintains its own repository, documentation, and governance while being linked through a central registry. This model provides:</p>
+        <ul>
+          <li><strong>Autonomy:</strong> Each contribution can evolve independently</li>
+          <li><strong>Interoperability:</strong> Contributions work together through defined interfaces</li>
+          <li><strong>Scalability:</strong> The network can grow without central bottlenecks</li>
+          <li><strong>Resilience:</strong> Failure of one contribution doesn't break the network</li>
+        </ul>
+
+        <h3>Registry Architecture</h3>
+        <p>The CN registry (<code>registry/cn-registry.json</code>) serves as the single source of truth. It contains:</p>
+        <ul>
+          <li><strong>Contribution Metadata:</strong> Name, type, description, version, status, maintainer</li>
+          <li><strong>Linkage Information:</strong> Repository URLs, documentation links, homepage</li>
+          <li><strong>Relationship Graph:</strong> Dependencies, related contributions, parent/child relationships</li>
+          <li><strong>Classification System:</strong> Categories, tags, contribution types</li>
+          <li><strong>Governance Data:</strong> License, contribution guidelines, update policies</li>
+        </ul>
+
+        <h3>Framework Layer</h3>
+        <p>The Framework provides the foundational infrastructure:</p>
+        <ul>
+          <li><strong>Core Services:</strong> Authentication, authorization, routing, data persistence, API layer</li>
+          <li><strong>Shared Libraries:</strong> Common utilities, helpers, abstractions, design patterns</li>
+          <li><strong>Runtime Engine:</strong> Execution environment, module loading, lifecycle management, hot reloading</li>
+          <li><strong>Integration Layer:</strong> APIs for connecting cartridges, apps, external services, webhooks</li>
+          <li><strong>Development Tools:</strong> CLI, build systems, testing frameworks, debugging tools</li>
+        </ul>
+
+        <h3>Console Layer</h3>
+        <p>Consoles provide user-facing interfaces:</p>
+        <ul>
+          <li><strong>Navigation:</strong> Routes users to all CN contributions (repos + docs)</li>
+          <li><strong>Discovery:</strong> Search, filtering, categorization of contributions</li>
+          <li><strong>Integration:</strong> Connects users to cartridges, apps, and services</li>
+          <li><strong>Management:</strong> Configuration, monitoring, administration interfaces</li>
+        </ul>
+
+        <h3>Cartridge System</h3>
+        <p>Cartridges are self-contained feature bundles:</p>
+        <ul>
+          <li><strong>Modular Design:</strong> Independent, reusable, pluggable components</li>
+          <li><strong>Complete Features:</strong> UI, logic, configuration, documentation, tests</li>
+          <li><strong>Standardized Structure:</strong> Consistent patterns for discovery and integration</li>
+          <li><strong>Dependency Management:</strong> Can depend on other cartridges or Framework services</li>
+          <li><strong>Versioning:</strong> Semantic versioning, backward compatibility, migration paths</li>
+        </ul>
+
+        <h3>App Architecture</h3>
+        <p>Apps are functional modules within cartridges:</p>
+        <ul>
+          <li><strong>Focused Functionality:</strong> Each app handles a specific domain or use case</li>
+          <li><strong>Cartridge Context:</strong> Operates within the cartridge's namespace and resources</li>
+          <li><strong>Reusable Components:</strong> Can be shared across cartridges when appropriate</li>
+          <li><strong>API Integration:</strong> Connects to backend services and external APIs</li>
+          <li><strong>State Management:</strong> Local state, shared state, persistence strategies</li>
+        </ul>
+
+        <h3>Page System</h3>
+        <p>Pages are individual screens or routes:</p>
+        <ul>
+          <li><strong>User Interface:</strong> Visual presentation and interaction layer</li>
+          <li><strong>Route Mapping:</strong> URL structure, routing logic, navigation</li>
+          <li><strong>Component Composition:</strong> Built from reusable UI components</li>
+          <li><strong>State Management:</strong> Local state, data fetching, caching</li>
+          <li><strong>Performance:</strong> Lazy loading, code splitting, optimization</li>
+        </ul>
+
+        <h3>Component System</h3>
+        <p>Components are reusable UI building blocks:</p>
+        <ul>
+          <li><strong>Reusability:</strong> Used across multiple pages and contexts</li>
+          <li><strong>Consistency:</strong> Ensure uniform design and behavior</li>
+          <li><strong>Modularity:</strong> Encapsulate specific functionality and styling</li>
+          <li><strong>Composability:</strong> Combine to build complex interfaces</li>
+          <li><strong>Maintainability:</strong> Centralized updates affect all usages</li>
+        </ul>
+
+        <h3>Contribution Lifecycle</h3>
+        <ol>
+          <li><strong>Conception:</strong> Identify need, define scope, plan architecture</li>
+          <li><strong>Development:</strong> Create your repository with proper documentation, build, test, iterate</li>
+          <li><strong>Documentation:</strong> Create <code>contributions/&lt;id&gt;.md</code> describing what it is and how it plugs into the CN</li>
+          <li><strong>Registration:</strong> Add entry to <code>registry/cn-registry.json</code> with complete metadata (ID, type, name, tagline, description, repo URL)</li>
+          <li><strong>Integration:</strong> Connect with Framework and other contributions as needed</li>
+          <li><strong>Maintenance:</strong> Updates, bug fixes, feature additions, keep registry and docs current</li>
+        </ol>
+
+        <h3>Network Benefits</h3>
+        <ul>
+          <li><strong>Discoverability:</strong> Central registry makes finding contributions easy</li>
+          <li><strong>Reusability:</strong> Build on existing contributions, avoid duplication</li>
+          <li><strong>Collaboration:</strong> Share knowledge, improve collectively</li>
+          <li><strong>Scalability:</strong> Grow organically while maintaining organization</li>
+          <li><strong>Governance:</strong> Clear processes ensure quality and maintainability</li>
+          <li><strong>Innovation:</strong> New contributions can be added easily</li>
+        </ul>
       </div>
-
-      <div id="cnError" class="cn-error" style="display:none"></div>
-      <div id="cnGrid" class="cn-grid"></div>
     </div>
   </div>
 </div>
+
+<script>
+function switchCnView(view) {
+  const simpleBtn = document.getElementById('cnSimpleBtn');
+  const advancedBtn = document.getElementById('cnAdvancedBtn');
+  const simplePanel = document.getElementById('cnSimple');
+  const advancedPanel = document.getElementById('cnAdvanced');
+  
+  if (view === 'simple') {
+    simpleBtn.classList.add('active');
+    advancedBtn.classList.remove('active');
+    simplePanel.style.display = 'block';
+    advancedPanel.style.display = 'none';
+  } else {
+    simpleBtn.classList.remove('active');
+    advancedBtn.classList.add('active');
+    simplePanel.style.display = 'none';
+    advancedPanel.style.display = 'block';
+  }
+}
+
+// Load actual inventory counts from registry
+async function loadInventory() {
+  const countsEl = document.getElementById('cnCounts');
+  if (!countsEl) return;
+
+  try {
+    const res = await fetch('/api/cn/contributions', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    
+    const data = await res.json();
+    const contributions = Array.isArray(data?.contributions) ? data.contributions : [];
+    
+    // Count by type
+    const typeCounts = {};
+    const typeEmojis = {
+      'framework': '🌞',
+      'framework-utility': '🐝',
+      'console': '🖥️',
+      'console-cartridge': '🖥️',
+      'cartridge': '🎮',
+      'utility-cartridge': '🐝',
+      'tool': '⚙️',
+      'system': '🏗️',
+      'handbook': '📜',
+      'admin-core': '🌞'
+    };
+    
+    const typeLabels = {
+      'framework': 'Framework',
+      'framework-utility': 'Framework Utility',
+      'console': 'Console',
+      'console-cartridge': 'Console Cartridge',
+      'cartridge': 'Cartridge',
+      'utility-cartridge': 'Utility Cartridge',
+      'tool': 'Tool',
+      'system': 'System',
+      'handbook': 'Handbook',
+      'admin-core': 'Admin Core'
+    };
+    
+    contributions.forEach(c => {
+      const type = c.type || 'unknown';
+      typeCounts[type] = (typeCounts[type] || 0) + 1;
+    });
+    
+    // Build pills
+    const pills = Object.entries(typeCounts)
+      .sort((a, b) => b[1] - a[1]) // Sort by count descending
+      .map(([type, count]) => {
+        const emoji = typeEmojis[type] || '📦';
+        const label = typeLabels[type] || type;
+        return `<span class="cn-pill">${emoji} ${label}: ${count}</span>`;
+      });
+    
+    if (pills.length > 0) {
+      countsEl.innerHTML = pills.join('');
+    } else {
+      countsEl.innerHTML = '<span class="cn-pill">No contributions found</span>';
+    }
+  } catch (e) {
+    console.error('Failed to load inventory:', e);
+    countsEl.innerHTML = '<span class="cn-pill">Unable to load inventory</span>';
+  }
+}
+
+// Load inventory when page is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadInventory);
+} else {
+  loadInventory();
+}
+
+// Load contributions into carousels
+let contributionsData = null;
+
+function escapeHtml(str) {
+  return String(str)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+async function loadContributions() {
+  try {
+    const res = await fetch('/api/cn/contributions', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    contributionsData = Array.isArray(data?.contributions) ? data.contributions : [];
+    populateCarousels();
+  } catch (e) {
+    console.error('Failed to load contributions:', e);
+    document.querySelectorAll('.cn-carousel-loading').forEach(el => {
+      el.textContent = 'Unable to load contributions';
+    });
+  }
+}
+
+function populateCarousels() {
+  if (!contributionsData) return;
+
+  // Type mapping for carousels
+  const typeMapping = {
+    'settings': ['admin-core', 'framework-utility'],
+    'framework': ['framework', 'framework-utility'],
+    'console': ['console', 'console-cartridge'],
+    'cartridge': ['cartridge', 'utility-cartridge'],
+    'app': ['tool', 'system'],
+    'page': [], // Pages are typically not registered as contributions
+    'component': [] // Components are typically not registered as contributions
+  };
+
+  Object.keys(typeMapping).forEach(carouselType => {
+    const carouselEl = document.getElementById(`carousel-${carouselType}`);
+    if (!carouselEl) return;
+
+    const types = typeMapping[carouselType];
+    const filtered = contributionsData.filter(c => types.includes(c.type));
+
+    if (filtered.length === 0) {
+      carouselEl.innerHTML = '<div class="cn-carousel-empty">No contributions of this type</div>';
+      return;
+    }
+
+    const cards = filtered.map(c => {
+      const emoji = c.emoji || '📦';
+      const name = c.name || c.id || 'Unknown';
+      const tagline = c.tagline || '';
+      const desc = c.description || '';
+      const repoUrl = c.repository?.url || '';
+      const status = c.status || 'unknown';
+      const category = c.category || '';
+
+      return `
+        <div class="cn-carousel-card">
+          <div class="cn-carousel-card__emoji">${escapeHtml(emoji)}</div>
+          <div class="cn-carousel-card__content">
+            <div class="cn-carousel-card__name">${escapeHtml(name)}</div>
+            ${tagline ? `<div class="cn-carousel-card__tagline">${escapeHtml(tagline)}</div>` : ''}
+            ${desc ? `<div class="cn-carousel-card__desc">${escapeHtml(desc)}</div>` : ''}
+            <div class="cn-carousel-card__meta">
+              ${status ? `<span class="cn-carousel-badge cn-badge-${status}">${escapeHtml(status)}</span>` : ''}
+              ${category ? `<span class="cn-carousel-badge">${escapeHtml(category)}</span>` : ''}
+            </div>
+            ${repoUrl ? `<a href="${escapeHtml(repoUrl)}" target="_blank" rel="noreferrer" class="cn-carousel-card__link">View Repository →</a>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    carouselEl.innerHTML = cards;
+  });
+}
+
+function scrollCarousel(type, direction) {
+  const track = document.getElementById(`carousel-${type}`);
+  if (!track) return;
+  const scrollAmount = 320; // Card width + gap
+  track.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+}
+
+// Load contributions when page is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadContributions);
+} else {
+  loadContributions();
+}
+</script>
