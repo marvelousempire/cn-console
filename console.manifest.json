@@ -1,0 +1,13 @@
+{
+  "consoleId": "cn-console",
+  "name": "Contribution Network Console",
+  "description": "Main contribution and collaboration hub",
+  "activeCartridges": [
+    "registry",
+    "contributions",
+    "network-settings",
+    "protocols"
+  ],
+  "created": "2025-12-22",
+  "lastUpdated": "2025-12-22"
+}

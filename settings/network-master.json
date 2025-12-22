@@ -35,9 +35,11 @@
       },
       "ai-console": {
         "path": "/ai-console",
-        "name": "AI Console",
+        "name": "NIVRAM.AI Console",
         "icon": "🤖",
-        "description": "AI features, Ollama, and model management"
+        "description": "NIVRAM.AI - Intelligent assistant for Quick Server operations",
+        "tld": "nivram.ai",
+        "aliases": ["www.nivram.ai", "ai.nivram.ai"]
       },
       "hive-console": {
         "path": "/hive-console",
