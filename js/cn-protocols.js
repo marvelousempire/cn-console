@@ -9,11 +9,9 @@ export async function initCNProtocols(root = document) {
   page.dataset.cnBound = '1';
 
   const readmeEl = page.querySelector('#cnReadme');
-  const tocNav = page.querySelector('#cnTocNav');
   const pickEl = page.querySelector('#cnSection');
   const searchEl = page.querySelector('#cnSectionSearch');
   const clearBtn = page.querySelector('#cnClear');
-  const totalSectionsEl = page.querySelector('#cnTotalSections');
 
   let md = '';
   let headings = [];
@@ -72,91 +70,12 @@ export async function initCNProtocols(root = document) {
     } catch {}
   }
 
-  async function renderToc() {
-    if (!tocNav) return;
-
-    const tocItems = headings.map((heading, index) => {
-      const indent = '  '.repeat(Math.max(0, heading.level - 1));
-      const icon = heading.level === 1 ? '📖' :
-                   heading.level === 2 ? '📄' :
-                   heading.level === 3 ? '📝' : '•';
-      const classes = `cn-toc-item lvl-${heading.level}`;
-
-      return `${indent}<a href="#" class="${classes}" data-heading="${heading.text}" data-index="${index}">
-        <span class="cn-toc-icon">${icon}</span>
-        <span class="cn-toc-text">${heading.text}</span>
-      </a>`;
-    }).join('\n');
-
-    tocNav.innerHTML = tocItems;
-
-    // Update total sections count
-    if (totalSectionsEl) {
-      totalSectionsEl.textContent = headings.length;
-    }
-
-    // Add click handlers for TOC items
-    tocNav.querySelectorAll('.cn-toc-item').forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        const headingText = item.dataset.heading;
-        if (headingText && pickEl) {
-          pickEl.value = headingText;
-          render();
-        }
-      });
-    });
-  }
-
   async function render() {
     const section = (pickEl?.value || '').trim();
     setSectionInUrl(section);
 
-    try {
-      // Custom markdown rendering with section filtering
-      const { markdownToHTML } = await import('/sites/learnmappers/js/markdown-to-html.js');
-      let html = markdownToHTML(md);
-
-      // If a specific section is selected, filter the content
-      if (section) {
-        const sectionRegex = new RegExp(`<h[1-3][^>]*>${escapeRegExp(section)}</h[1-3]>`, 'i');
-        const match = html.match(sectionRegex);
-        if (match) {
-          const startIndex = html.indexOf(match[0]);
-          let endIndex = html.length;
-
-          // Find the next heading at the same level or higher
-          const currentLevel = parseInt(match[0].match(/<h([1-3])/)[1]);
-          const nextHeadingRegex = new RegExp(`<h[1-${currentLevel}][^>]*>.*?</h[1-${currentLevel}>`, 'gi');
-          nextHeadingRegex.lastIndex = startIndex + match[0].length;
-
-          const nextMatch = nextHeadingRegex.exec(html);
-          if (nextMatch) {
-            endIndex = nextMatch.index;
-          }
-
-          html = html.substring(startIndex, endIndex);
-        }
-      }
-
-      // Add custom styling to the rendered content
-      html = html.replace(/<h1[^>]*>(.*?)<\/h1>/gi, '<h1 class="cn-content-title">$1</h1>');
-      html = html.replace(/<h2[^>]*>(.*?)<\/h2>/gi, '<h2 class="cn-section-title">$1</h2>');
-      html = html.replace(/<h3[^>]*>(.*?)<\/h3>/gi, '<h3 class="cn-subsection-title">$1</h3>');
-
-      readmeEl.innerHTML = html;
-    } catch (error) {
-      console.error('Error rendering markdown:', error);
-      readmeEl.innerHTML = `<div class="cn-error-state">
-        <h3>❌ Rendering Error</h3>
-        <p>Failed to render the documentation content.</p>
-        <details><summary>Technical Details</summary><pre>${error.message}</pre></details>
-      </div>`;
-    }
-  }
-
-  function escapeRegExp(string) {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const { mountMarkdown } = await import('/core/markdown.js');
+    mountMarkdown(readmeEl, md, { toc: true, tocMaxDepth: 3, layout: 'split', sectionHeading: section || undefined });
   }
 
   async function init() {
@@ -167,7 +86,6 @@ export async function initCNProtocols(root = document) {
 
       headings = extractHeadings(md);
       renderOptions('');
-      renderToc();
 
       const urlSection = getSectionFromUrl();
       if (urlSection && pickEl) {

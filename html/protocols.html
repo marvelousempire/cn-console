@@ -1,121 +1,22 @@
-<!-- CN PROTOCOLS PAGE - COMPLETE REDESIGN -->
 <div class="sunday-container" data-cn-page="protocols">
-
-  <!-- HERO SECTION -->
-  <div class="cn-hero-section">
-    <div class="cn-hero-content">
-      <div class="cn-hero-icon">🤝</div>
-      <h1 class="cn-hero-title">Contribution Network</h1>
-      <p class="cn-hero-subtitle">An In Good Faith With Clean Hands Association</p>
-      <div class="cn-hero-meta">
-        <span class="cn-meta-item">📅 Active Network</span>
-        <span class="cn-meta-item">👥 16 Contributions</span>
-        <span class="cn-meta-item">🎯 Framework + Tools</span>
+  <div class="sunday-card" style="margin-bottom: 16px;">
+    <div class="sunday-card__header">
+      <div>
+        <div class="sunday-text sunday-text--title">Protocols</div>
+        <div class="sunday-text sunday-text--muted">Live CN README with section navigator</div>
       </div>
     </div>
-    <div class="cn-hero-visual">
-      <div class="cn-network-diagram">
-        <div class="cn-node cn-node-core">
-          <div class="cn-node-icon">🌞</div>
-          <div class="cn-node-label">CN Core</div>
-        </div>
-        <div class="cn-connection-line"></div>
-        <div class="cn-nodes-grid">
-          <div class="cn-node cn-node-framework">
-            <div class="cn-node-icon">⚙️</div>
-            <div class="cn-node-label">Frameworks</div>
-          </div>
-          <div class="cn-node cn-node-console">
-            <div class="cn-node-icon">🖥️</div>
-            <div class="cn-node-label">Consoles</div>
-          </div>
-          <div class="cn-node cn-node-cartridge">
-            <div class="cn-node-icon">📦</div>
-            <div class="cn-node-label">Cartridges</div>
-          </div>
-          <div class="cn-node cn-node-app">
-            <div class="cn-node-icon">🎮</div>
-            <div class="cn-node-label">Apps</div>
-          </div>
-        </div>
+
+    <div class="sunday-card__body">
+      <div class="cn-controls" style="margin-bottom: 12px;">
+        <input id="cnSectionSearch" class="cn-input" placeholder="Find section… (press / to focus)" />
+        <select id="cnSection" class="cn-select">
+          <option value="">Full README</option>
+        </select>
+        <button id="cnClear" class="sunday-btn">Clear</button>
       </div>
+
+      <div id="cnReadme" class="sunday-markdown">Loading…</div>
     </div>
   </div>
-
-  <!-- NAVIGATION BAR -->
-  <div class="cn-nav-bar">
-    <div class="cn-nav-controls">
-      <div class="cn-search-wrapper">
-        <input id="cnSectionSearch" class="cn-search-input" placeholder="Search sections..." />
-        <div class="cn-search-icon">🔍</div>
-      </div>
-      <select id="cnSection" class="cn-section-select">
-        <option value="">📖 Full Documentation</option>
-      </select>
-      <button id="cnClear" class="cn-clear-btn">⟲ Reset</button>
-    </div>
-  </div>
-
-  <!-- MAIN CONTENT AREA -->
-  <div class="cn-content-layout">
-    <!-- SIDEBAR NAVIGATION -->
-    <aside class="cn-sidebar">
-      <div class="cn-sidebar-header">
-        <h3>📋 Table of Contents</h3>
-        <div class="cn-sidebar-stats">
-          <span id="cnTotalSections">0</span> sections
-        </div>
-      </div>
-      <nav class="cn-toc-nav" id="cnTocNav">
-        <!-- TOC items will be inserted here -->
-      </nav>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main class="cn-main-content">
-      <div id="cnReadme" class="cn-content-body">
-        <!-- Content will be loaded here -->
-        <div class="cn-loading-state">
-          <div class="cn-loading-spinner"></div>
-          <p>Loading Contribution Network protocols...</p>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- QUICK ACTIONS FOOTER -->
-  <div class="cn-actions-footer">
-    <div class="cn-action-cards">
-      <div class="cn-action-card">
-        <div class="cn-action-icon">🚀</div>
-        <div class="cn-action-content">
-          <h4>Get Started</h4>
-          <p>Begin your journey with CN contributions</p>
-        </div>
-        <button class="cn-action-btn">Explore</button>
-      </div>
-      <div class="cn-action-card">
-        <div class="cn-action-icon">🤝</div>
-        <div class="cn-action-content">
-          <h4>Contribute</h4>
-          <p>Add your work to the network</p>
-        </div>
-        <button class="cn-action-btn">Learn More</button>
-      </div>
-      <div class="cn-action-card">
-        <div class="cn-action-icon">📊</div>
-        <div class="cn-action-content">
-          <h4>Registry</h4>
-          <p>Browse all contributions</p>
-        </div>
-        <button class="cn-action-btn">View All</button>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- HIDDEN CONTENT FOR FALLBACK -->
-<div id="cnFallbackContent" style="display: none;">
-  <div class="sunday-markdown">Loading protocols...</div>
 </div>
