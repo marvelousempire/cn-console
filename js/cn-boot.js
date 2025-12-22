@@ -415,6 +415,9 @@ async function initApp() {
 
   setBoot('Checking session…');
   const auth = typeof getAuthClient === 'function' ? getAuthClient() : null;
+  if (!auth) {
+    console.warn('[CN Boot] Auth client not available, skipping session check');
+  }
   const hash = window.location.hash || '';
   const route = hash.replace(/^#/, '').replace(/^\//, '').split('?')[0] || '';
   const isLogin = route === 'login';
