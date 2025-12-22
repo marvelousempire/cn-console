@@ -265,12 +265,20 @@ function renderLibraryCard(c) {
 function renderLibrarySection(type, contributions, label, emoji) {
   if (!contributions || contributions.length === 0) return '';
 
+  // Count active and inactive
+  const active = contributions.filter(c => (c.status || '').toLowerCase() === 'active').length;
+  const inactive = contributions.length - active;
+
+  const countDisplay = inactive > 0 
+    ? `<span class="briefcase-library-section__count"><span class="count-active">${active} active</span><span class="count-separator"> • </span><span class="count-inactive">${inactive} inactive</span></span>`
+    : `<span class="briefcase-library-section__count"><span class="count-active">${active} active</span></span>`;
+
   return `
     <div class="briefcase-library-section">
       <div class="briefcase-library-section__header">
         <span class="briefcase-library-section__emoji">${emoji}</span>
         <h3 class="briefcase-library-section__title">${escapeHtml(label)}</h3>
-        <span class="briefcase-library-section__count">${contributions.length}</span>
+        ${countDisplay}
       </div>
       <div class="briefcase-library-section__grid">
         ${contributions.map(c => renderLibraryCard(c)).join('')}

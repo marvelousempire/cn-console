@@ -164,12 +164,27 @@
 }
 
 .briefcase-library-section__count {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--text-muted, #6b7280);
-  background: var(--bg, #f9fafb);
-  padding: 4px 12px;
-  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.briefcase-library-section__count .count-active {
+  color: rgba(34, 197, 94, 1);
+  font-weight: 700;
+}
+
+.briefcase-library-section__count .count-inactive {
+  color: var(--text-muted, #6b7280);
+  font-weight: 600;
+}
+
+.briefcase-library-section__count .count-separator {
+  color: var(--text-muted, #6b7280);
+  opacity: 0.5;
 }
 
 /* Library Grid */
