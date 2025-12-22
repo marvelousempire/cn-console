@@ -10,10 +10,10 @@ export async function initCNProtocols(root = document) {
 
   const readmeEl = page.querySelector('#cnReadme');
   const tocNav = page.querySelector('#cnTocNav');
-  const tocCount = page.querySelector('#cnTocCount');
   const pickEl = page.querySelector('#cnSection');
   const searchEl = page.querySelector('#cnSectionSearch');
   const clearBtn = page.querySelector('#cnClear');
+  const totalSectionsEl = page.querySelector('#cnTotalSections');
 
   let md = '';
   let headings = [];
@@ -72,30 +72,30 @@ export async function initCNProtocols(root = document) {
     } catch {}
   }
 
-  function generateTocHtml() {
-    if (!tocNav || !headings.length) return;
+  async function renderToc() {
+    if (!tocNav) return;
 
     const tocItems = headings.map((heading, index) => {
-      const indent = heading.level - 1;
+      const indent = '  '.repeat(Math.max(0, heading.level - 1));
       const icon = heading.level === 1 ? '📖' :
                    heading.level === 2 ? '📄' :
                    heading.level === 3 ? '📝' : '•';
       const classes = `cn-toc-item lvl-${heading.level}`;
 
-      return `<a href="#" class="${classes}" data-heading="${heading.text}" data-index="${index}" style="padding-left: ${16 + indent * 16}px;">
-        <span style="margin-right: 8px;">${icon}</span>
-        <span>${heading.text}</span>
+      return `${indent}<a href="#" class="${classes}" data-heading="${heading.text}" data-index="${index}">
+        <span class="cn-toc-icon">${icon}</span>
+        <span class="cn-toc-text">${heading.text}</span>
       </a>`;
-    }).join('');
+    }).join('\n');
 
     tocNav.innerHTML = tocItems;
 
-    // Update count
-    if (tocCount) {
-      tocCount.textContent = headings.length;
+    // Update total sections count
+    if (totalSectionsEl) {
+      totalSectionsEl.textContent = headings.length;
     }
 
-    // Add click handlers
+    // Add click handlers for TOC items
     tocNav.querySelectorAll('.cn-toc-item').forEach(item => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
@@ -103,69 +103,60 @@ export async function initCNProtocols(root = document) {
         if (headingText && pickEl) {
           pickEl.value = headingText;
           render();
-          // Scroll to the selected section
-          setTimeout(() => {
-            const headingElement = readmeEl.querySelector(`[data-md-anchor="${headingText.toLowerCase().replace(/[^a-z0-9]+/g, '-')}"]`);
-            if (headingElement) {
-              headingElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          }, 100);
         }
       });
     });
-  }
-
-  function updateActiveTocItem() {
-    if (!tocNav) return;
-
-    const headingsInContent = Array.from(readmeEl.querySelectorAll('h1, h2, h3'));
-    const scrollPosition = window.scrollY + 100; // Offset for header
-
-    let activeIndex = -1;
-    for (let i = 0; i < headingsInContent.length; i++) {
-      const heading = headingsInContent[i];
-      const rect = heading.getBoundingClientRect();
-      const elementTop = window.scrollY + rect.top;
-
-      if (elementTop <= scrollPosition) {
-        activeIndex = i;
-      } else {
-        break;
-      }
-    }
-
-    // Remove active class from all items
-    tocNav.querySelectorAll('.cn-toc-item').forEach(item => {
-      item.classList.remove('active');
-    });
-
-    // Add active class to current item
-    if (activeIndex >= 0) {
-      const activeItem = tocNav.querySelector(`.cn-toc-item[data-index="${activeIndex}"]`);
-      if (activeItem) {
-        activeItem.classList.add('active');
-        // Scroll TOC to keep active item visible
-        activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    }
   }
 
   async function render() {
     const section = (pickEl?.value || '').trim();
     setSectionInUrl(section);
 
-    const { mountMarkdown } = await import('/core/markdown.js');
-    await mountMarkdown(readmeEl, md, { toc: false, tocMaxDepth: 3, layout: 'single', sectionHeading: section || undefined });
+    try {
+      // Custom markdown rendering with section filtering
+      const { markdownToHTML } = await import('/sites/learnmappers/js/markdown-to-html.js');
+      let html = markdownToHTML(md);
 
-    // Generate our custom TOC after content is rendered
-    generateTocHtml();
+      // If a specific section is selected, filter the content
+      if (section) {
+        const sectionRegex = new RegExp(`<h[1-3][^>]*>${escapeRegExp(section)}</h[1-3]>`, 'i');
+        const match = html.match(sectionRegex);
+        if (match) {
+          const startIndex = html.indexOf(match[0]);
+          let endIndex = html.length;
 
-    // Set up scroll listener for active TOC highlighting
-    const handleScroll = () => updateActiveTocItem();
-    window.addEventListener('scroll', handleScroll);
+          // Find the next heading at the same level or higher
+          const currentLevel = parseInt(match[0].match(/<h([1-3])/)[1]);
+          const nextHeadingRegex = new RegExp(`<h[1-${currentLevel}][^>]*>.*?</h[1-${currentLevel}>`, 'gi');
+          nextHeadingRegex.lastIndex = startIndex + match[0].length;
 
-    // Initial active state update
-    setTimeout(updateActiveTocItem, 200);
+          const nextMatch = nextHeadingRegex.exec(html);
+          if (nextMatch) {
+            endIndex = nextMatch.index;
+          }
+
+          html = html.substring(startIndex, endIndex);
+        }
+      }
+
+      // Add custom styling to the rendered content
+      html = html.replace(/<h1[^>]*>(.*?)<\/h1>/gi, '<h1 class="cn-content-title">$1</h1>');
+      html = html.replace(/<h2[^>]*>(.*?)<\/h2>/gi, '<h2 class="cn-section-title">$1</h2>');
+      html = html.replace(/<h3[^>]*>(.*?)<\/h3>/gi, '<h3 class="cn-subsection-title">$1</h3>');
+
+      readmeEl.innerHTML = html;
+    } catch (error) {
+      console.error('Error rendering markdown:', error);
+      readmeEl.innerHTML = `<div class="cn-error-state">
+        <h3>❌ Rendering Error</h3>
+        <p>Failed to render the documentation content.</p>
+        <details><summary>Technical Details</summary><pre>${error.message}</pre></details>
+      </div>`;
+    }
+  }
+
+  function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
   async function init() {
@@ -176,7 +167,7 @@ export async function initCNProtocols(root = document) {
 
       headings = extractHeadings(md);
       renderOptions('');
-      generateTocHtml();
+      renderToc();
 
       const urlSection = getSectionFromUrl();
       if (urlSection && pickEl) {
