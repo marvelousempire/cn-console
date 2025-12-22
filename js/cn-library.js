@@ -202,6 +202,25 @@ function organizeByType(contributions) {
   return organized;
 }
 
+function getTypeLabel(type) {
+  const typeMap = {
+    'framework': 'Framework',
+    'framework-utility': 'Framework Utility',
+    'admin-core': 'Admin Core',
+    'console': 'Console',
+    'console-cartridge': 'Console Cartridge',
+    'cartridge': 'Cartridge',
+    'utility-cartridge': 'Utility Cartridge',
+    'tool': 'Tool',
+    'system': 'System',
+    'handbook': 'Handbook',
+    'app': 'App',
+    'page': 'Page',
+    'component': 'Component'
+  };
+  return typeMap[type] || type || 'Other';
+}
+
 function renderLibraryCard(c) {
   const emoji = c.emoji || '📦';
   const name = c.name || c.id || 'Unknown';
@@ -211,6 +230,7 @@ function renderLibraryCard(c) {
   const docUrl = c.id ? (CN_DOCS_BASE + encodeURIComponent(c.id) + '.md') : '';
   const status = c.status || 'unknown';
   const category = c.category || '';
+  const type = c.type || 'other';
   const liveLinks = getLiveLinks(c);
 
   const links = [];
@@ -229,8 +249,9 @@ function renderLibraryCard(c) {
       </div>
       ${desc ? `<div class="briefcase-library-card__desc">${escapeHtml(desc)}</div>` : ''}
       <div class="briefcase-library-card__meta">
+        <span class="briefcase-library-badge briefcase-badge-type briefcase-badge-type-${escapeHtml(type)}">${escapeHtml(getTypeLabel(type))}</span>
         ${status ? `<span class="briefcase-library-badge briefcase-badge-${status}">${escapeHtml(status)}</span>` : ''}
-        ${category ? `<span class="briefcase-library-badge">${escapeHtml(category)}</span>` : ''}
+        ${category ? `<span class="briefcase-library-badge briefcase-badge-category">${escapeHtml(category)}</span>` : ''}
       </div>
       ${links.length > 0 ? `
         <div class="briefcase-library-card__links">

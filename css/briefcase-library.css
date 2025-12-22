@@ -256,10 +256,100 @@
   color: var(--text-muted, #6b7280);
 }
 
+/* Type badges with color codes matching CN structure */
+.briefcase-badge-type {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 10px;
+}
+
+.briefcase-badge-type-settings,
+.briefcase-badge-type-network {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.4);
+  color: rgba(139, 92, 246, 1);
+}
+
+.briefcase-badge-type-framework,
+.briefcase-badge-type-framework-utility {
+  background: rgba(124, 227, 255, 0.15);
+  border-color: rgba(124, 227, 255, 0.4);
+  color: rgba(124, 227, 255, 1);
+}
+
+.briefcase-badge-type-console,
+.briefcase-badge-type-console-cartridge {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: rgba(34, 197, 94, 1);
+}
+
+.briefcase-badge-type-cartridge,
+.briefcase-badge-type-utility-cartridge {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: rgba(245, 158, 11, 1);
+}
+
+.briefcase-badge-type-app {
+  background: rgba(167, 139, 250, 0.15);
+  border-color: rgba(167, 139, 250, 0.4);
+  color: rgba(167, 139, 250, 1);
+}
+
+.briefcase-badge-type-page {
+  background: rgba(96, 165, 250, 0.15);
+  border-color: rgba(96, 165, 250, 0.4);
+  color: rgba(96, 165, 250, 1);
+}
+
+.briefcase-badge-type-component {
+  background: rgba(236, 72, 153, 0.15);
+  border-color: rgba(236, 72, 153, 0.4);
+  color: rgba(236, 72, 153, 1);
+}
+
+.briefcase-badge-type-admin-core {
+  background: rgba(124, 227, 255, 0.2);
+  border-color: rgba(124, 227, 255, 0.5);
+  color: rgba(124, 227, 255, 1);
+}
+
+.briefcase-badge-type-tool {
+  background: rgba(168, 85, 247, 0.15);
+  border-color: rgba(168, 85, 247, 0.4);
+  color: rgba(168, 85, 247, 1);
+}
+
+.briefcase-badge-type-system {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: rgba(59, 130, 246, 1);
+}
+
+.briefcase-badge-type-handbook {
+  background: rgba(251, 146, 60, 0.15);
+  border-color: rgba(251, 146, 60, 0.4);
+  color: rgba(251, 146, 60, 1);
+}
+
+.briefcase-badge-type-other {
+  background: rgba(107, 114, 128, 0.15);
+  border-color: rgba(107, 114, 128, 0.4);
+  color: rgba(107, 114, 128, 1);
+}
+
 .briefcase-badge-active {
   background: rgba(34, 197, 94, 0.15);
   border-color: rgba(34, 197, 94, 0.3);
   color: rgba(34, 197, 94, 1);
+}
+
+.briefcase-badge-category {
+  background: rgba(107, 114, 128, 0.1);
+  border-color: rgba(107, 114, 128, 0.2);
+  color: rgba(107, 114, 128, 0.8);
 }
 
 .briefcase-library-card__links {
