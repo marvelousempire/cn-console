@@ -113,38 +113,13 @@ export async function initCNProtocols(root = document) {
     setSectionInUrl(section);
 
     try {
-      // Custom markdown rendering with section filtering
-      const { markdownToHTML } = await import('/sites/learnmappers/js/markdown-to-html.js');
-      let html = markdownToHTML(md);
-
-      // If a specific section is selected, filter the content
-      if (section) {
-        const sectionRegex = new RegExp(`<h[1-3][^>]*>${escapeRegExp(section)}</h[1-3]>`, 'i');
-        const match = html.match(sectionRegex);
-        if (match) {
-          const startIndex = html.indexOf(match[0]);
-          let endIndex = html.length;
-
-          // Find the next heading at the same level or higher
-          const currentLevel = parseInt(match[0].match(/<h([1-3])/)[1]);
-          const nextHeadingRegex = new RegExp(`<h[1-${currentLevel}][^>]*>.*?</h[1-${currentLevel}>`, 'gi');
-          nextHeadingRegex.lastIndex = startIndex + match[0].length;
-
-          const nextMatch = nextHeadingRegex.exec(html);
-          if (nextMatch) {
-            endIndex = nextMatch.index;
-          }
-
-          html = html.substring(startIndex, endIndex);
-        }
-      }
-
-      // Add custom styling to the rendered content
-      html = html.replace(/<h1[^>]*>(.*?)<\/h1>/gi, '<h1 class="cn-content-title">$1</h1>');
-      html = html.replace(/<h2[^>]*>(.*?)<\/h2>/gi, '<h2 class="cn-section-title">$1</h2>');
-      html = html.replace(/<h3[^>]*>(.*?)<\/h3>/gi, '<h3 class="cn-subsection-title">$1</h3>');
-
-      readmeEl.innerHTML = html;
+      const { mountMarkdown } = await import('/core/markdown.js');
+      await mountMarkdown(readmeEl, md, {
+        toc: false,
+        tocMaxDepth: 3,
+        layout: 'single',
+        sectionHeading: section || undefined
+      });
     } catch (error) {
       console.error('Error rendering markdown:', error);
       readmeEl.innerHTML = `<div class="cn-error-state">
