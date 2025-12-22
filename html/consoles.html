@@ -215,8 +215,12 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initConsolesPage);
   } else {
-    requestAnimationFrame(initConsolesPage);
+    // Use setTimeout to ensure DOM is ready for dynamic loading
+    setTimeout(initConsolesPage, 10);
   }
+
+  // Also expose init function globally for dynamic loading
+  window.initConsolesPage = initConsolesPage;
 
   async function loadNetworkData() {
     try {
@@ -257,6 +261,14 @@
   function renderConsoles() {
     const grid = document.getElementById('console-grid');
     const countEl = document.getElementById('console-count');
+
+    // Defensive check - ensure networkData is loaded
+    if (!networkData || !networkData.consoles) {
+      console.warn('renderConsoles: networkData not loaded yet, retrying...');
+      setTimeout(renderConsoles, 100);
+      return;
+    }
+
     const consoles = networkData.consoles || {};
     const consoleIds = Object.keys(consoles);
 

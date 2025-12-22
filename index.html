@@ -194,6 +194,10 @@
             if (window.maybeInitCNPages) {
               window.maybeInitCNPages();
             }
+            // Also try page-specific init functions
+            if (route === 'consoles' && window.initConsolesPage) {
+              setTimeout(window.initConsolesPage, 50);
+            }
           }, 10);
         }
       }
