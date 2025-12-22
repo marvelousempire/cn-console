@@ -105,20 +105,37 @@ export async function initCNProtocols(root = document) {
     tocNav.querySelectorAll('.cn-toc-item').forEach(item => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
-        const anchorId = item.dataset.anchor;
         const headingText = item.dataset.heading;
+        const index = parseInt(item.dataset.index);
         
-        // Find the heading element in the content
-        const targetHeading = readmeEl.querySelector(`[id="${anchorId}"], h1, h2, h3`);
+        // Find all headings in the content
         const allHeadings = Array.from(readmeEl.querySelectorAll('h1, h2, h3'));
-        const matchingHeading = allHeadings.find(h => 
-          h.textContent.trim().toLowerCase() === headingText.toLowerCase() ||
-          h.id === anchorId
-        );
+        
+        // Try to find the matching heading by:
+        // 1. First try by ID (using the markdown renderer's slugify)
+        // 2. Then try by text content (strip the # from anchor)
+        let matchingHeading = null;
+        
+        for (const h of allHeadings) {
+          // Get text without the anchor # symbol
+          const hText = h.textContent.replace(/^#\s*/, '').trim();
+          
+          if (hText.toLowerCase() === headingText.toLowerCase()) {
+            matchingHeading = h;
+            break;
+          }
+        }
+        
+        // Fallback: try by index
+        if (!matchingHeading && allHeadings[index]) {
+          matchingHeading = allHeadings[index];
+        }
         
         if (matchingHeading) {
-          // Smooth scroll to the heading
-          matchingHeading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Smooth scroll to the heading with offset for sticky header
+          const yOffset = -80;
+          const y = matchingHeading.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          window.scrollTo({ top: y, behavior: 'smooth' });
           
           // Highlight the heading briefly
           matchingHeading.style.transition = 'background-color 0.3s ease';
@@ -129,7 +146,7 @@ export async function initCNProtocols(root = document) {
         }
         
         // Update active state
-        updateActiveTocItem(parseInt(item.dataset.index));
+        updateActiveTocItem(index);
       });
     });
 
