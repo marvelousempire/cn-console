@@ -9,7 +9,8 @@
   
   "network": {
     "name": "Sunday Console Network",
-    "description": "Unified console ecosystem powered by Sunday App Framework"
+    "description": "Unified console ecosystem powered by Sunday App Framework",
+    "domain": "thebriefcase.app"
   },
   
   "routing": {
