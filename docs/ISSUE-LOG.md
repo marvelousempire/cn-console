@@ -5,6 +5,8 @@
 
 This document tracks issues encountered in the CN Console and their resolutions for future reference.
 
+> **See Also:** Quick Server maintains its own issue log at `quick-server/docs/ISSUE-LOG.md` for server-side issues.
+
 ---
 
 ## Issue #001: Console Startup Failure - Block Scoping Bug
@@ -12,7 +14,8 @@ This document tracks issues encountered in the CN Console and their resolutions 
 **Date Discovered:** Monday Dec 22, 2025  
 **Date Resolved:** Monday Dec 22, 2025  
 **Severity:** Critical  
-**Status:** ✅ Resolved
+**Status:** ✅ Resolved  
+**Confirmed By:** User
 
 ### Symptoms
 
