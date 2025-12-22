@@ -90,6 +90,68 @@ See `GIT-COMMITS.md` for the full commit message.
 
 ---
 
+## Issue #002: AI Tab Does Nothing - Wrong Cartridge Path
+
+**Date Discovered:** Monday Dec 22, 2025  
+**Date Resolved:** Monday Dec 22, 2025  
+**Severity:** Medium  
+**Status:** 🔄 Pending Confirmation  
+**Confirmed By:** Pending
+
+### Symptoms
+
+- Clicking the AI tab in CN Console showed nothing or an empty iframe
+- AI Console cartridge not loading
+- No error message displayed to user
+
+### Root Cause
+
+**Wrong Cartridge Path**
+
+The AI tab's HTML page was trying to load the AI Console cartridge from a relative path that doesn't exist in the CN Console directory:
+
+```html
+<!-- ❌ WRONG - This path doesn't exist in CN Console -->
+<iframe src="cartridges/ai-console/index.html"></iframe>
+```
+
+The AI Console cartridge lives in Quick Server's cartridges folder, not CN Console's.
+
+### Solution
+
+Updated to use an absolute path that Quick Server serves:
+
+```html
+<!-- ✅ CORRECT - Quick Server serves this path -->
+<iframe src="/cartridges/ai-console/index.html"></iframe>
+```
+
+Also added:
+- Proper iframe styling (height, border-radius)
+- Error handling for load failures
+- Fallback link to open in new tab
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `html/ai.html` | Changed iframe src to absolute path, added styling and error handling |
+| `app.config.js` | Updated cache-buster for ai route |
+
+### Prevention Guidelines
+
+1. **Use absolute paths** for cartridges served by Quick Server
+2. **Test iframe embeds** after changes to cartridge paths
+3. **Add error handling** for embedded content that may fail to load
+
+### Related Commit
+
+```
+fix: AI tab now loads AI Console cartridge from correct path
+```
+
+---
+
 ## Template for New Issues
 
 ```markdown
