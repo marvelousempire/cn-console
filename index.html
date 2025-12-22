@@ -16,12 +16,96 @@
   <link rel="stylesheet" href="/sundayapp/css/components/tabs.css">
 
   <!-- CN Console overrides -->
-  <link rel="stylesheet" href="css/ai-console.css?v=20251219g">
+  <link rel="stylesheet" href="css/ai-console.css?v=20251222a">
+  
+  <style>
+    /* Auth page styles - hide all navigation chrome on login/register pages */
+    body.auth-page .global-header,
+    body.auth-page .tabs-container,
+    body.auth-page .fab-button,
+    body.auth-page .fab-container,
+    body.auth-page [class*="fab"],
+    body.auth-page #global-header-container,
+    body.auth-page #mainTabs,
+    body.auth-page .auth-hide,
+    html.is-auth-page .global-header,
+    html.is-auth-page .tabs-container,
+    html.is-auth-page .fab-button,
+    html.is-auth-page .fab-container,
+    html.is-auth-page [class*="fab"],
+    html.is-auth-page #global-header-container,
+    html.is-auth-page #mainTabs,
+    html.is-auth-page .auth-hide {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+    body.auth-page #contentContainer,
+    html.is-auth-page #contentContainer {
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+    }
+  </style>
+  
+  <!-- EARLY AUTH DETECTION -->
+  <script>
+    (function() {
+      var hash = window.location.hash || '';
+      var isAuth = hash.indexOf('cartridge/auth') !== -1 || 
+                   hash.indexOf('/login') !== -1 || 
+                   hash.indexOf('/register') !== -1;
+      if (isAuth) {
+        document.documentElement.classList.add('is-auth-page');
+      }
+    })();
+  </script>
 </head>
 <body>
-  <div id="global-header-container" class="global-header"></div>
+  <!-- Auth Page Detection - Hide UI chrome on login/register pages -->
+  <script>
+    (function() {
+      function updateAuthPageUI() {
+        const hash = window.location.hash || '';
+        const isAuthPage = hash.includes('cartridge/auth') || 
+                           hash.includes('/login') ||
+                           hash.includes('/register') ||
+                           hash.includes('forgot-password') ||
+                           hash.includes('reset-password');
+        
+        document.documentElement.classList.toggle('is-auth-page', isAuthPage);
+        document.body.classList.toggle('auth-page', isAuthPage);
+        
+        const elementsToHide = document.querySelectorAll(
+          '.global-header, .tabs-container, .fab-button, .fab-container, #global-header-container, #mainTabs, .auth-hide'
+        );
+        elementsToHide.forEach(el => {
+          if (isAuthPage) {
+            el.style.cssText = 'display: none !important; visibility: hidden !important;';
+          } else {
+            el.style.cssText = '';
+          }
+        });
+      }
+      
+      updateAuthPageUI();
+      window.addEventListener('hashchange', updateAuthPageUI);
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateAuthPageUI);
+      }
+      const observer = new MutationObserver(updateAuthPageUI);
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+      setTimeout(updateAuthPageUI, 0);
+      setTimeout(updateAuthPageUI, 100);
+      setTimeout(updateAuthPageUI, 300);
+      setTimeout(updateAuthPageUI, 500);
+      setTimeout(updateAuthPageUI, 1000);
+    })();
+  </script>
 
-  <div class="tabs-container">
+  <div id="global-header-container" class="global-header auth-hide"></div>
+
+  <div class="tabs-container auth-hide">
     <!-- Pre-render tabs so navigation is visible even if JS fails -->
     <div class="tabs" id="mainTabs">
       <a class="tab-btn" href="#overview" data-tab="overview" data-route="overview">
@@ -69,7 +153,7 @@
   </noscript>
 
   <!-- Bootstrap runs as an external module to avoid inline-script blockers -->
-  <script type="module" src="./js/cn-boot.js?v=20251219g"></script>
+  <script type="module" src="./js/cn-boot.js?v=20251222a"></script>
 
   <script nomodule>
     window.__CN_NO_MODULE = true;
@@ -102,7 +186,7 @@
         container.innerHTML = `
           <div class="sunday-card" style="max-width:720px;margin:24px auto;">
             <div class="sunday-card__header">
-              <div class="sunday-text sunday-text--title">CN Console didn’t start</div>
+              <div class="sunday-text sunday-text--title">CN Console didn't start</div>
               <div class="sunday-text sunday-text--muted">The browser supports modules, but the boot module did not run.</div>
             </div>
             <div class="sunday-card__body">
@@ -115,4 +199,3 @@
   </script>
 </body>
 </html>
-
