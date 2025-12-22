@@ -349,11 +349,30 @@ async function initApp() {
   } catch (e) {
     // Non-fatal
   }
-  setBoot('Loading console config…');
-  const { default: config } = await import('./../app.config.js?v=20251219a');
-  setBoot('Loading auth…');
-  const { getAuthClient } = await import('/core/auth-client.js');
-  const { AuthGuard } = await import('/core/auth-guard.js');
+  try {
+    setBoot('Loading Sunday framework…');
+    console.log('[CN Boot] Importing Sunday framework...');
+    const { Sunday } = await import('/sundayapp/index.js');
+    console.log('[CN Boot] ✅ Sunday framework loaded');
+
+    setBoot('Loading console config…');
+    console.log('[CN Boot] Importing config...');
+    const { default: config } = await import('./../app.config.js?v=20251219a');
+    console.log('[CN Boot] ✅ Config loaded');
+
+    setBoot('Loading auth…');
+    console.log('[CN Boot] Importing auth client...');
+    const { getAuthClient } = await import('/core/auth-client.js');
+    console.log('[CN Boot] ✅ Auth client loaded');
+
+    console.log('[CN Boot] Importing auth guard...');
+    const { AuthGuard } = await import('/sundayapp/core/auth-guard.js');
+    console.log('[CN Boot] ✅ Auth guard loaded');
+  } catch (importError) {
+    console.error('[CN Boot] ❌ Import failed:', importError);
+    setBoot('Import failed - check console');
+    throw importError;
+  }
 
   function ensureTabs() {
     try {
@@ -406,7 +425,9 @@ async function initApp() {
   }
 
   setBoot('Starting console…');
+  console.log('[CN Boot] Initializing Sunday framework...');
   await Sunday.init(config);
+  console.log('[CN Boot] ✅ Sunday framework initialized');
   clearTimeout(hangTimer);
 
   // Defensive: ensure tabs render even if router didn't.
