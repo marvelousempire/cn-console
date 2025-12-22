@@ -189,6 +189,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-height: 200px;
 }
 
 .briefcase-library-card:hover {
@@ -235,6 +236,7 @@
   color: var(--text, #374151);
   line-height: 1.6;
   margin: 0;
+  flex: 1;
 }
 
 .briefcase-library-card__meta {
@@ -262,9 +264,11 @@
 
 .briefcase-library-card__links {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
-  margin-top: 4px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--line, #e5e7eb);
 }
 
 .briefcase-library-link {
@@ -275,12 +279,19 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  padding: 6px 12px;
+  background: color-mix(in srgb, var(--brand, #8b5cf6) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brand, #8b5cf6) 20%, transparent);
+  border-radius: 8px;
   transition: all 0.2s ease;
 }
 
 .briefcase-library-link:hover {
-  color: var(--ink, #1f2937);
-  gap: 8px;
+  background: color-mix(in srgb, var(--brand, #8b5cf6) 15%, transparent);
+  border-color: var(--brand, #8b5cf6);
+  color: var(--brand, #8b5cf6);
+  gap: 6px;
+  transform: translateY(-1px);
 }
 
 .briefcase-library-empty {
