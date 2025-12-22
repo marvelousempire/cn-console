@@ -1,0 +1,87 @@
+{
+  "_meta": {
+    "name": "Network Master Settings",
+    "description": "Master configuration for the entire console network. Changes here trickle down to all consoles.",
+    "version": "1.0.0",
+    "lastUpdated": "2024-12-22T14:45:00Z",
+    "managedBy": "cn-console"
+  },
+  
+  "network": {
+    "name": "Sunday Console Network",
+    "description": "Unified console ecosystem powered by Sunday App Framework"
+  },
+  
+  "routing": {
+    "tld": {
+      "console": "cn-console",
+      "description": "The console served at the root domain (/)",
+      "options": ["cn-console", "quick-server", "ai-console", "hive-console", "sunday-console", "learnmappers-console", "marketplace-console"]
+    },
+    "consoles": {
+      "cn-console": {
+        "path": "/cn-console",
+        "name": "Contribution Network",
+        "icon": "🧩",
+        "description": "Main contribution and collaboration hub"
+      },
+      "quick-server": {
+        "path": "/quick-server",
+        "aliases": ["/qs"],
+        "name": "Quick Server",
+        "icon": "⚡",
+        "description": "Server administration and orchestration"
+      },
+      "ai-console": {
+        "path": "/ai-console",
+        "name": "AI Console",
+        "icon": "🤖",
+        "description": "AI features, Ollama, and model management"
+      },
+      "hive-console": {
+        "path": "/hive-console",
+        "name": "Hive Console",
+        "icon": "🐝",
+        "description": "God mode administration"
+      },
+      "sunday-console": {
+        "path": "/sunday-console",
+        "name": "Sunday Console",
+        "icon": "🌞",
+        "description": "Mother dashboard and framework admin"
+      },
+      "learnmappers-console": {
+        "path": "/learnmappers-console",
+        "name": "LearnMappers",
+        "icon": "🗺️",
+        "description": "Learning and education platform"
+      },
+      "marketplace-console": {
+        "path": "/marketplace-console",
+        "name": "Marketplace",
+        "icon": "🛒",
+        "description": "Marketplace and commerce"
+      }
+    }
+  },
+  
+  "auth": {
+    "sharedSession": true,
+    "sessionDomain": null,
+    "jwtSecret": "${JWT_SECRET}",
+    "sessionTimeout": 86400
+  },
+  
+  "api": {
+    "baseUrl": "/api",
+    "timeout": 30000,
+    "retries": 3
+  },
+  
+  "features": {
+    "darkMode": true,
+    "animations": true,
+    "debugMode": false
+  }
+}
+

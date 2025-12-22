@@ -1,0 +1,209 @@
+<div style="padding:20px;max-width:900px;margin:0 auto">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+    <span style="font-size:32px">🌐</span>
+    <div>
+      <h2 style="margin:0">Network Master Settings</h2>
+      <p style="margin:4px 0 0;color:var(--muted);font-size:13px">
+        Configure network-wide settings that apply to all consoles
+      </p>
+    </div>
+  </div>
+
+  <!-- TLD Console Setting -->
+  <div class="sunday-card" style="margin-bottom:20px">
+    <div class="sunday-card__header" style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <h3 style="margin:0">🏠 TLD Console</h3>
+        <p style="margin:4px 0 0;color:var(--muted);font-size:12px">
+          The console served at the root domain (/)
+        </p>
+      </div>
+      <span id="tldBadge" class="sunday-badge" style="background:var(--brand);color:white;padding:4px 12px;border-radius:20px;font-size:12px">
+        Loading...
+      </span>
+    </div>
+    <div class="sunday-card__body">
+      <div class="console-grid" id="consoleGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+        <!-- Console options will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Network Info -->
+  <div class="sunday-card" style="margin-bottom:20px">
+    <div class="sunday-card__header">
+      <h3 style="margin:0">📊 Network Status</h3>
+    </div>
+    <div class="sunday-card__body">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px" id="networkStats">
+        <div class="stat-item" style="text-align:center;padding:16px;background:var(--bg);border-radius:8px">
+          <div style="font-size:24px;font-weight:800;color:var(--brand)" id="consoleCount">--</div>
+          <div style="font-size:11px;color:var(--muted)">Consoles</div>
+        </div>
+        <div class="stat-item" style="text-align:center;padding:16px;background:var(--bg);border-radius:8px">
+          <div style="font-size:24px;font-weight:800;color:var(--success)" id="onlineCount">--</div>
+          <div style="font-size:11px;color:var(--muted)">Online</div>
+        </div>
+        <div class="stat-item" style="text-align:center;padding:16px;background:var(--bg);border-radius:8px">
+          <div style="font-size:24px;font-weight:800;color:var(--ink)" id="lastUpdated">--</div>
+          <div style="font-size:11px;color:var(--muted)">Last Updated</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Raw Settings -->
+  <div class="sunday-card">
+    <div class="sunday-card__header" style="display:flex;justify-content:space-between;align-items:center">
+      <h3 style="margin:0">⚙️ Raw Configuration</h3>
+      <button class="sunday-btn secondary sm" onclick="toggleRawView()">Show JSON</button>
+    </div>
+    <div class="sunday-card__body" id="rawSettingsContainer" style="display:none">
+      <pre id="rawSettings" style="background:var(--bg);padding:16px;border-radius:8px;overflow:auto;max-height:400px;font-size:12px;margin:0"></pre>
+    </div>
+  </div>
+</div>
+
+<style>
+  .console-option {
+    padding: 16px;
+    background: var(--bg);
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .console-option:hover {
+    border-color: var(--brand);
+    transform: translateY(-2px);
+  }
+  .console-option.selected {
+    border-color: var(--brand);
+    background: color-mix(in srgb, var(--brand) 10%, transparent);
+  }
+  .console-option .icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+  .console-option .name {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .console-option .path {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: monospace;
+  }
+</style>
+
+<script>
+  let currentTld = null;
+  let networkSettings = null;
+
+  async function loadNetworkSettings() {
+    try {
+      const response = await fetch('/api/network/tld');
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to load');
+      }
+      
+      currentTld = data.tld;
+      networkSettings = data;
+      
+      // Update TLD badge
+      document.getElementById('tldBadge').textContent = currentTld;
+      
+      // Update console count
+      document.getElementById('consoleCount').textContent = Object.keys(data.consoles).length;
+      document.getElementById('onlineCount').textContent = Object.keys(data.consoles).length; // TODO: real check
+      
+      // Render console options
+      renderConsoleOptions(data.consoles, data.tld);
+      
+      // Load full settings for raw view
+      const settingsRes = await fetch('/api/network/settings');
+      const settingsData = await settingsRes.json();
+      if (settingsData.success) {
+        document.getElementById('rawSettings').textContent = JSON.stringify(settingsData.settings, null, 2);
+        document.getElementById('lastUpdated').textContent = 
+          new Date(settingsData.settings._meta?.lastUpdated).toLocaleDateString();
+      }
+      
+    } catch (err) {
+      console.error('Failed to load network settings:', err);
+      document.getElementById('consoleGrid').innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--error)">
+          Failed to load network settings: ${err.message}
+        </div>
+      `;
+    }
+  }
+
+  function renderConsoleOptions(consoles, currentTld) {
+    const grid = document.getElementById('consoleGrid');
+    
+    const consoleList = [
+      { id: 'cn-console', icon: '🧩', name: 'CN Console', path: '/' },
+      { id: 'quick-server', icon: '⚡', name: 'Quick Server', path: '/quick-server' },
+      { id: 'ai-console', icon: '🤖', name: 'AI Console', path: '/ai-console' },
+      { id: 'hive-console', icon: '🐝', name: 'Hive Console', path: '/hive-console' },
+      { id: 'sunday-console', icon: '🌞', name: 'Sunday Console', path: '/sunday-console' },
+      { id: 'learnmappers-console', icon: '🗺️', name: 'LearnMappers', path: '/learnmappers-console' },
+      { id: 'marketplace-console', icon: '🛒', name: 'Marketplace', path: '/marketplace-console' }
+    ];
+    
+    grid.innerHTML = consoleList.map(c => `
+      <div class="console-option ${c.id === currentTld ? 'selected' : ''}" 
+           onclick="setTldConsole('${c.id}')"
+           data-console="${c.id}">
+        <div class="icon">${c.icon}</div>
+        <div class="name">${c.name}</div>
+        <div class="path">${c.id === currentTld ? '/ (TLD)' : c.path}</div>
+      </div>
+    `).join('');
+  }
+
+  async function setTldConsole(consoleId) {
+    if (consoleId === currentTld) return;
+    
+    if (!confirm(`Set ${consoleId} as the TLD console?\n\nVisitors to your domain will see this console first.`)) {
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/network/tld', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ console: consoleId })
+      });
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to update');
+      }
+      
+      // Refresh
+      await loadNetworkSettings();
+      
+      // Show success
+      alert(`✅ TLD console changed to ${consoleId}\n\nThe root domain now serves ${consoleId}.`);
+      
+    } catch (err) {
+      alert(`❌ Failed to update TLD: ${err.message}`);
+    }
+  }
+
+  function toggleRawView() {
+    const container = document.getElementById('rawSettingsContainer');
+    container.style.display = container.style.display === 'none' ? 'block' : 'none';
+  }
+
+  // Load on page init
+  loadNetworkSettings();
+</script>
+

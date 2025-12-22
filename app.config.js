@@ -36,6 +36,7 @@ export default {
     // Cache-bust: server sets long cache headers for static assets.
     contributions: { page: 'contributions', title: 'Contributions', fallback: './html/contributions.html?v=20251217c' },
     protocols: { page: 'protocols', title: 'Protocols', fallback: './html/protocols.html?v=20251217c' },
+    network: { page: 'network', title: 'Network', fallback: './html/network-settings.html?v=20251222a' },
     settings: { page: 'settings', title: 'Settings', fallback: './html/settings.html?v=20251219g' }
   },
 
@@ -44,6 +45,7 @@ export default {
     { id: 'contributions', label: 'Contributions', icon: '🧩' },
     { id: 'protocols', label: 'Protocols', icon: '📜' },
     { id: 'ai', label: 'AI', icon: '🤖' },
+    { id: 'network', label: 'Network', icon: '🌐' },
     { id: 'settings', label: 'Settings', icon: '⚙️' }
   ]
 };
