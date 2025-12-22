@@ -314,24 +314,26 @@ aside.sunday-md-aside nav.sunday-md-toc {
 
 /* CONTENT LAYOUT */
 .cn-content-layout {
-  display: grid;
-  grid-template-columns: 300px 1fr;
+  display: flex;
   gap: 32px;
-  align-items: start;
+  align-items: flex-start;
+  position: relative;
 }
 
-/* SIDEBAR */
+/* SIDEBAR - STICKY READER-APP STYLE */
 .cn-sidebar {
+  position: sticky;
+  top: 20px;
+  width: 320px;
+  flex-shrink: 0;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 24px;
-  position: sticky;
-  top: 20px;
-  min-height: 80vh;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  z-index: 10;
 }
 
 .cn-sidebar-header {
@@ -359,6 +361,8 @@ aside.sunday-md-aside nav.sunday-md-toc {
 
 /* MAIN CONTENT */
 .cn-main-content {
+  flex: 1;
+  min-width: 0;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 16px;
@@ -721,13 +725,15 @@ aside.sunday-md-aside nav.sunday-md-toc {
 /* RESPONSIVE DESIGN */
 @media (max-width: 1024px) {
   .cn-content-layout {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 24px;
   }
 
   .cn-sidebar {
     position: static;
+    width: 100%;
     max-height: none;
+    order: -1;
   }
 
   .cn-hero-section {
