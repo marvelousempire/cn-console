@@ -2,6 +2,83 @@
   --content-max: 1400px;
 }
 
+/* ============================================
+   SIDEBAR STYLING FOR CN CONSOLE
+   ============================================ */
+
+/* LIVE STICKY SIDEBAR - WORKING VERSION */
+aside.sunday-md-aside nav.sunday-md-toc {
+  position: sticky !important;
+  top: 80px !important;
+  width: 280px !important;
+  min-height: calc(100vh - 100px) !important; /* Make it longer */
+  max-height: calc(100vh - 80px) !important; /* Allow full height */
+  overflow-y: auto !important;
+  padding: 16px !important;
+  background: var(--card) !important;
+  border: 4px solid #ff0000 !important; /* RED border for visibility */
+  border-radius: 12px !important;
+  z-index: 100 !important;
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.4) !important; /* Red shadow */
+}
+
+/* Clean TOC link styling */
+.sunday-md-toc ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sunday-md-toc li {
+  margin: 0;
+  padding: 0;
+}
+
+.sunday-md-toc li::before {
+  display: none;
+}
+
+.sunday-md-toc a {
+  display: block;
+  padding: 6px 12px;
+  margin: 2px 0;
+  border-radius: 6px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+  transition: all 0.15s ease;
+}
+
+.sunday-md-toc a:hover {
+  background: color-mix(in srgb, var(--brand) 8%, transparent);
+  color: var(--ink);
+}
+
+.sunday-md-toc a.active {
+  background: color-mix(in srgb, var(--brand) 12%, transparent);
+  color: var(--brand);
+  font-weight: 600;
+}
+
+/* Heading level styling */
+.sunday-md-toc .lvl-1 a {
+  font-weight: 600;
+  color: var(--ink);
+  padding-left: 0;
+}
+
+.sunday-md-toc .lvl-2 a {
+  padding-left: 12px;
+  font-size: 12px;
+}
+
+.sunday-md-toc .lvl-3 a {
+  padding-left: 24px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
 body {
   background: var(--bg);
 }
