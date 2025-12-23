@@ -181,14 +181,21 @@
         const route = target.getAttribute('data-route');
         console.log('[Tab Click]', route, target.getAttribute('href'));
 
-        // Always use manual HTML loading to avoid Sunday router script execution issues
-        console.log('[Navigation] Using manual HTML loading for reliability');
-        await loadPageContent(route);
+        try {
+          // Always use manual HTML loading to avoid Sunday router script execution issues
+          console.log('[Navigation] Using manual HTML loading for reliability');
+          await loadPageContent(route, false); // Don't update hash to avoid router triggering
+
+          // Manually update active tab state without triggering hash change
+          updateActiveTabForRoute(route);
+        } catch (error) {
+          console.error('[Navigation] Manual loading failed:', error);
+        }
       }
     }
 
     // Load page content manually when Sunday router isn't available
-    async function loadPageContent(route) {
+    async function loadPageContent(route, updateHash = true) {
       try {
         // Get route config (simplified mapping - in real Sunday this comes from config)
         const routeConfigs = {
@@ -230,8 +237,10 @@
           contentContainer.innerHTML = htmlContent;
           console.log('[Fallback] Content inserted into page');
 
-          // Update URL hash
-          window.location.hash = '#' + route;
+          // Update URL hash only if requested
+          if (updateHash) {
+            window.location.hash = '#' + route;
+          }
 
           // Trigger page initialization with defensive checks
           setTimeout(() => {
@@ -293,7 +302,15 @@
       try {
         const hash = window.location.hash || '#';
         const route = hash.replace(/^#\/?/, '').split('?')[0] || 'overview';
+        updateActiveTabForRoute(route);
+      } catch (error) {
+        console.error('[Tab State] Failed to update active tab:', error);
+      }
+    }
 
+    // Manually update active tab for a specific route
+    function updateActiveTabForRoute(route) {
+      try {
         // Remove active class from all tabs
         document.querySelectorAll('#mainTabs .tab-btn').forEach(tab => {
           tab.classList.remove('active');
