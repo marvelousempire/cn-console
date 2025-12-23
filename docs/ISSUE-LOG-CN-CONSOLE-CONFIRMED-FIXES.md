@@ -90,7 +90,7 @@ See `GIT-COMMITS.md` for the full commit message.
 
 ---
 
-## Issue #002: AI Tab Does Nothing - Iframe Embed Broken
+## Issue #002: AI Tab Does Nothing - Multiple Issues
 
 **Date Discovered:** Monday Dec 22, 2025  
 **Date Resolved:** Monday Dec 22, 2025  
@@ -101,60 +101,75 @@ See `GIT-COMMITS.md` for the full commit message.
 ### Symptoms
 
 - Clicking the AI tab in CN Console showed nothing or a broken iframe
-- AI Console cartridge not loading or not functional when embedded
+- After rewrite to standalone chat, interface "shows up but does not do anything"
 - User reported: "AI Tab is junk and does not work"
 
 ### Root Cause
 
-**Iframe Embedding Doesn't Work for Complex Cartridges**
+**Multiple Issues Found:**
 
-The initial attempt to fix this by changing the iframe path still didn't work because:
-1. Complex cartridges with their own JavaScript modules don't work well in iframes
-2. The cartridge expected to be the main page, not embedded
-3. Authentication and API calls had cross-origin issues in iframe context
+1. **Iframe Embedding Broken** - Complex cartridges with own JavaScript don't work in iframes
+
+2. **Wrong API Endpoints** - After rewrite, code was calling:
+   - `/api/ollama/status` ❌ (doesn't exist)
+   - `/api/ollama/models` ❌ (doesn't exist)
+   
+   Correct endpoints are:
+   - `/api/ai/status` ✅ (returns Ollama status AND models)
+   - `/api/ai/chat` ✅ (chat endpoint - this was correct)
+
+3. **API Requires Auth** - The `/api/ai/*`, `/api/ollama/*`, and `/api/rag/*` endpoints were NOT in Quick Server's `PUBLIC_API_PREFIXES` list, causing:
+   ```json
+   {"error":"Authorization required"}
+   ```
+
+4. **Wrong Response Parsing** - Response format is `{ success: true, content: "..." }` but code looked for `data.response`
 
 ### Solution
 
-**Complete Rewrite** - Replaced the broken iframe embed with a functional standalone AI chat page:
+**Two-Part Fix Across Both Repositories:**
 
-```html
-<!-- ❌ WRONG - Iframe embed doesn't work for complex cartridges -->
-<iframe src="/cartridges/ai-console/index.html"></iframe>
-
-<!-- ✅ CORRECT - Standalone functional chat interface -->
-<div class="sunday-card">
-  <!-- Full chat interface with direct API calls -->
-</div>
+**Quick Server (`server/index.js`):**
+```javascript
+// Added to PUBLIC_API_PREFIXES:
+'/api/ai',      // AI chat endpoints
+'/api/ollama',  // Ollama status/models  
+'/api/rag',     // RAG context endpoints
 ```
 
-The new AI page includes:
-- Direct connection to `/api/ai/chat` and `/api/ollama` endpoints
-- Working chat interface with message history
-- Ollama connection status indicator
-- Dynamic model loading from available models
-- RAG context toggle
-- Quick action buttons for common questions
-- Link to full AI Console for advanced features
+**CN Console (`html/ai.html`):**
+```javascript
+// ❌ WRONG
+const res = await fetch('/api/ollama/status');
+addMessage(data.response || data.content, 'assistant');
+
+// ✅ CORRECT
+const res = await fetch('/api/ai/status');
+if (data.success && data.content) {
+  addMessage(data.content, 'assistant');
+}
+```
 
 ### Files Changed
 
 | File | Change |
 |------|--------|
-| `html/ai.html` | Complete rewrite from iframe to functional chat interface |
-| `app.config.js` | Updated cache-buster |
+| `html/ai.html` | Complete rewrite + correct API endpoints |
+| `app.config.js` | Updated cache-buster to v=20251222e |
+| `quick-server/server/index.js` | Added AI endpoints to PUBLIC_API_PREFIXES |
 
 ### Prevention Guidelines
 
-1. **Don't use iframes** for complex cartridges with their own JavaScript
-2. **Create standalone pages** that directly integrate with APIs
-3. **Test functionality** not just loading - ensure features actually work
-4. **Link to full consoles** for advanced features instead of embedding
+1. **Verify endpoints exist** before wiring UI - test with curl first
+2. **Check authentication** - use browser DevTools Network tab to catch 401s
+3. **Test functionality** not just loading - actually send a message
+4. **Document public vs authenticated** endpoints clearly
 
 ### Related Commits
 
 ```
-fix: AI tab now loads AI Console cartridge from correct path (initial attempt)
-fix: replace broken AI iframe with functional chat interface (complete fix)
+quick-server: fix: add AI/Ollama/RAG endpoints to public API list (114c6bc4)
+cn-console: fix: AI tab now uses correct API endpoints (802ff91)
 ```
 
 ---
