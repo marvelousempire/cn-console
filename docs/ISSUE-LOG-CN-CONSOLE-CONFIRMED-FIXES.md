@@ -1,7 +1,7 @@
 # CN Console Issue Log
 
 **Created:** Monday Dec 22, 2025  
-**Last Updated:** Tuesday Dec 23, 2025
+**Last Updated:** Tuesday Dec 23, 2025 08:45:00
 
 This document tracks issues encountered in the CN Console and their resolutions for future reference.
 
@@ -304,6 +304,86 @@ See `git log` for exact history; key commits include:
 - `680740a` — Tab revisit crash: router inline script re-exec fix (re-entrant scripts)
 - `dc27f6d` — Safe async init + prevent page-level errors from breaking navigation
 - `2cedbdd` — AI tab revisit: prevent duplicate status intervals
+
+---
+
+## Issue #004: Consoles Page Infinite Recursion
+
+**Date Discovered:** Tuesday Dec 23, 2025  
+**Date Resolved:** Tuesday Dec 23, 2025  
+**Severity:** Critical  
+**Status:** ✅ Resolved  
+**Confirmed By:** User
+
+### Symptoms
+
+- Clicking the "Consoles" tab caused CN Console to crash
+- Error displayed: "CN Console failed to start - A startup error occurred"
+- Stack trace showed `safeInitConsolesPage` calling itself hundreds of times
+- Browser console showed stack overflow / maximum call stack exceeded
+
+### Root Cause
+
+**Function Reference Overwrites Itself**
+
+In `consoles.html`, the initialization code had a circular reference bug:
+
+```javascript
+// Line 206: Define the actual init function
+async function initConsolesPage() {
+  // ... at line 212, if elements not ready:
+  requestAnimationFrame(() => {
+    initConsolesPage().catch(...);  // ← Calls "initConsolesPage"
+  });
+}
+
+// Line 224: Define safe wrapper
+function safeInitConsolesPage() {
+  initConsolesPage().catch(...);  // ← Calls "initConsolesPage"
+}
+
+// Line 235: PROBLEM - Overwrite the global reference!
+window.initConsolesPage = safeInitConsolesPage;  // ← Now initConsolesPage === safeInitConsolesPage
+```
+
+After line 235 executes:
+1. `initConsolesPage` now points to `safeInitConsolesPage`
+2. `safeInitConsolesPage` calls `initConsolesPage()` (which is now itself)
+3. **Infinite recursion → Stack overflow**
+
+### Solution
+
+Store a reference to the actual function before the global assignment:
+
+```javascript
+// ✅ Store reference BEFORE overwriting
+const _actualInitConsolesPage = initConsolesPage;
+
+function safeInitConsolesPage() {
+  _actualInitConsolesPage().catch(...);  // ← Calls the REAL function
+}
+
+window.initConsolesPage = safeInitConsolesPage;  // ← Safe now
+```
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `html/consoles.html` | Store actual function reference before global assignment |
+
+### Prevention Guidelines
+
+1. **Never overwrite function references that are called by the same code**
+2. **When exposing safe wrappers globally**, store the original function first
+3. **Watch for circular references** when functions call each other
+4. **Test navigation** - click away from page and back to trigger re-execution
+
+### Related Commit
+
+```
+cn-console: fix: Prevent infinite recursion in consoles.html (7ed9b4e)
+```
 
 ---
 
