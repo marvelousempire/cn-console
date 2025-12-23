@@ -74,8 +74,13 @@ export async function initCNSettings(root = document) {
     if (!listEl) return;
     const addons = listAddons();
     const enabled = getEnabledAddons(consoleKey);
+    
+    // Split addons by category
+    const uiAddons = addons.filter(a => a.category === 'UI' || !a.category);
+    const effectsAddons = addons.filter(a => a.category === 'Effects' || a.category === 'Accessibility');
 
-    listEl.innerHTML = addons.map((a) => {
+    // Render UI add-ons
+    listEl.innerHTML = uiAddons.map((a) => {
       const on = enabled.has(a.id);
       return `
         <label class="cn-setting-row">
@@ -96,6 +101,46 @@ export async function initCNSettings(root = document) {
         </label>
       `;
     }).join('');
+    
+    // Render Effects add-ons
+    const effectsListEl = page.querySelector('#cnEffectsList');
+    if (effectsListEl && effectsAddons.length > 0) {
+      effectsListEl.innerHTML = effectsAddons.map((a) => {
+        const on = enabled.has(a.id);
+        const categoryBadge = a.category === 'Accessibility' 
+          ? '<span style="font-size:10px;background:rgba(16,185,129,0.2);color:#10b981;padding:2px 6px;border-radius:4px;margin-left:6px;">♿</span>'
+          : '';
+        return `
+          <label class="cn-setting-row">
+            <div class="cn-setting-main">
+              <div class="cn-setting-title">${escapeHtml(a.title)}${categoryBadge}</div>
+              <div class="cn-setting-desc">${escapeHtml(a.description || '')}</div>
+            </div>
+            <div class="cn-setting-controls">
+              <span class="cn-radio">
+                <input type="radio" name="addon-${escapeAttr(a.id)}" value="on" ${on ? 'checked' : ''} data-addon="${escapeAttr(a.id)}" data-next="on" />
+                <span>On</span>
+              </span>
+              <span class="cn-radio">
+                <input type="radio" name="addon-${escapeAttr(a.id)}" value="off" ${!on ? 'checked' : ''} data-addon="${escapeAttr(a.id)}" data-next="off" />
+                <span>Off</span>
+              </span>
+            </div>
+          </label>
+        `;
+      }).join('');
+      
+      effectsListEl.querySelectorAll('input[type="radio"]').forEach((input) => {
+        input.addEventListener('change', async (e) => {
+          const el = e.target;
+          const id = el.getAttribute('data-addon');
+          const next = el.getAttribute('data-next') === 'on';
+          if (!id) return;
+          await toggleAddon(id, next, { consoleKey });
+          toast(next ? 'Enabled' : 'Disabled');
+        });
+      });
+    }
 
     listEl.querySelectorAll('input[type="radio"]').forEach((input) => {
       input.addEventListener('change', async (e) => {
@@ -218,6 +263,72 @@ export async function initCNSettings(root = document) {
   if (diagConsoleVersion) diagConsoleVersion.textContent = consoleVersion || '—';
   if (diagAssetVersion) diagAssetVersion.textContent = assetVersion || '—';
   if (diagHost) diagHost.textContent = window.location.host;
+
+  // Effects panel test buttons
+  page.querySelector('#cnTestMotion')?.addEventListener('click', async () => {
+    const motion = window.Sunday?.motion;
+    if (!motion) {
+      toast('Motion engine not available');
+      return;
+    }
+    
+    // Demo: bounce all cards on the page
+    const cards = document.querySelectorAll('.cn-settings-card, .cn-setting-row');
+    if (cards.length === 0) {
+      toast('No elements to animate');
+      return;
+    }
+    
+    await motion.stagger(cards, 'bounce', { delay: 0.05 });
+    toast('Motion demo complete');
+  });
+  
+  page.querySelector('#cnTestThree')?.addEventListener('click', async () => {
+    const three = window.Sunday?.three;
+    if (!three) {
+      toast('Three.js engine not available');
+      return;
+    }
+    
+    // Demo: temporarily mount particles on the settings shell
+    const shell = page.querySelector('.cn-settings-shell');
+    if (!shell) {
+      toast('No container for 3D demo');
+      return;
+    }
+    
+    toast('Loading 3D demo...');
+    await three.mountBackground(shell, 'particles', { opacity: 0.4 });
+    
+    // Auto-unmount after 5 seconds
+    setTimeout(() => {
+      three.unmountBackground(shell);
+      toast('3D demo ended');
+    }, 5000);
+  });
+  
+  page.querySelector('#cnToggleReduceMotion')?.addEventListener('click', () => {
+    const current = localStorage.getItem('sunday_reduce_motion') === 'true';
+    const next = !current;
+    
+    if (typeof window.toggleReduceMotion === 'function') {
+      window.toggleReduceMotion(next);
+    } else {
+      // Fallback if the add-on isn't installed
+      const motion = window.Sunday?.motion;
+      if (next) {
+        motion?.disable?.();
+        document.documentElement.classList.add('reduce-motion');
+        localStorage.setItem('sunday_reduce_motion', 'true');
+      } else {
+        motion?.enable?.();
+        document.documentElement.classList.remove('reduce-motion');
+        localStorage.setItem('sunday_reduce_motion', 'false');
+      }
+    }
+    
+    toast(next ? 'Motion reduced' : 'Motion enabled');
+  });
 
   // Default panel
   setActivePanel('addons');

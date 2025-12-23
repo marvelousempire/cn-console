@@ -98,6 +98,7 @@
 
     <div class="cn-settings-tabs" id="cnSettingsTabs">
       <button class="cn-settings-tab active" type="button" data-tab="addons">🧩 Add-ons</button>
+      <button class="cn-settings-tab" type="button" data-tab="effects">✨ Effects</button>
       <button class="cn-settings-tab" type="button" data-tab="cache">🗑️ Cache</button>
       <button class="cn-settings-tab" type="button" data-tab="diagnostics">💚 Diagnostics</button>
       <button class="cn-settings-tab" type="button" data-tab="about">ℹ️ About</button>
@@ -106,8 +107,23 @@
     <div class="cn-settings-grid">
       <div class="cn-settings-card" data-panel="addons">
         <div class="cn-settings-title">Console Add-ons</div>
-        <div class="cn-settings-sub">Pick UI features to install/uninstall (DRY). Think “radio buttons install buttons into the console”.</div>
+        <div class="cn-settings-sub">Pick UI features to install/uninstall (DRY). Think "radio buttons install buttons into the console".</div>
         <div id="cnAddonsList"></div>
+      </div>
+
+      <div class="cn-settings-card" data-panel="effects" style="display:none">
+        <div class="cn-settings-title">✨ Hybrid Beast Engine</div>
+        <div class="cn-settings-sub">Motion + 3D effects powered by Motion One and Three.js. Slider-Revolution-meets-Unreal polish, tastefully applied.</div>
+        <div id="cnEffectsList"></div>
+        
+        <div style="margin-top:16px; padding:12px; border-radius:10px; background:linear-gradient(135deg, rgba(139,92,246,0.1), rgba(124,227,255,0.1)); border:1px solid rgba(139,92,246,0.2);">
+          <div style="font-weight:800; font-size:13px; margin-bottom:6px;">🎮 Quick Test</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="cn-settings-btn" id="cnTestMotion">Test Motion</button>
+            <button class="cn-settings-btn" id="cnTestThree">Test 3D</button>
+            <button class="cn-settings-btn" id="cnToggleReduceMotion">Toggle Reduce Motion</button>
+          </div>
+        </div>
       </div>
 
       <div class="cn-settings-card" data-panel="cache" style="display:none">

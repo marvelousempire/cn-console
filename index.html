@@ -193,6 +193,25 @@
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
+    
+    /* Reduce motion mode - disable all animations */
+    html.reduce-motion *,
+    html.reduce-motion *::before,
+    html.reduce-motion *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    
+    @media (prefers-reduced-motion: reduce) {
+      html:not(.motion-enabled) *,
+      html:not(.motion-enabled) *::before,
+      html:not(.motion-enabled) *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
 
     /* Auth page styles - hide all navigation chrome on login/register pages */
     body.auth-page .global-header,
