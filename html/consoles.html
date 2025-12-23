@@ -221,8 +221,11 @@
   }
   
   // Start initialization (function decl = re-entrant safe)
+  // Store reference to actual init function before any overwrites
+  const _actualInitConsolesPage = initConsolesPage;
+  
   function safeInitConsolesPage() {
-    initConsolesPage().catch((e) => console.error('initConsolesPage error:', e));
+    _actualInitConsolesPage().catch((e) => console.error('initConsolesPage error:', e));
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', safeInitConsolesPage);
@@ -231,7 +234,7 @@
     setTimeout(safeInitConsolesPage, 10);
   }
 
-  // Also expose init function globally for dynamic loading
+  // Expose init function globally for dynamic loading (use safe wrapper)
   window.initConsolesPage = safeInitConsolesPage;
 
   async function loadNetworkData() {
