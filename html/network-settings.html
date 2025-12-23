@@ -581,7 +581,15 @@
   let currentDomain = null;
   let dnsStatus = { a: 'unknown', wildcard: 'unknown', ssl: 'unknown' };
 
+  function isNetworkPageMounted() {
+    // If this element is gone, the user navigated away and this page is no longer mounted.
+    return !!document.getElementById('healthyCount');
+  }
+
   async function refreshNetworkStatus() {
+    // Prevent background timers / async work from crashing the shell after navigation away.
+    if (!isNetworkPageMounted()) return;
+
     try {
       // Get network status
       const statusRes = await fetch('/api/network-status/status');
@@ -596,19 +604,20 @@
       currentDomain = tldData.domain || window.location.hostname;
       
       // Update domain input
-      document.getElementById('apex-domain').value = currentDomain;
+      const apexInput = document.getElementById('apex-domain');
+      if (apexInput) apexInput.value = currentDomain;
       
       // Populate console select
       populateConsoleSelect(tldData.consoles, tldData.available);
       
       // Get server IP
-      detectServerIP();
+      await detectServerIP();
       
       // Check DNS
-      checkDNS();
+      await checkDNS();
       
       // Load console subdomains automatically
-      loadConsoleSubdomains();
+      await loadConsoleSubdomains();
       
       renderDashboard();
     } catch (err) {
@@ -618,6 +627,7 @@
   
   function populateConsoleSelect(consoles, available) {
     const select = document.getElementById('apex-console-select');
+    if (!select) return;
     const options = available || Object.keys(consoles || {});
     
     select.innerHTML = options.map(id => {
@@ -1078,6 +1088,20 @@
   }
 
   // Load on page init - wait for DOM to be ready
+  // Auto-refresh every 30 seconds (self-cancels once page is unmounted)
+  let autoRefreshTimer = null;
+  function startAutoRefresh() {
+    if (autoRefreshTimer) return;
+    autoRefreshTimer = setInterval(() => {
+      if (!isNetworkPageMounted()) {
+        clearInterval(autoRefreshTimer);
+        autoRefreshTimer = null;
+        return;
+      }
+      refreshNetworkStatus().catch((err) => console.error('[Network] Auto-refresh failed:', err));
+    }, 30000);
+  }
+
   function initPage() {
     // Check if our elements exist
     if (!document.getElementById('healthyCount')) {
@@ -1085,7 +1109,8 @@
       requestAnimationFrame(initPage);
       return;
     }
-    refreshNetworkStatus();
+    refreshNetworkStatus().catch((err) => console.error('[Network] Refresh failed:', err));
+    startAutoRefresh();
   }
   
   // Start initialization
@@ -1096,6 +1121,5 @@
     requestAnimationFrame(initPage);
   }
   
-  // Auto-refresh every 30 seconds
-  setInterval(refreshNetworkStatus, 30000);
+  // Auto-refresh handled by startAutoRefresh()
 </script>

@@ -259,21 +259,31 @@
 
   // Initialize - wait for DOM elements to be ready
   async function initCartridgesPage() {
-    // Check if our elements exist
-    if (!document.getElementById('cartridge-list')) {
-      requestAnimationFrame(initCartridgesPage);
-      return;
+    try {
+      // Check if our elements exist
+      if (!document.getElementById('cartridge-list')) {
+        // Elements not ready yet, try again (and never leak an unhandled rejection)
+        requestAnimationFrame(() => {
+          initCartridgesPage().catch((e) => console.error('initCartridgesPage error:', e));
+        });
+        return;
+      }
+      await loadCartridgeRegistry();
+      renderCartridgeList();
+      updateStats();
+    } catch (e) {
+      console.error('initCartridgesPage error:', e);
     }
-    await loadCartridgeRegistry();
-    renderCartridgeList();
-    updateStats();
   }
   
   // Start initialization
+  const safeInitCartridgesPage = () => {
+    initCartridgesPage().catch((e) => console.error('initCartridgesPage error:', e));
+  };
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCartridgesPage);
+    document.addEventListener('DOMContentLoaded', safeInitCartridgesPage);
   } else {
-    requestAnimationFrame(initCartridgesPage);
+    requestAnimationFrame(safeInitCartridgesPage);
   }
 
   async function loadCartridgeRegistry() {
@@ -341,7 +351,7 @@
 
     if (!container) return;
 
-    countEl.textContent = `${cartridgeRegistry.length} registered`;
+    if (countEl) countEl.textContent = `${cartridgeRegistry.length} registered`;
 
     if (cartridgeRegistry.length === 0) {
       container.innerHTML = `
@@ -395,6 +405,7 @@
 
   function refreshCartridges() {
     const container = document.getElementById('cartridge-list');
+    if (!container) return;
     container.innerHTML = `
       <div class="cn-loading" style="grid-column: 1 / -1;">
         <div class="cn-loading__spinner">⏳</div>
@@ -404,7 +415,7 @@
     loadCartridgeRegistry().then(() => {
       renderCartridgeList();
       updateStats();
-    });
+    }).catch((e) => console.error('refreshCartridges failed:', e));
   }
 
   function scanForNewCartridges() {
@@ -430,6 +441,8 @@
     const title = document.getElementById('cartridge-modal-title');
     const body = document.getElementById('cartridge-modal-body');
 
+    if (!modal || !title || !body) return;
+
     title.textContent = cartridge.name;
     body.innerHTML = `
       <div style="display: grid; gap: 16px;">
@@ -446,6 +459,7 @@
   }
 
   function closeCartridgeModal() {
-    document.getElementById('cartridge-modal').style.display = 'none';
+    const modal = document.getElementById('cartridge-modal');
+    if (modal) modal.style.display = 'none';
   }
 </script>

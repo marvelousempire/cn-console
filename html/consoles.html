@@ -202,25 +202,35 @@
 
   // Initialize - wait for DOM elements to be ready
   async function initConsolesPage() {
-    // Check if our elements exist
-    if (!document.getElementById('console-grid')) {
-      requestAnimationFrame(initConsolesPage);
-      return;
+    try {
+      // Check if our elements exist
+      if (!document.getElementById('console-grid')) {
+        // Elements not ready yet, try again (and never leak an unhandled rejection)
+        requestAnimationFrame(() => {
+          initConsolesPage().catch((e) => console.error('initConsolesPage error:', e));
+        });
+        return;
+      }
+      await loadNetworkData();
+      renderConsoles();
+    } catch (e) {
+      console.error('initConsolesPage error:', e);
     }
-    await loadNetworkData();
-    renderConsoles();
   }
   
   // Start initialization
+  const safeInitConsolesPage = () => {
+    initConsolesPage().catch((e) => console.error('initConsolesPage error:', e));
+  };
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initConsolesPage);
+    document.addEventListener('DOMContentLoaded', safeInitConsolesPage);
   } else {
     // Use setTimeout to ensure DOM is ready for dynamic loading
-    setTimeout(initConsolesPage, 10);
+    setTimeout(safeInitConsolesPage, 10);
   }
 
   // Also expose init function globally for dynamic loading
-  window.initConsolesPage = initConsolesPage;
+  window.initConsolesPage = safeInitConsolesPage;
 
   async function loadNetworkData() {
     try {
@@ -330,8 +340,9 @@
 
   function refreshConsoles() {
     const grid = document.getElementById('console-grid');
+    if (!grid) return;
     grid.innerHTML = `<div class="cn-loading"><div class="cn-loading__spinner">⏳</div></div>`;
-    loadNetworkData().then(renderConsoles);
+    loadNetworkData().then(renderConsoles).catch((e) => console.error('refreshConsoles failed:', e));
   }
 
   function openConsole(consoleId) {

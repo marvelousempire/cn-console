@@ -3,6 +3,10 @@
  */
 
 window.__CN_BOOT_OK = true;
+window.__CN_READY = false;
+
+// During boot we want hard-fail UX; after boot, page-level errors should not nuke the shell.
+let __cnFatalArmed = true;
 
 const bootEl = document.getElementById('cnBootStatus');
 const bootTextEl = bootEl ? bootEl.querySelector('.sunday-text--muted') : null;
@@ -30,8 +34,35 @@ const showFatal = (e) => {
   } catch {}
 };
 
-window.addEventListener('error', (ev) => showFatal(ev && (ev.error || ev.message) ? (ev.error || ev.message) : ev));
-window.addEventListener('unhandledrejection', (ev) => showFatal(ev && ev.reason ? ev.reason : ev));
+const _cnFormatErr = (x) => {
+  if (!x) return x;
+  if (x instanceof Error) return x;
+  if (typeof x === 'string') return new Error(x);
+  if (typeof x === 'object' && typeof x.message === 'string') return x;
+  try { return new Error(String(x)); } catch { return x; }
+};
+
+function handleGlobalError(ev) {
+  const err = _cnFormatErr(ev && (ev.error || ev.message) ? (ev.error || ev.message) : ev);
+  if (__cnFatalArmed) {
+    showFatal(err);
+    return;
+  }
+  console.error('[CN] Non-fatal error:', err);
+}
+
+function handleUnhandledRejection(ev) {
+  const err = _cnFormatErr(ev && ev.reason ? ev.reason : ev);
+  if (__cnFatalArmed) {
+    showFatal(err);
+    return;
+  }
+  console.error('[CN] Non-fatal unhandled rejection:', err);
+  try { ev && typeof ev.preventDefault === 'function' && ev.preventDefault(); } catch {}
+}
+
+window.addEventListener('error', handleGlobalError);
+window.addEventListener('unhandledrejection', handleUnhandledRejection);
 
 // If init hangs, show a clear message instead of infinite "Loading…"
 const hangTimer = setTimeout(() => {
@@ -580,6 +611,10 @@ async function initApp() {
 
   window.addEventListener('hashchange', () => { maybeInitCNPages(); });
   await maybeInitCNPages();
+
+  // ✅ Boot completed — from here on, page-level errors should NOT replace the whole UI.
+  window.__CN_READY = true;
+  __cnFatalArmed = false;
 
   console.log('🌞 CN Console ready');
 }
