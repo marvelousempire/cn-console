@@ -90,64 +90,71 @@ See `GIT-COMMITS.md` for the full commit message.
 
 ---
 
-## Issue #002: AI Tab Does Nothing - Wrong Cartridge Path
+## Issue #002: AI Tab Does Nothing - Iframe Embed Broken
 
 **Date Discovered:** Monday Dec 22, 2025  
 **Date Resolved:** Monday Dec 22, 2025  
-**Severity:** Medium  
+**Severity:** High  
 **Status:** 🔄 Pending Confirmation  
 **Confirmed By:** Pending
 
 ### Symptoms
 
-- Clicking the AI tab in CN Console showed nothing or an empty iframe
-- AI Console cartridge not loading
-- No error message displayed to user
+- Clicking the AI tab in CN Console showed nothing or a broken iframe
+- AI Console cartridge not loading or not functional when embedded
+- User reported: "AI Tab is junk and does not work"
 
 ### Root Cause
 
-**Wrong Cartridge Path**
+**Iframe Embedding Doesn't Work for Complex Cartridges**
 
-The AI tab's HTML page was trying to load the AI Console cartridge from a relative path that doesn't exist in the CN Console directory:
-
-```html
-<!-- ❌ WRONG - This path doesn't exist in CN Console -->
-<iframe src="cartridges/ai-console/index.html"></iframe>
-```
-
-The AI Console cartridge lives in Quick Server's cartridges folder, not CN Console's.
+The initial attempt to fix this by changing the iframe path still didn't work because:
+1. Complex cartridges with their own JavaScript modules don't work well in iframes
+2. The cartridge expected to be the main page, not embedded
+3. Authentication and API calls had cross-origin issues in iframe context
 
 ### Solution
 
-Updated to use an absolute path that Quick Server serves:
+**Complete Rewrite** - Replaced the broken iframe embed with a functional standalone AI chat page:
 
 ```html
-<!-- ✅ CORRECT - Quick Server serves this path -->
+<!-- ❌ WRONG - Iframe embed doesn't work for complex cartridges -->
 <iframe src="/cartridges/ai-console/index.html"></iframe>
+
+<!-- ✅ CORRECT - Standalone functional chat interface -->
+<div class="sunday-card">
+  <!-- Full chat interface with direct API calls -->
+</div>
 ```
 
-Also added:
-- Proper iframe styling (height, border-radius)
-- Error handling for load failures
-- Fallback link to open in new tab
+The new AI page includes:
+- Direct connection to `/api/ai/chat` and `/api/ollama` endpoints
+- Working chat interface with message history
+- Ollama connection status indicator
+- Dynamic model loading from available models
+- RAG context toggle
+- Quick action buttons for common questions
+- Link to full AI Console for advanced features
 
 ### Files Changed
 
 | File | Change |
 |------|--------|
-| `html/ai.html` | Changed iframe src to absolute path, added styling and error handling |
-| `app.config.js` | Updated cache-buster for ai route |
+| `html/ai.html` | Complete rewrite from iframe to functional chat interface |
+| `app.config.js` | Updated cache-buster |
 
 ### Prevention Guidelines
 
-1. **Use absolute paths** for cartridges served by Quick Server
-2. **Test iframe embeds** after changes to cartridge paths
-3. **Add error handling** for embedded content that may fail to load
+1. **Don't use iframes** for complex cartridges with their own JavaScript
+2. **Create standalone pages** that directly integrate with APIs
+3. **Test functionality** not just loading - ensure features actually work
+4. **Link to full consoles** for advanced features instead of embedding
 
-### Related Commit
+### Related Commits
 
 ```
-fix: AI tab now loads AI Console cartridge from correct path
+fix: AI tab now loads AI Console cartridge from correct path (initial attempt)
+fix: replace broken AI iframe with functional chat interface (complete fix)
 ```
 
 ---
