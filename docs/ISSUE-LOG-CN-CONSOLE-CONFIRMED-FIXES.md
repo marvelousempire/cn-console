@@ -1,7 +1,7 @@
 # CN Console Issue Log
 
 **Created:** Monday Dec 22, 2025  
-**Last Updated:** Monday Dec 22, 2025
+**Last Updated:** Tuesday Dec 23, 2025
 
 This document tracks issues encountered in the CN Console and their resolutions for future reference.
 
@@ -194,6 +194,116 @@ quick-server: fix: add AI/Ollama/RAG endpoints to public API list (114c6bc4)
 cn-console: fix: AI tab now uses correct API endpoints (802ff91)
 cn-console: feat: AI tab now embeds Open WebUI (5abf1d0)
 ```
+
+---
+
+## Issue #003: Tab “Away → Back” Crash (Router Inline Script Re-exec)
+
+**Date Discovered:** Tuesday Dec 23, 2025  
+**Date Resolved:** Tuesday Dec 23, 2025  
+**Severity:** Critical  
+**Status:** ✅ Resolved  
+**Confirmed By:** User
+
+### Symptoms
+
+- Several CN tabs worked on first open, but failed after navigating away and then back
+- Error screen shown:
+  - **CN Console failed to start**
+  - **A startup error occurred. See details below.**
+- Browser console stack looked like:
+  - `appendChild@[native code]`
+  - `executeInlineScript@https://thebriefcase.app/sundayapp/core/router.js:517:25`
+  - `...router.js:393` / `...router.js:382`
+
+### Root Cause
+
+There were **two interacting causes**:
+
+#### Cause A — Sunday Router executes inline scripts on every page load
+
+The Sunday router loads HTML, extracts `<script>` tags, and executes them via DOM injection:
+
+- It creates a `<script>` element
+- sets `textContent` to the inline script code
+- then `document.body.appendChild(script)` (the stack points here)
+
+This means if you leave a tab and come back, the router can execute the same inline script again.
+
+#### Cause B — The page scripts were **not re-entrant**
+
+Some CN pages contained top-level declarations like:
+
+- `let cartridgeRegistry = []`
+- `const safeInitX = () => {}`
+
+When the router re-executed the same script on return, the browser threw a SyntaxError:
+
+> `Identifier has already been declared`
+
+That SyntaxError surfaced inside router execution, producing the `executeInlineScript` / `appendChild` stack.
+
+Additional amplifier:
+
+- Several pages also created background timers (`setInterval`) that could duplicate on revisit.
+
+### Solution
+
+**Make router-executed page scripts re-entrant (safe to run repeatedly).**
+
+Key fixes applied:
+
+1. **Converted top-level `let`/`const` to `var`** (and function declarations) on router-loaded pages:
+   - `html/contributions.html`
+   - `html/consoles.html`
+   - `html/cartridges.html`
+   - `html/network-settings.html`
+
+2. **Timer de-duplication**:
+   - `html/ai.html`: stores interval id on `window` and clears it before creating a new one.
+   - `html/network-settings.html`: stores interval id on `window` and cancels on unmount.
+
+3. **Defensive async init**:
+   - Wrapped init functions so they never leak unhandled rejections during page mount/unmount churn.
+
+### Why the stack pointed to router.js (and not the page file)
+
+The router executes the inline scripts by *injecting a script tag* (DOM) rather than running them in the file’s original context.
+
+So a redeclare SyntaxError becomes:
+
+- router creates script element
+- router appends to DOM
+- browser parses the script
+- browser throws SyntaxError
+- the stack shows `router.js:executeInlineScript` and `appendChild` because that’s where the script came from
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `html/contributions.html` | Ensure router re-exec does not redeclare top-level bindings |
+| `html/consoles.html` | Convert top-level bindings to `var` and re-entrant init wrapper |
+| `html/cartridges.html` | Convert top-level bindings to `var` and re-entrant init wrapper |
+| `html/network-settings.html` | Convert top-level bindings to `var`; interval stored on `window`; safe unmount behavior |
+| `html/ai.html` | Prevent duplicate `setInterval` on revisit |
+
+### Prevention Guidelines (the “forever rule”)
+
+If a page is loaded via the Sunday router (HTML with inline `<script>`):
+
+1. **Never use top-level `let` / `const` for globals** — use `var` or guard with `if (!window.X) window.X = ...`.
+2. **Make scripts idempotent** — safe to run multiple times without changing behavior.
+3. **De-dupe timers** — store interval ids on `window` and clear before setting a new one.
+4. **Prefer module-init pattern** (recommended): keep HTML “dumb” and run page init from a central boot/module (ex: `maybeInitCNPages()`), where state can be managed cleanly.
+
+### Related Commits (cn-console)
+
+See `git log` for exact history; key commits include:
+
+- `680740a` — Tab revisit crash: router inline script re-exec fix (re-entrant scripts)
+- `dc27f6d` — Safe async init + prevent page-level errors from breaking navigation
+- `2cedbdd` — AI tab revisit: prevent duplicate status intervals
 
 ---
 
