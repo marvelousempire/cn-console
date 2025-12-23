@@ -3,14 +3,14 @@
   
   Hybrid Layout (SOP-APP-009):
   - Sidebar with section navigation
-  - Sub-tabs for detailed content
+  - Sub-tabs for detailed content within each section
   - Content panel with cards
   
   Created: Tuesday Dec 23, 2025
   Last Updated: Tuesday Dec 23, 2025
 -->
 
-<div class="hybrid-settings-page">
+<div class="hybrid-settings-page" id="aboutPage">
   <style>
     /* === HYBRID SETTINGS LAYOUT === */
     .hybrid-settings-page {
@@ -116,12 +116,20 @@
     }
     
     /* === SUB-TABS === */
-    .hybrid-subtabs {
-      display: flex;
-      gap: 0;
+    .hybrid-subtabs-container {
       border-bottom: 1px solid var(--border);
       padding: 0 24px;
       background: var(--surface);
+      min-height: 48px;
+    }
+    
+    .hybrid-subtabs {
+      display: none;
+      gap: 0;
+    }
+    
+    .hybrid-subtabs.active {
+      display: flex;
     }
     
     .hybrid-subtab {
@@ -153,6 +161,14 @@
       flex: 1;
       overflow-y: auto;
       padding: 24px;
+    }
+    
+    .hybrid-section {
+      display: none;
+    }
+    
+    .hybrid-section.active {
+      display: block;
     }
     
     .hybrid-panel {
@@ -406,196 +422,304 @@
 
   <!-- MAIN CONTENT -->
   <main class="hybrid-main">
-    <!-- SUB-TABS -->
-    <div class="hybrid-subtabs" id="aboutSubtabs">
-      <button class="hybrid-subtab active" data-subtab="main">Main</button>
-      <button class="hybrid-subtab" data-subtab="details">Details</button>
+    <!-- SUB-TABS CONTAINER -->
+    <div class="hybrid-subtabs-container">
+      <!-- Overview sub-tabs -->
+      <div class="hybrid-subtabs active" data-subtabs-for="overview">
+        <button class="hybrid-subtab active" data-subtab="overview-main">Main</button>
+        <button class="hybrid-subtab" data-subtab="overview-features">Features</button>
+      </div>
+      
+      <!-- System sub-tabs -->
+      <div class="hybrid-subtabs" data-subtabs-for="system">
+        <button class="hybrid-subtab active" data-subtab="system-env">Environment</button>
+        <button class="hybrid-subtab" data-subtab="system-host">Host</button>
+      </div>
+      
+      <!-- Frameworks sub-tabs -->
+      <div class="hybrid-subtabs" data-subtabs-for="frameworks">
+        <button class="hybrid-subtab active" data-subtab="frameworks-sundayapp">SundayApp</button>
+        <button class="hybrid-subtab" data-subtab="frameworks-vitals">Vitals</button>
+      </div>
+      
+      <!-- Passport sub-tabs -->
+      <div class="hybrid-subtabs" data-subtabs-for="passport">
+        <button class="hybrid-subtab active" data-subtab="passport-json">JSON</button>
+        <button class="hybrid-subtab" data-subtab="passport-explain">Explained</button>
+      </div>
+      
+      <!-- SOPs sub-tabs -->
+      <div class="hybrid-subtabs" data-subtabs-for="sops">
+        <button class="hybrid-subtab active" data-subtab="sops-app">Application</button>
+        <button class="hybrid-subtab" data-subtab="sops-doc">Documentation</button>
+      </div>
+      
+      <!-- Changelog sub-tabs -->
+      <div class="hybrid-subtabs" data-subtabs-for="changelog">
+        <button class="hybrid-subtab active" data-subtab="changelog-all">All</button>
+      </div>
+      
+      <!-- Links sub-tabs -->
+      <div class="hybrid-subtabs" data-subtabs-for="links">
+        <button class="hybrid-subtab active" data-subtab="links-repos">Repositories</button>
+        <button class="hybrid-subtab" data-subtab="links-docs">Documentation</button>
+      </div>
+      
+      <!-- Legal sub-tabs -->
+      <div class="hybrid-subtabs" data-subtabs-for="legal">
+        <button class="hybrid-subtab active" data-subtab="legal-license">License</button>
+      </div>
     </div>
     
     <!-- CONTENT PANELS -->
     <div class="hybrid-content">
       
+      <!-- ═══════════════════════════════════════════════════════════════ -->
       <!-- OVERVIEW SECTION -->
-      <div class="hybrid-panel active" data-section="overview">
-        <div class="hybrid-panel-header">
-          <h2 class="hybrid-panel-title">🤝 CN Console</h2>
-          <p class="hybrid-panel-desc">
-            The Contribution Network Console is your dashboard for managing all contributions in The Briefcase ecosystem.
-          </p>
-        </div>
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <div class="hybrid-section active" data-section="overview">
         
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">Console Information</div>
-          </div>
-          <div class="hybrid-card-body">
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Name</span>
-              <span class="hybrid-info-value">CN Console</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Version</span>
-              <span class="hybrid-info-value">1.3.0</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Type</span>
-              <span class="hybrid-info-value">Console</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Framework</span>
-              <span class="hybrid-info-value">SundayApp 2.4.0</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Status</span>
-              <span class="hybrid-info-value success">● Active</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">What Does CN Console Do?</div>
-          </div>
-          <div class="hybrid-card-body">
-            <p style="font-size: 13px; line-height: 1.7; margin: 0;">
-              The CN Console is the main dashboard for the Contribution Network. It lets you:
+        <!-- Overview: Main -->
+        <div class="hybrid-panel active" data-panel="overview-main">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">🤝 CN Console</h2>
+            <p class="hybrid-panel-desc">
+              The Contribution Network Console is your dashboard for managing all contributions in The Briefcase ecosystem.
             </p>
-            <ul style="font-size: 13px; line-height: 1.7; margin: 12px 0 0 0; padding-left: 20px;">
-              <li>See all contributions (apps, tools, handbooks)</li>
-              <li>Manage consoles and cartridges</li>
-              <li>View protocols and documentation</li>
-              <li>Access AI features and integrations</li>
-              <li>Manage passwords and network settings</li>
-            </ul>
           </div>
-        </div>
-      </div>
-      
-      <!-- SYSTEM INFO SECTION -->
-      <div class="hybrid-panel" data-section="system">
-        <div class="hybrid-panel-header">
-          <h2 class="hybrid-panel-title">💻 System Information</h2>
-          <p class="hybrid-panel-desc">Technical details about your environment.</p>
-        </div>
-        
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">Environment</div>
-          </div>
-          <div class="hybrid-card-body">
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Platform</span>
-              <span class="hybrid-info-value" id="sysPlatform">-</span>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-header">
+              <div class="hybrid-card-title">Console Information</div>
             </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Browser</span>
-              <span class="hybrid-info-value" id="sysBrowser">-</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Screen</span>
-              <span class="hybrid-info-value" id="sysScreen">-</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Timezone</span>
-              <span class="hybrid-info-value" id="sysTimezone">-</span>
+            <div class="hybrid-card-body">
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Name</span>
+                <span class="hybrid-info-value">CN Console</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Version</span>
+                <span class="hybrid-info-value">1.3.0</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Type</span>
+                <span class="hybrid-info-value">Console</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Framework</span>
+                <span class="hybrid-info-value">SundayApp 2.4.0</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Status</span>
+                <span class="hybrid-info-value success">● Active</span>
+              </div>
             </div>
           </div>
         </div>
         
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">Host Information</div>
+        <!-- Overview: Features -->
+        <div class="hybrid-panel" data-panel="overview-features">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">What Can It Do?</h2>
+            <p class="hybrid-panel-desc">Features and capabilities of the CN Console.</p>
           </div>
-          <div class="hybrid-card-body">
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Host</span>
-              <span class="hybrid-info-value" id="sysHost">-</span>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-header">
+              <div class="hybrid-card-title">Core Features</div>
             </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Path</span>
-              <span class="hybrid-info-value" id="sysPath">-</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Protocol</span>
-              <span class="hybrid-info-value" id="sysProtocol">-</span>
+            <div class="hybrid-card-body">
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">📋 Contributions</span>
+                <span class="hybrid-info-value">View all apps, tools, handbooks</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">🖥️ Consoles</span>
+                <span class="hybrid-info-value">Manage console dashboards</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">📦 Cartridges</span>
+                <span class="hybrid-info-value">Browse plug-in features</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">📜 Protocols</span>
+                <span class="hybrid-info-value">View SOPs and documentation</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">🤖 AI</span>
+                <span class="hybrid-info-value">Access AI features</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">🔐 Passwords</span>
+                <span class="hybrid-info-value">Manage credentials</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
       
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <!-- SYSTEM SECTION -->
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <div class="hybrid-section" data-section="system">
+        
+        <!-- System: Environment -->
+        <div class="hybrid-panel active" data-panel="system-env">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">💻 Environment</h2>
+            <p class="hybrid-panel-desc">Your browser and system information.</p>
+          </div>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-header">
+              <div class="hybrid-card-title">Browser Info</div>
+            </div>
+            <div class="hybrid-card-body">
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Platform</span>
+                <span class="hybrid-info-value" id="sysPlatform">-</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Browser</span>
+                <span class="hybrid-info-value" id="sysBrowser">-</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Screen</span>
+                <span class="hybrid-info-value" id="sysScreen">-</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Timezone</span>
+                <span class="hybrid-info-value" id="sysTimezone">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- System: Host -->
+        <div class="hybrid-panel" data-panel="system-host">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">🌐 Host Information</h2>
+            <p class="hybrid-panel-desc">Server and connection details.</p>
+          </div>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-header">
+              <div class="hybrid-card-title">Connection</div>
+            </div>
+            <div class="hybrid-card-body">
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Host</span>
+                <span class="hybrid-info-value" id="sysHost">-</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Path</span>
+                <span class="hybrid-info-value" id="sysPath">-</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Protocol</span>
+                <span class="hybrid-info-value" id="sysProtocol">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ═══════════════════════════════════════════════════════════════ -->
       <!-- FRAMEWORKS SECTION -->
-      <div class="hybrid-panel" data-section="frameworks">
-        <div class="hybrid-panel-header">
-          <h2 class="hybrid-panel-title">🌞 Frameworks</h2>
-          <p class="hybrid-panel-desc">The engines that power this console.</p>
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <div class="hybrid-section" data-section="frameworks">
+        
+        <!-- Frameworks: SundayApp -->
+        <div class="hybrid-panel active" data-panel="frameworks-sundayapp">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">🌞 SundayApp Framework</h2>
+            <p class="hybrid-panel-desc">The engine that powers this console.</p>
+          </div>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-header">
+              <div class="hybrid-card-title">Framework Details</div>
+            </div>
+            <div class="hybrid-card-body">
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Version</span>
+                <span class="hybrid-info-value">2.4.0</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Type</span>
+                <span class="hybrid-info-value">Application Framework</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Key Features</span>
+                <span class="hybrid-info-value">Passport System, Living Agents</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Repository</span>
+                <span class="hybrid-info-value">github.com/marvelousempire/SundayApp</span>
+              </div>
+            </div>
+          </div>
         </div>
         
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">SundayApp Framework</div>
+        <!-- Frameworks: Vitals -->
+        <div class="hybrid-panel" data-panel="frameworks-vitals">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">💚 Vitals Status</h2>
+            <p class="hybrid-panel-desc">Framework capabilities active in this console.</p>
           </div>
-          <div class="hybrid-card-body">
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Version</span>
-              <span class="hybrid-info-value">2.4.0</span>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-header">
+              <div class="hybrid-card-title">Active Vitals</div>
             </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Type</span>
-              <span class="hybrid-info-value">Application Framework</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Features</span>
-              <span class="hybrid-info-value">Passport System, Living Agents, Vitals</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">Vitals Active</div>
-          </div>
-          <div class="hybrid-card-body">
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Auth</span>
-              <span class="hybrid-info-value success">● Enabled</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Routing</span>
-              <span class="hybrid-info-value success">● Enabled</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Theme</span>
-              <span class="hybrid-info-value success">● Enabled</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Settings</span>
-              <span class="hybrid-info-value success">● Enabled</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">AI</span>
-              <span class="hybrid-info-value warning">○ Disabled</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">Cartridges</span>
-              <span class="hybrid-info-value warning">○ Disabled</span>
+            <div class="hybrid-card-body">
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Auth</span>
+                <span class="hybrid-info-value success">● Enabled</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Routing</span>
+                <span class="hybrid-info-value success">● Enabled</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Theme</span>
+                <span class="hybrid-info-value success">● Enabled</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Settings</span>
+                <span class="hybrid-info-value success">● Enabled</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">AI</span>
+                <span class="hybrid-info-value warning">○ Disabled</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">Cartridges</span>
+                <span class="hybrid-info-value warning">○ Disabled</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
       
+      <!-- ═══════════════════════════════════════════════════════════════ -->
       <!-- PASSPORT SECTION -->
-      <div class="hybrid-panel" data-section="passport">
-        <div class="hybrid-panel-header">
-          <h2 class="hybrid-panel-title">🛂 Passport</h2>
-          <p class="hybrid-panel-desc">This console's identity and configuration.</p>
-        </div>
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <div class="hybrid-section" data-section="passport">
         
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">passport-cn-console.json</div>
+        <!-- Passport: JSON -->
+        <div class="hybrid-panel active" data-panel="passport-json">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">🛂 Passport JSON</h2>
+            <p class="hybrid-panel-desc">This console's identity and configuration.</p>
           </div>
-          <div class="hybrid-card-body">
-            <div class="passport-code">{
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-header">
+              <div class="hybrid-card-title">passport-cn-console.json</div>
+            </div>
+            <div class="hybrid-card-body">
+              <div class="passport-code">{
   "udin": "CONSOLE-CN-20251223120000",
   "name": "CN Console",
   "shortName": "cn-console",
@@ -618,185 +742,292 @@
     "scanPaths": ["./cartridges/"]
   }
 }</div>
+            </div>
           </div>
         </div>
         
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">What Is a Passport?</div>
+        <!-- Passport: Explained -->
+        <div class="hybrid-panel" data-panel="passport-explain">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">📖 Passport Explained</h2>
+            <p class="hybrid-panel-desc">What each part of the passport means.</p>
           </div>
-          <div class="hybrid-card-body">
-            <p style="font-size: 13px; line-height: 1.7; margin: 0;">
-              A Passport is a JSON file that tells the system who this app is and how to load it. Think of it like an ID card for apps.
-            </p>
-            <ul style="font-size: 13px; line-height: 1.7; margin: 12px 0 0 0; padding-left: 20px;">
-              <li><strong>UDIN</strong> — Unique ID (TYPE-NAME-TIMESTAMP)</li>
-              <li><strong>Settings</strong> — How settings are stored (storageKey prevents collisions)</li>
-              <li><strong>Health</strong> — Where to check if the app is running</li>
-              <li><strong>Discovery</strong> — Where to find cartridges to load</li>
-            </ul>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-header">
+              <div class="hybrid-card-title">Key Fields</div>
+            </div>
+            <div class="hybrid-card-body">
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">UDIN</span>
+                <span class="hybrid-info-value">Unique ID (TYPE-NAME-TIMESTAMP)</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">type</span>
+                <span class="hybrid-info-value">console, cartridge, or console-cartridge</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">framework</span>
+                <span class="hybrid-info-value">Which engine runs this app</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">settings.storageKey</span>
+                <span class="hybrid-info-value">Prevents settings collisions</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">health.endpoint</span>
+                <span class="hybrid-info-value">Where to check if app is running</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">discovery.scanPaths</span>
+                <span class="hybrid-info-value">Where to find cartridges</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
       
+      <!-- ═══════════════════════════════════════════════════════════════ -->
       <!-- SOPS SECTION -->
-      <div class="hybrid-panel" data-section="sops">
-        <div class="hybrid-panel-header">
-          <h2 class="hybrid-panel-title">📜 Standard Operating Procedures</h2>
-          <p class="hybrid-panel-desc">The laws that govern CN contributions. Version 1.2.0</p>
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <div class="hybrid-section" data-section="sops">
+        
+        <!-- SOPs: Application -->
+        <div class="hybrid-panel active" data-panel="sops-app">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">📜 Application SOPs</h2>
+            <p class="hybrid-panel-desc">Laws for applications (enforced by SundayApp Framework).</p>
+          </div>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-body">
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">SOP-APP-001</span>
+                <span class="hybrid-info-value">Tab Visual Distinction</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">SOP-APP-005</span>
+                <span class="hybrid-info-value">Passport System</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">SOP-APP-008</span>
+                <span class="hybrid-info-value">Settings Page Standard</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">SOP-APP-009</span>
+                <span class="hybrid-info-value">About Page Standard</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">SOP-APP-010</span>
+                <span class="hybrid-info-value">Health Check Standard</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">SOP-APP-011</span>
+                <span class="hybrid-info-value">Passport Validation</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">SOP-APP-012</span>
+                <span class="hybrid-info-value">Auto-Discovery</span>
+              </div>
+            </div>
+          </div>
         </div>
         
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">Application SOPs</div>
+        <!-- SOPs: Documentation -->
+        <div class="hybrid-panel" data-panel="sops-doc">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">📝 Documentation SOPs</h2>
+            <p class="hybrid-panel-desc">Laws for docs (enforced by Handbooks Framework).</p>
           </div>
-          <div class="hybrid-card-body">
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">SOP-APP-001</span>
-              <span class="hybrid-info-value">Tab Visual Distinction</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">SOP-APP-005</span>
-              <span class="hybrid-info-value">Passport System</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">SOP-APP-008</span>
-              <span class="hybrid-info-value">Settings Page Standard</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">SOP-APP-009</span>
-              <span class="hybrid-info-value">About Page Standard</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">SOP-APP-010</span>
-              <span class="hybrid-info-value">Health Check Standard</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">SOP-APP-011</span>
-              <span class="hybrid-info-value">Passport Validation</span>
-            </div>
-            <div class="hybrid-info-row">
-              <span class="hybrid-info-label">SOP-APP-012</span>
-              <span class="hybrid-info-value">Auto-Discovery</span>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-body">
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">SOP-DOC-001</span>
+                <span class="hybrid-info-value">Timestamp Requirements</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">SOP-DOC-002</span>
+                <span class="hybrid-info-value">Vocabulary Level (2nd-3rd grade)</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">SOP-DOC-003</span>
+                <span class="hybrid-info-value">File Naming Convention</span>
+              </div>
+              <div class="hybrid-info-row">
+                <span class="hybrid-info-label">SOP-DOC-004</span>
+                <span class="hybrid-info-value">Signature Block</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
       
+      <!-- ═══════════════════════════════════════════════════════════════ -->
       <!-- CHANGELOG SECTION -->
-      <div class="hybrid-panel" data-section="changelog">
-        <div class="hybrid-panel-header">
-          <h2 class="hybrid-panel-title">📋 Changelog</h2>
-          <p class="hybrid-panel-desc">What's new in CN Console.</p>
-        </div>
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <div class="hybrid-section" data-section="changelog">
         
-        <div class="hybrid-card">
-          <div class="hybrid-card-body" style="padding: 0;">
-            <div class="changelog-entry" style="padding: 16px 20px;">
-              <div class="changelog-version">
-                v1.3.0
-                <span class="changelog-date">December 23, 2025</span>
+        <div class="hybrid-panel active" data-panel="changelog-all">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">📋 Changelog</h2>
+            <p class="hybrid-panel-desc">What's new in CN Console.</p>
+          </div>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-body" style="padding: 0;">
+              <div class="changelog-entry" style="padding: 16px 20px;">
+                <div class="changelog-version">
+                  v1.3.0
+                  <span class="changelog-date">December 23, 2025</span>
+                </div>
+                <ul class="changelog-items">
+                  <li>Added About page with hybrid layout (SOP-APP-009)</li>
+                  <li>Updated Settings page with hybrid layout (SOP-APP-008)</li>
+                  <li>Added health check configuration</li>
+                  <li>Added discovery configuration</li>
+                  <li>Working sub-tabs navigation</li>
+                </ul>
               </div>
-              <ul class="changelog-items">
-                <li>Added About page with hybrid layout (SOP-APP-009)</li>
-                <li>Added health check configuration</li>
-                <li>Added discovery configuration</li>
-                <li>Updated passport with settings storageKey</li>
-              </ul>
-            </div>
-            
-            <div class="changelog-entry" style="padding: 16px 20px;">
-              <div class="changelog-version">
-                v1.2.0
-                <span class="changelog-date">December 23, 2025</span>
+              
+              <div class="changelog-entry" style="padding: 16px 20px;">
+                <div class="changelog-version">
+                  v1.2.0
+                  <span class="changelog-date">December 23, 2025</span>
+                </div>
+                <ul class="changelog-items">
+                  <li>Added passport system support</li>
+                  <li>Updated to SundayApp 2.4.0</li>
+                </ul>
               </div>
-              <ul class="changelog-items">
-                <li>Added settings with hybrid layout (SOP-APP-008)</li>
-                <li>Added passport system support</li>
-                <li>Updated to SundayApp 2.4.0</li>
-              </ul>
-            </div>
-            
-            <div class="changelog-entry" style="padding: 16px 20px;">
-              <div class="changelog-version">
-                v1.0.0
-                <span class="changelog-date">December 2025</span>
+              
+              <div class="changelog-entry" style="padding: 16px 20px;">
+                <div class="changelog-version">
+                  v1.0.0
+                  <span class="changelog-date">December 2025</span>
+                </div>
+                <ul class="changelog-items">
+                  <li>Initial release</li>
+                  <li>Overview, Contributions, Consoles, Cartridges tabs</li>
+                  <li>Protocols and Settings pages</li>
+                </ul>
               </div>
-              <ul class="changelog-items">
-                <li>Initial release</li>
-                <li>Overview, Contributions, Consoles, Cartridges tabs</li>
-                <li>Protocols and Settings pages</li>
-              </ul>
             </div>
           </div>
         </div>
       </div>
       
+      <!-- ═══════════════════════════════════════════════════════════════ -->
       <!-- LINKS SECTION -->
-      <div class="hybrid-panel" data-section="links">
-        <div class="hybrid-panel-header">
-          <h2 class="hybrid-panel-title">🔗 Links</h2>
-          <p class="hybrid-panel-desc">Related resources and repositories.</p>
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <div class="hybrid-section" data-section="links">
+        
+        <!-- Links: Repositories -->
+        <div class="hybrid-panel active" data-panel="links-repos">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">🔗 Repositories</h2>
+            <p class="hybrid-panel-desc">GitHub repositories.</p>
+          </div>
+          
+          <a href="https://github.com/marvelousempire/ContributionNetwork" target="_blank" class="link-card">
+            <span class="link-icon">🤝</span>
+            <div class="link-info">
+              <div class="link-title">Contribution Network</div>
+              <div class="link-desc">Source code, docs, and CN Console</div>
+            </div>
+            <span class="link-arrow">→</span>
+          </a>
+          
+          <a href="https://github.com/marvelousempire/SundayApp" target="_blank" class="link-card">
+            <span class="link-icon">🌞</span>
+            <div class="link-info">
+              <div class="link-title">SundayApp Framework</div>
+              <div class="link-desc">The engine that powers this console</div>
+            </div>
+            <span class="link-arrow">→</span>
+          </a>
+          
+          <a href="https://github.com/marvelousempire/quick-server" target="_blank" class="link-card">
+            <span class="link-icon">🚀</span>
+            <div class="link-info">
+              <div class="link-title">Quick Server</div>
+              <div class="link-desc">Host platform for consoles</div>
+            </div>
+            <span class="link-arrow">→</span>
+          </a>
+          
+          <a href="https://github.com/marvelousempire/ai-console" target="_blank" class="link-card">
+            <span class="link-icon">🤖</span>
+            <div class="link-info">
+              <div class="link-title">AI Console</div>
+              <div class="link-desc">AI chat and Open WebUI integration</div>
+            </div>
+            <span class="link-arrow">→</span>
+          </a>
         </div>
         
-        <a href="https://github.com/marvelousempire/ContributionNetwork" target="_blank" class="link-card">
-          <span class="link-icon">🤝</span>
-          <div class="link-info">
-            <div class="link-title">Contribution Network Repository</div>
-            <div class="link-desc">Source code, docs, and CN Console</div>
+        <!-- Links: Documentation -->
+        <div class="hybrid-panel" data-panel="links-docs">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">📚 Documentation</h2>
+            <p class="hybrid-panel-desc">Guides and references.</p>
           </div>
-          <span class="link-arrow">→</span>
-        </a>
-        
-        <a href="https://github.com/marvelousempire/SundayApp" target="_blank" class="link-card">
-          <span class="link-icon">🌞</span>
-          <div class="link-info">
-            <div class="link-title">SundayApp Framework</div>
-            <div class="link-desc">The engine that powers this console</div>
-          </div>
-          <span class="link-arrow">→</span>
-        </a>
-        
-        <a href="https://github.com/marvelousempire/quick-server" target="_blank" class="link-card">
-          <span class="link-icon">🚀</span>
-          <div class="link-info">
-            <div class="link-title">Quick Server</div>
-            <div class="link-desc">Host platform for consoles</div>
-          </div>
-          <span class="link-arrow">→</span>
-        </a>
-        
-        <a href="https://github.com/marvelousempire/ai-console" target="_blank" class="link-card">
-          <span class="link-icon">🤖</span>
-          <div class="link-info">
-            <div class="link-title">AI Console</div>
-            <div class="link-desc">AI chat and Open WebUI integration</div>
-          </div>
-          <span class="link-arrow">→</span>
-        </a>
+          
+          <a href="https://github.com/marvelousempire/ContributionNetwork/blob/main/CN-SOPS.md" target="_blank" class="link-card">
+            <span class="link-icon">📜</span>
+            <div class="link-info">
+              <div class="link-title">CN SOPs</div>
+              <div class="link-desc">Standard Operating Procedures</div>
+            </div>
+            <span class="link-arrow">→</span>
+          </a>
+          
+          <a href="https://github.com/marvelousempire/ContributionNetwork/blob/main/docs/PASSPORT-SYSTEM.md" target="_blank" class="link-card">
+            <span class="link-icon">🛂</span>
+            <div class="link-info">
+              <div class="link-title">Passport System</div>
+              <div class="link-desc">Universal identity and loading</div>
+            </div>
+            <span class="link-arrow">→</span>
+          </a>
+          
+          <a href="https://github.com/marvelousempire/SundayApp/blob/main/docs/PASSPORT-TOOLS.md" target="_blank" class="link-card">
+            <span class="link-icon">🛠️</span>
+            <div class="link-info">
+              <div class="link-title">Passport Tools</div>
+              <div class="link-desc">CLI tools for passports</div>
+            </div>
+            <span class="link-arrow">→</span>
+          </a>
+        </div>
       </div>
       
+      <!-- ═══════════════════════════════════════════════════════════════ -->
       <!-- LEGAL SECTION -->
-      <div class="hybrid-panel" data-section="legal">
-        <div class="hybrid-panel-header">
-          <h2 class="hybrid-panel-title">⚖️ Legal</h2>
-          <p class="hybrid-panel-desc">License and attribution.</p>
-        </div>
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <div class="hybrid-section" data-section="legal">
         
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">License</div>
+        <div class="hybrid-panel active" data-panel="legal-license">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">⚖️ Legal</h2>
+            <p class="hybrid-panel-desc">License and attribution.</p>
           </div>
-          <div class="hybrid-card-body">
-            <p class="legal-text">
-              All works in the Contribution Network are contributed <strong>In Good Faith With Clean Hands</strong>.
-            </p>
-            <p class="legal-text" style="margin-top: 12px;">
-              Individual contributions may have their own specific licenses as documented in their respective repositories.
-            </p>
-            <div class="signature-block">
-              In Good Faith With Clean Hands<br>
-              <strong>Contribution Network</strong>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-header">
+              <div class="hybrid-card-title">License</div>
+            </div>
+            <div class="hybrid-card-body">
+              <p class="legal-text">
+                All works in the Contribution Network are contributed <strong>In Good Faith With Clean Hands</strong>.
+              </p>
+              <p class="legal-text" style="margin-top: 12px;">
+                Individual contributions may have their own specific licenses as documented in their respective repositories.
+              </p>
+              <div class="signature-block">
+                In Good Faith With Clean Hands<br>
+                <strong>Contribution Network</strong>
+              </div>
             </div>
           </div>
         </div>
@@ -808,39 +1039,86 @@
 
 <script>
   (function() {
-    const panels = document.querySelectorAll('.hybrid-panel');
+    const sections = document.querySelectorAll('.hybrid-section');
     const navItems = document.querySelectorAll('.hybrid-nav-item');
-    const subtabs = document.querySelectorAll('.hybrid-subtab');
+    const subtabContainers = document.querySelectorAll('.hybrid-subtabs');
     
-    // Sidebar navigation
+    // ─────────────────────────────────────────────────────────────────────
+    // SIDEBAR NAVIGATION
+    // ─────────────────────────────────────────────────────────────────────
     navItems.forEach(item => {
       item.addEventListener('click', function(e) {
         e.preventDefault();
+        
+        const sectionId = this.dataset.section;
         
         // Update active nav item
         navItems.forEach(i => i.classList.remove('active'));
         this.classList.add('active');
         
-        // Show corresponding panel
-        const section = this.dataset.section;
-        panels.forEach(panel => {
-          panel.classList.remove('active');
-          if (panel.dataset.section === section) {
-            panel.classList.add('active');
+        // Show corresponding section
+        sections.forEach(section => {
+          section.classList.remove('active');
+          if (section.dataset.section === sectionId) {
+            section.classList.add('active');
+          }
+        });
+        
+        // Show corresponding sub-tabs
+        subtabContainers.forEach(container => {
+          container.classList.remove('active');
+          if (container.dataset.subtabsFor === sectionId) {
+            container.classList.add('active');
+            // Reset to first subtab
+            const subtabs = container.querySelectorAll('.hybrid-subtab');
+            subtabs.forEach((t, idx) => {
+              t.classList.toggle('active', idx === 0);
+            });
+            // Show first panel
+            const firstSubtab = subtabs[0];
+            if (firstSubtab) {
+              showPanel(firstSubtab.dataset.subtab);
+            }
           }
         });
       });
     });
     
-    // Sub-tab navigation
-    subtabs.forEach(tab => {
-      tab.addEventListener('click', function() {
-        subtabs.forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
+    // ─────────────────────────────────────────────────────────────────────
+    // SUB-TAB NAVIGATION
+    // ─────────────────────────────────────────────────────────────────────
+    function showPanel(panelId) {
+      // Find the active section
+      const activeSection = document.querySelector('.hybrid-section.active');
+      if (!activeSection) return;
+      
+      // Hide all panels in this section
+      const panels = activeSection.querySelectorAll('.hybrid-panel');
+      panels.forEach(panel => {
+        panel.classList.remove('active');
+        if (panel.dataset.panel === panelId) {
+          panel.classList.add('active');
+        }
+      });
+    }
+    
+    subtabContainers.forEach(container => {
+      const subtabs = container.querySelectorAll('.hybrid-subtab');
+      subtabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          // Update active subtab
+          subtabs.forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          
+          // Show corresponding panel
+          showPanel(this.dataset.subtab);
+        });
       });
     });
     
-    // Populate system info
+    // ─────────────────────────────────────────────────────────────────────
+    // POPULATE SYSTEM INFO
+    // ─────────────────────────────────────────────────────────────────────
     function populateSystemInfo() {
       const platform = navigator.platform || navigator.userAgentData?.platform || 'Unknown';
       const browser = (() => {
@@ -864,4 +1142,3 @@
     populateSystemInfo();
   })();
 </script>
-
