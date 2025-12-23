@@ -12,7 +12,7 @@
       "id": "briefcase-library",
       "title": "Briefcase Library Styles",
       "href": "css/briefcase-library.css",
-      "routes": ["protocols"],
+      "routes": ["overview", "contributions", "protocols"],
       "onDemand": true
     }
   ]
