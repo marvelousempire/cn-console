@@ -5,6 +5,11 @@
 
 ---
 
+## Trustee Quick Start (Plain English)
+
+- **Open it**: Start **Quick Server**, then open the URL shown as **`Main:`** in the terminal. CN Console is usually at **`/`** (root) or **`/cn-console`**.
+- **Note**: This repo is a **mirror**. The main version lives in **[ContributionNetwork](https://github.com/marvelousempire/ContributionNetwork)** under `console/`.
+
 ## What Is This?
 
 **CN Console** is the main control center for the Contribution Network.

@@ -112,19 +112,86 @@
       </div>
 
       <div class="cn-settings-card" data-panel="effects" style="display:none">
-        <div class="cn-settings-title">✨ Hybrid Beast Engine</div>
+        <div class="cn-settings-title">✨ Hybrid Beast Engine v2.0</div>
         <div class="cn-settings-sub">Motion + 3D effects powered by Motion One and Three.js. Slider-Revolution-meets-Unreal polish, tastefully applied.</div>
         <div id="cnEffectsList"></div>
         
-        <div style="margin-top:16px; padding:12px; border-radius:10px; background:linear-gradient(135deg, rgba(139,92,246,0.1), rgba(124,227,255,0.1)); border:1px solid rgba(139,92,246,0.2);">
-          <div style="font-weight:800; font-size:13px; margin-bottom:6px;">🎮 Quick Test</div>
+        <!-- Animation Preview Gallery -->
+        <div style="margin-top:16px; padding:12px; border-radius:10px; background:linear-gradient(135deg, rgba(139,92,246,0.08), rgba(124,227,255,0.08)); border:1px solid rgba(139,92,246,0.15);">
+          <div style="font-weight:800; font-size:13px; margin-bottom:10px;">🎬 Animation Preview</div>
+          <div id="cnAnimationPreview" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:8px;">
+            <div class="cn-preview-tile" data-preset="fadeIn">
+              <div class="cn-preview-box">Fade</div>
+            </div>
+            <div class="cn-preview-tile" data-preset="slideUp">
+              <div class="cn-preview-box">Slide Up</div>
+            </div>
+            <div class="cn-preview-tile" data-preset="scaleIn">
+              <div class="cn-preview-box">Scale</div>
+            </div>
+            <div class="cn-preview-tile" data-preset="bounce">
+              <div class="cn-preview-box">Bounce</div>
+            </div>
+            <div class="cn-preview-tile" data-preset="shake">
+              <div class="cn-preview-box">Shake</div>
+            </div>
+            <div class="cn-preview-tile" data-preset="wobble">
+              <div class="cn-preview-box">Wobble</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 3D Preset Preview -->
+        <div style="margin-top:12px; padding:12px; border-radius:10px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.15);">
+          <div style="font-weight:800; font-size:13px; margin-bottom:10px;">🎮 3D Presets</div>
+          <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            <button class="cn-settings-btn" data-three-preview="particles">Particles</button>
+            <button class="cn-settings-btn" data-three-preview="globe">Globe</button>
+            <button class="cn-settings-btn" data-three-preview="waves">Waves</button>
+            <button class="cn-settings-btn" data-three-preview="gradientMesh">Gradient</button>
+            <button class="cn-settings-btn" data-three-preview="shapes">Shapes</button>
+            <button class="cn-settings-btn" data-three-preview="aurora">Aurora</button>
+            <button class="cn-settings-btn" data-three-preview="grid">Grid</button>
+            <button class="cn-settings-btn" data-three-preview="stars">Stars</button>
+          </div>
+          <div id="cnThreePreviewContainer" style="margin-top:10px; height:150px; border-radius:8px; background:var(--bg); overflow:hidden; display:none;"></div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div style="margin-top:12px; padding:12px; border-radius:10px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.15);">
+          <div style="font-weight:800; font-size:13px; margin-bottom:6px;">⚡ Quick Actions</div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="cn-settings-btn" id="cnTestMotion">Test Motion</button>
-            <button class="cn-settings-btn" id="cnTestThree">Test 3D</button>
+            <button class="cn-settings-btn" id="cnTestMotion">Demo Motion</button>
+            <button class="cn-settings-btn" id="cnTestThree">Demo 3D</button>
             <button class="cn-settings-btn" id="cnToggleReduceMotion">Toggle Reduce Motion</button>
+            <button class="cn-settings-btn" id="cnShowPerfLevel">Show Perf Level</button>
           </div>
         </div>
       </div>
+      
+      <style>
+        .cn-preview-tile {
+          cursor:pointer;
+          transition:all 0.2s ease;
+        }
+        .cn-preview-tile:hover {
+          transform:translateY(-2px);
+        }
+        .cn-preview-box {
+          padding:16px 8px;
+          text-align:center;
+          font-size:11px;
+          font-weight:700;
+          color:var(--ink);
+          background:var(--card);
+          border:1px solid var(--line);
+          border-radius:8px;
+          transition:all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .cn-preview-tile:active .cn-preview-box {
+          transform:scale(0.95);
+        }
+      </style>
 
       <div class="cn-settings-card" data-panel="cache" style="display:none">
         <div class="cn-settings-title">Cache & Reload</div>

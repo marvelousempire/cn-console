@@ -329,6 +329,80 @@ export async function initCNSettings(root = document) {
     
     toast(next ? 'Motion reduced' : 'Motion enabled');
   });
+  
+  // Show performance level
+  page.querySelector('#cnShowPerfLevel')?.addEventListener('click', () => {
+    const motion = window.Sunday?.motion;
+    const three = window.Sunday?.three;
+    const motionPerf = motion?.performanceLevel || 'unknown';
+    const threePerf = three?.performanceLevel || 'unknown';
+    toast(`Motion: ${motionPerf}, Three: ${threePerf}`);
+  });
+  
+  // Animation preview tiles
+  page.querySelectorAll('.cn-preview-tile').forEach(tile => {
+    tile.addEventListener('click', async () => {
+      const preset = tile.getAttribute('data-preset');
+      const box = tile.querySelector('.cn-preview-box');
+      const motion = window.Sunday?.motion;
+      
+      if (!motion || !preset) return;
+      
+      // Reset and animate
+      box.style.opacity = '0';
+      box.style.transform = 'translateY(20px)';
+      
+      await new Promise(r => setTimeout(r, 50));
+      await motion.animate(box, preset);
+    });
+  });
+  
+  // 3D preset previews
+  let activeThreePreview = null;
+  
+  page.querySelectorAll('[data-three-preview]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const preset = btn.getAttribute('data-three-preview');
+      const three = window.Sunday?.three;
+      const container = page.querySelector('#cnThreePreviewContainer');
+      
+      if (!three || !container) {
+        toast('Three.js not available');
+        return;
+      }
+      
+      // Show container
+      container.style.display = 'block';
+      
+      // Clear previous
+      if (activeThreePreview) {
+        three.unmountBackground(container);
+        activeThreePreview = null;
+      }
+      
+      toast(`Loading ${preset}...`);
+      
+      // Mount new preset
+      activeThreePreview = await three.mountBackground(container, preset, { opacity: 0.8 });
+      
+      // Enable post-processing for some presets
+      if (['aurora', 'gradientMesh', 'particles'].includes(preset)) {
+        three.applyCSSPostEffects?.(container, { vignette: true, vignetteIntensity: 0.3 });
+      }
+      
+      toast(`${preset} loaded`);
+      
+      // Auto-hide after 10 seconds
+      setTimeout(() => {
+        if (activeThreePreview) {
+          three.unmountBackground(container);
+          three.disablePostProcessing?.({ container });
+          container.style.display = 'none';
+          activeThreePreview = null;
+        }
+      }, 10000);
+    });
+  });
 
   // Default panel
   setActivePanel('addons');
