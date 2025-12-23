@@ -307,7 +307,12 @@
   initConsole();
   
   // Periodically check status
-  setInterval(async () => {
+  // Avoid creating duplicate intervals on page revisit (router re-exec).
+  try {
+    if (window.__cnAiStatusInterval) clearInterval(window.__cnAiStatusInterval);
+  } catch {}
+
+  window.__cnAiStatusInterval = setInterval(async () => {
     const available = await checkOpenWebUI();
     if (available) {
       statusDot.style.background = '#10b981';
