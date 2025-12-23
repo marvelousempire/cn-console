@@ -21,6 +21,7 @@
     "consoles": {
       "cn-console": {
         "path": "/cn-console",
+        "subdomain": "cn",
         "name": "Contribution Network",
         "icon": "🧩",
         "description": "Main contribution and collaboration hub"
@@ -28,6 +29,7 @@
       "quick-server": {
         "path": "/quick-server",
         "aliases": ["/qs"],
+        "subdomain": "quick",
         "name": "Quick Server",
         "icon": "⚡",
         "description": "Server administration and orchestration"
