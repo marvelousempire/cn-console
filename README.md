@@ -1,5 +1,8 @@
 # CN Console
 
+> **Canonical home (do updates here):** `ContributionNetwork/console/` inside the `ContributionNetwork` repo.  
+> This `cn-console` repo is **legacy** and should be treated as a historical mirror to avoid drift.
+
 **Version:** 1.1.0  
 **Last Updated:** Tuesday Dec 23, 2025
 
