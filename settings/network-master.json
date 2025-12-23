@@ -36,6 +36,7 @@
       },
       "ai-console": {
         "path": "/ai-console",
+        "subdomain": "ai",
         "name": "NIVRAM.AI Console",
         "icon": "🤖",
         "description": "NIVRAM.AI - Intelligent assistant for Quick Server operations",
@@ -44,24 +45,30 @@
       },
       "hive-console": {
         "path": "/hive-console",
+        "subdomain": "hive",
         "name": "Hive Console",
         "icon": "🐝",
-        "description": "God mode administration"
+        "description": "God mode administration",
+        "status": "coming-soon"
       },
       "sunday-console": {
         "path": "/sunday-console",
+        "subdomain": "sunday",
         "name": "Sunday Console",
         "icon": "🌞",
-        "description": "Mother dashboard and framework admin"
+        "description": "Mother dashboard and framework admin",
+        "status": "coming-soon"
       },
       "learnmappers-console": {
         "path": "/learnmappers-console",
+        "subdomain": "learnmappers",
         "name": "LearnMappers",
         "icon": "🗺️",
         "description": "Learning and education platform"
       },
       "marketplace-console": {
         "path": "/marketplace-console",
+        "subdomain": "marketplace",
         "name": "Marketplace",
         "icon": "🛒",
         "description": "Marketplace and commerce"

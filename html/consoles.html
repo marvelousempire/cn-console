@@ -129,6 +129,27 @@
     border-radius: 50%;
     box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
   }
+  .cn-console-card.is-coming-soon {
+    opacity: 0.7;
+  }
+  .cn-console-card.is-coming-soon::after {
+    content: 'SOON';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 5px;
+    letter-spacing: 0.5px;
+  }
+  .sunday-btn--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--muted, #6b7280) !important;
+  }
 
   .cn-console-header {
     display: flex;
@@ -311,9 +332,10 @@
       const c = consoles[id];
       const isApex = id === networkData.tld;
       const isCurrent = id === currentConsole;
+      const isComingSoon = c.status === 'coming-soon';
 
       return `
-        <div class="cn-console-card ${isApex ? 'is-apex' : ''} ${isCurrent ? 'is-current' : ''}">
+        <div class="cn-console-card ${isApex ? 'is-apex' : ''} ${isCurrent ? 'is-current' : ''} ${isComingSoon ? 'is-coming-soon' : ''}">
           <div class="cn-console-header">
             <div class="cn-console-icon">${c.icon || '🖥️'}</div>
             <div class="cn-console-info">
@@ -323,7 +345,10 @@
           </div>
           <div class="cn-console-description">${c.description || 'No description'}</div>
           <div class="cn-console-actions">
-            <button class="sunday-btn" onclick="openConsole('${id}')">🚀 Open</button>
+            ${isComingSoon 
+              ? `<button class="sunday-btn sunday-btn--disabled" disabled>🚧 Coming Soon</button>`
+              : `<button class="sunday-btn" onclick="openConsole('${id}')">🚀 Open</button>`
+            }
           </div>
         </div>
       `;
