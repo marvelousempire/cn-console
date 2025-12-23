@@ -229,22 +229,42 @@
         // Insert into content container
         const contentContainer = document.getElementById('contentContainer');
         if (contentContainer) {
+          // Clear any existing content and event listeners to prevent conflicts
+          contentContainer.innerHTML = '';
+          console.log('[Fallback] Content container cleared');
+
           contentContainer.innerHTML = htmlContent;
           console.log('[Fallback] Content inserted into page');
 
           // Update URL hash
           window.location.hash = '#' + route;
 
-          // Trigger page initialization
+          // Trigger page initialization with defensive checks
           setTimeout(() => {
-            if (window.maybeInitCNPages) {
-              window.maybeInitCNPages();
-            }
-            // Page-specific initialization
-            if (route === 'consoles' && window.initConsolesPage) {
-              setTimeout(window.initConsolesPage, 50);
-            } else if (route === 'passwords' && window.initPasswordsPage) {
-              setTimeout(window.initPasswordsPage, 50);
+            try {
+              if (window.maybeInitCNPages) {
+                window.maybeInitCNPages();
+              }
+              // Page-specific initialization with error handling
+              if (route === 'consoles' && window.initConsolesPage) {
+                setTimeout(() => {
+                  try {
+                    window.initConsolesPage();
+                  } catch (e) {
+                    console.error('[Fallback] Consoles page init failed:', e);
+                  }
+                }, 50);
+              } else if (route === 'passwords' && window.initPasswordsPage) {
+                setTimeout(() => {
+                  try {
+                    window.initPasswordsPage();
+                  } catch (e) {
+                    console.error('[Fallback] Passwords page init failed:', e);
+                  }
+                }, 50);
+              }
+            } catch (e) {
+              console.error('[Fallback] Page initialization failed:', e);
             }
           }, 10);
         } else {
@@ -253,6 +273,18 @@
 
       } catch (error) {
         console.error('[Fallback] Failed to load page content:', error);
+        // Show user-friendly error in the content area
+        const contentContainer = document.getElementById('contentContainer');
+        if (contentContainer) {
+          contentContainer.innerHTML = `
+            <div style="padding: 40px; text-align: center; color: var(--muted);">
+              <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+              <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Failed to load page</div>
+              <div>Unable to load the ${route} page. Please try refreshing or contact support.</div>
+              <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: var(--brand); color: white; border: none; border-radius: 6px; cursor: pointer;">🔄 Reload Page</button>
+            </div>
+          `;
+        }
       }
     }
 
@@ -286,6 +318,28 @@
 
     // Initialize active tab on page load
     setTimeout(updateActiveTab, 100);
+
+    // Global error handler to prevent navigation-breaking errors
+    window.addEventListener('error', function(event) {
+      // Only log errors from our known problematic functions
+      if (event.error && event.error.stack &&
+          (event.error.stack.includes('updateStats') ||
+           event.error.stack.includes('renderConsoles'))) {
+        console.error('[Navigation Error] Caught and prevented:', event.error);
+        event.preventDefault();
+        return false;
+      }
+    });
+
+    // Also catch unhandled promise rejections
+    window.addEventListener('unhandledrejection', function(event) {
+      if (event.reason && event.reason.message &&
+          (event.reason.message.includes('updateStats') ||
+           event.reason.message.includes('renderConsoles'))) {
+        console.error('[Navigation Error] Caught unhandled rejection:', event.reason);
+        event.preventDefault();
+      }
+    });
   </script>
 
   <div id="global-header-container" class="global-header auth-hide"></div>

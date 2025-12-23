@@ -306,15 +306,33 @@
   }
 
   function updateStats() {
-    const total = cartridgeRegistry.length;
-    const active = cartridgeRegistry.filter(c => c.active !== false).length;
-    const consoles = cartridgeRegistry.filter(c => c.type === 'console' || c.type === 'console-cartridge').length;
-    const utilities = cartridgeRegistry.filter(c => c.type === 'cartridge' || c.type === 'utility').length;
+    try {
+      // Defensive checks - ensure variables and elements exist
+      if (!Array.isArray(cartridgeRegistry)) {
+        console.warn('updateStats: cartridgeRegistry not initialized');
+        return;
+      }
 
-    document.getElementById('stat-total').textContent = total;
-    document.getElementById('stat-active').textContent = active;
-    document.getElementById('stat-consoles').textContent = consoles;
-    document.getElementById('stat-utilities').textContent = utilities;
+      const total = cartridgeRegistry.length;
+      const active = cartridgeRegistry.filter(c => c.active !== false).length;
+      const consoles = cartridgeRegistry.filter(c => c.type === 'console' || c.type === 'console-cartridge').length;
+      const utilities = cartridgeRegistry.filter(c => c.type === 'cartridge' || c.type === 'utility').length;
+
+      // Safe element updates with existence checks
+      const statTotal = document.getElementById('stat-total');
+      const statActive = document.getElementById('stat-active');
+      const statConsoles = document.getElementById('stat-consoles');
+      const statUtilities = document.getElementById('stat-utilities');
+
+      if (statTotal) statTotal.textContent = total;
+      if (statActive) statActive.textContent = active;
+      if (statConsoles) statConsoles.textContent = consoles;
+      if (statUtilities) statUtilities.textContent = utilities;
+
+    } catch (error) {
+      console.error('updateStats error:', error);
+      // Don't re-throw - allow page to continue functioning
+    }
   }
 
   function renderCartridgeList() {
