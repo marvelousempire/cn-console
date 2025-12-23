@@ -46,15 +46,27 @@
   <!-- 🎨 EARLY THEME DETECTION - Prevents flash of wrong theme -->
   <script>
     (function() {
-      var saved = localStorage.getItem('sunday-theme') || localStorage.getItem('theme');
+      // Check all possible theme storage keys (in order of priority)
+      var saved = localStorage.getItem('themeMode') || // Current key used by app
+                  localStorage.getItem('sunday-theme') || // Legacy key
+                  localStorage.getItem('theme'); // Generic fallback
+
       var theme = saved;
       if (!theme) {
+        // Check system preference only if no saved preference
         var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
         theme = prefersDark ? 'dark' : 'light';
       }
+
+      // Apply theme immediately to prevent flash
       if (theme === 'light') {
         document.documentElement.setAttribute('data-theme', 'light');
+      } else {
+        // Ensure dark theme is set (remove any light theme attribute)
+        document.documentElement.removeAttribute('data-theme');
       }
+
+      console.log('[Theme] Early detection applied:', theme, 'from:', saved ? 'storage' : 'system');
     })();
   </script>
 

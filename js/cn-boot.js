@@ -116,13 +116,24 @@ function initHeaderUI() {
     const quickActionsBtn = document.getElementById('cnQuickActionsBtn');
     const settingsBtn = document.getElementById('cnSettingsBtn');
 
-    const getTheme = () =>
-      document.documentElement.getAttribute('data-theme') || localStorage.getItem('themeMode') || 'dark';
+    const getTheme = () => {
+      const attr = document.documentElement.getAttribute('data-theme');
+      if (attr === 'light') return 'light';
+      if (attr === 'dark') return 'dark';
+      // No attribute = dark mode (default)
+      const stored = localStorage.getItem('themeMode');
+      return stored || 'dark';
+    };
 
     const setTheme = (mode) => {
-      document.documentElement.setAttribute('data-theme', mode);
+      if (mode === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
       localStorage.setItem('themeMode', mode);
       if (themeIcon) themeIcon.textContent = mode === 'dark' ? '🌙' : '☀️';
+      console.log('[Theme] Applied theme:', mode);
     };
 
     const toggleTheme = () => setTheme(getTheme() === 'dark' ? 'light' : 'dark');
