@@ -174,7 +174,7 @@
     })();
 
     // Tab click handler for debugging and fallback navigation
-    function handleTabClick(event) {
+    async function handleTabClick(event) {
       const target = event.target.closest('a[data-route]');
       if (target) {
         event.preventDefault(); // Prevent default link behavior
@@ -186,27 +186,106 @@
           console.log('[Router] Using Sunday router');
           window.Sunday.router.navigate(route);
         } else {
-          // Fallback: manually change hash and trigger navigation
-          console.log('[Fallback] Manual navigation');
-          window.location.hash = '#' + route;
-          // Trigger the navigation manually
-          setTimeout(() => {
-            if (window.maybeInitCNPages) {
-              window.maybeInitCNPages();
-            }
-            // Also try page-specific init functions
-            if (route === 'consoles' && window.initConsolesPage) {
-              setTimeout(window.initConsolesPage, 50);
-            }
-          }, 10);
+          // Fallback: manually load HTML content
+          console.log('[Fallback] Manual HTML loading');
+          await loadPageContent(route);
         }
       }
     }
 
-    // Add hash change listener for debugging
+    // Load page content manually when Sunday router isn't available
+    async function loadPageContent(route) {
+      try {
+        // Get route config (simplified mapping - in real Sunday this comes from config)
+        const routeConfigs = {
+          'overview': './html/overview.html',
+          'contributions': './html/contributions.html',
+          'protocols': './html/protocols.html',
+          'ai': './html/ai.html',
+          'passwords': './html/standalone-passwords.html',
+          'consoles': './html/consoles.html',
+          'cartridges': './html/cartridges.html',
+          'network': './html/network-settings.html',
+          'settings': './html/settings.html'
+        };
+
+        const contentUrl = routeConfigs[route];
+        if (!contentUrl) {
+          console.error('[Fallback] No content URL for route:', route);
+          return;
+        }
+
+        console.log('[Fallback] Loading content from:', contentUrl);
+
+        // Fetch the HTML content
+        const response = await fetch(contentUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to load ${contentUrl}: ${response.status}`);
+        }
+
+        const htmlContent = await response.text();
+        console.log('[Fallback] Content loaded, length:', htmlContent.length);
+
+        // Insert into content container
+        const contentContainer = document.getElementById('contentContainer');
+        if (contentContainer) {
+          contentContainer.innerHTML = htmlContent;
+          console.log('[Fallback] Content inserted into page');
+
+          // Update URL hash
+          window.location.hash = '#' + route;
+
+          // Trigger page initialization
+          setTimeout(() => {
+            if (window.maybeInitCNPages) {
+              window.maybeInitCNPages();
+            }
+            // Page-specific initialization
+            if (route === 'consoles' && window.initConsolesPage) {
+              setTimeout(window.initConsolesPage, 50);
+            } else if (route === 'passwords' && window.initPasswordsPage) {
+              setTimeout(window.initPasswordsPage, 50);
+            }
+          }, 10);
+        } else {
+          console.error('[Fallback] Content container not found');
+        }
+
+      } catch (error) {
+        console.error('[Fallback] Failed to load page content:', error);
+      }
+    }
+
+    // Add hash change listener for debugging and tab state updates
     window.addEventListener('hashchange', function() {
       console.log('[Hash Change]', window.location.hash);
+      updateActiveTab();
     });
+
+    // Update active tab visual state
+    function updateActiveTab() {
+      try {
+        const hash = window.location.hash || '#';
+        const route = hash.replace(/^#\/?/, '').split('?')[0] || 'overview';
+
+        // Remove active class from all tabs
+        document.querySelectorAll('#mainTabs .tab-btn').forEach(tab => {
+          tab.classList.remove('active');
+        });
+
+        // Add active class to current tab
+        const activeTab = document.querySelector(`#mainTabs .tab-btn[data-route="${route}"]`);
+        if (activeTab) {
+          activeTab.classList.add('active');
+          console.log('[Tab State] Updated active tab to:', route);
+        }
+      } catch (error) {
+        console.error('[Tab State] Failed to update active tab:', error);
+      }
+    }
+
+    // Initialize active tab on page load
+    setTimeout(updateActiveTab, 100);
   </script>
 
   <div id="global-header-container" class="global-header auth-hide"></div>
