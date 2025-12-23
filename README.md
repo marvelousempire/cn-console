@@ -59,6 +59,30 @@ See [THE-BRIEFCASE.md](./docs/THE-BRIEFCASE.md) for complete documentation.
 
 ---
 
+## 🛂 Passport System
+
+CN Console uses the **Passport System** for universal identity and loading. Its passport file enables it to be:
+
+- Run as a **standalone Console**
+- Loaded as a **Cartridge** in other consoles (like Quick Server)
+- **Hot-swapped** between versions
+
+**Passport File:** `passport-cn-console.json`
+
+```json
+{
+  "udin": "CONSOLE-CN-20251223120000",
+  "name": "CN Console",
+  "type": "console",
+  "framework": "sundayapp",
+  "source": "./console"
+}
+```
+
+See [ContributionNetwork/docs/PASSPORT-SYSTEM.md](https://github.com/marvelousempire/ContributionNetwork/docs/PASSPORT-SYSTEM.md) for full documentation.
+
+---
+
 ## Hosting / API expectations
 
 Some UI elements are designed to integrate with Quick Server's host APIs:

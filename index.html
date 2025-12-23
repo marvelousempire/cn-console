@@ -20,7 +20,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--sunday-bg, #0b0c10);
+      background: var(--bg, #0b0c10);
     }
     
     /* Once authenticated, show everything */
@@ -40,6 +40,19 @@
     html.show-login .auth-hide {
       display: none !important;
       visibility: hidden !important;
+    }
+
+    /* CRITICAL: Never show app loading UI behind the login wall. */
+    html.show-login #loadingScreen,
+    html.is-auth-page #loadingScreen,
+    body.auth-page #loadingScreen,
+    html.show-login #cnBootStatus,
+    html.is-auth-page #cnBootStatus,
+    body.auth-page #cnBootStatus {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
     }
   </style>
 
@@ -115,6 +128,72 @@
   <link rel="stylesheet" href="css/briefcase-library.css?v=20251223a" id="cn-style-briefcase-library" disabled>
   
   <style>
+    /* Loading screen styles (inline to show immediately) */
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg, #0b0c10);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .loading-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .loading-content {
+      text-align: center;
+      color: var(--ink, #e9f3ff);
+    }
+    .loading-content .logo {
+      font-size: 64px;
+      margin-bottom: 20px;
+      animation: bounce 1s ease infinite;
+    }
+    .loading-content h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin: 0 0 8px;
+    }
+    .loading-content p {
+      color: var(--muted, #9bb1c7);
+      margin: 0;
+    }
+    .loading-progress-container {
+      width: 280px;
+      margin-top: 32px;
+    }
+    .loading-progress-bar {
+      height: 4px;
+      background: var(--line, #1f2937);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .loading-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #8b5cf6, #7ce3ff);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .loading-status {
+      text-align: center;
+      color: var(--muted, #9bb1c7);
+      font-size: 12px;
+      margin-top: 12px;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
     /* Auth page styles - hide all navigation chrome on login/register pages */
     body.auth-page .global-header,
     body.auth-page .tabs-container,
@@ -155,6 +234,21 @@
     <style>
       @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
+  </div>
+
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-content">
+      <div class="logo">🧩</div>
+      <h1>CN Console</h1>
+      <p>Starting up your development environment...</p>
+    </div>
+    <div class="loading-progress-container">
+      <div class="loading-progress-bar">
+        <div id="loadingProgressFill" class="loading-progress-fill"></div>
+      </div>
+      <div id="loadingStatus" class="loading-status">Initializing...</div>
+    </div>
   </div>
 
   <!-- Auth Page Detection - Hide UI chrome on login/register pages -->

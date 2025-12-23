@@ -8,14 +8,32 @@ window.__CN_READY = false;
 // During boot we want hard-fail UX; after boot, page-level errors should not nuke the shell.
 let __cnFatalArmed = true;
 
+// QS-style loading overlay (CN Console)
+const loadingScreenEl = document.getElementById('loadingScreen');
+const loadingProgressFillEl = document.getElementById('loadingProgressFill');
+const loadingStatusEl = document.getElementById('loadingStatus');
+
+let __cnBootProgress = 0;
+
 const bootEl = document.getElementById('cnBootStatus');
 const bootTextEl = bootEl ? bootEl.querySelector('.sunday-text--muted') : null;
-const setBoot = (msg) => {
+const setBoot = (msg, progress) => {
   try { if (bootTextEl) bootTextEl.textContent = msg; } catch {}
+  try { if (loadingStatusEl) loadingStatusEl.textContent = msg; } catch {}
+
+  if (typeof progress === 'number' && !Number.isNaN(progress)) {
+    __cnBootProgress = Math.max(__cnBootProgress, Math.min(100, Math.max(0, progress)));
+  }
+  try { if (loadingProgressFillEl) loadingProgressFillEl.style.width = `${__cnBootProgress}%`; } catch {}
+};
+
+const hideLoading = () => {
+  try { if (loadingScreenEl) loadingScreenEl.classList.add('hidden'); } catch {}
 };
 
 const showFatal = (e) => {
   try {
+    hideLoading();
     const container = document.getElementById('contentContainer');
     const msg = (e && (e.stack || e.message)) ? (e.stack || e.message) : String(e);
     if (container) {
@@ -67,7 +85,7 @@ window.addEventListener('unhandledrejection', handleUnhandledRejection);
 // If init hangs, show a clear message instead of infinite "Loading…"
 const hangTimer = setTimeout(() => {
   const route = (window.location.hash || '').replace(/^#/, '') || '(none)';
-  setBoot(`Still loading… (route: ${route}). If this persists, open #login.`);
+  setBoot(`Still loading... (route: ${route}). If this persists, open #login.`, 70);
 }, 8000);
 
 // Attach Bearer token automatically to same-origin /api/* calls.
@@ -402,7 +420,7 @@ async function maybeInitCNPages() {
 }
 
 async function initApp() {
-  setBoot('Loading framework…');
+  setBoot('Checking authentication...', 5);
   const { Sunday } = await import('/sundayapp/index.js');
   // Patch Router so simple routes like `#login` are treated as pageIds.
   // This removes the noisy warning: "[Router] No valid route context, using default".
@@ -427,18 +445,18 @@ async function initApp() {
   let config, AuthGuard;
   
   try {
-    setBoot('Loading Sunday framework…');
+    setBoot('Loading framework...', 20);
     console.log('[CN Boot] Importing Sunday framework...');
     // Sunday already imported at top of initApp
     console.log('[CN Boot] ✅ Sunday framework loaded');
 
-    setBoot('Loading console config…');
+    setBoot('Loading config...', 30);
     console.log('[CN Boot] Importing config...');
     const configModule = await import('./../app.config.js?v=20251222b');
     config = configModule.default;
     console.log('[CN Boot] ✅ Config loaded');
 
-    setBoot('Loading auth…');
+    setBoot('Loading auth...', 40);
     console.log('[CN Boot] Auth client will be loaded on demand');
 
     console.log('[CN Boot] Importing auth guard...');
@@ -490,7 +508,7 @@ async function initApp() {
     }
   }
 
-  setBoot('Checking session…');
+  setBoot('Checking session...', 55);
   let auth = null;
   try {
     console.log('[CN Boot] Importing auth client...');
@@ -550,6 +568,7 @@ async function initApp() {
     document.documentElement.classList.add('show-login');
     document.documentElement.classList.remove('authenticated');
     console.log('[CN Boot] Showing login page');
+    hideLoading();
   } else {
     // Not authenticated, not on login - redirect to login
     console.log('[CN Boot] Not authenticated, redirecting to login');
@@ -562,6 +581,7 @@ async function initApp() {
     document.documentElement.classList.remove('authenticated');
     window.location.hash = '#login';
     // Continue boot to render login page
+    hideLoading();
   }
 
   // Wait for DOM to be ready before initializing Sunday framework
@@ -571,7 +591,7 @@ async function initApp() {
     });
   }
 
-  setBoot('Starting console…');
+  setBoot('Starting router...', 70);
   console.log('[CN Boot] Initializing Sunday framework...');
   console.log('[CN Boot] Config:', config);
   try {
@@ -599,6 +619,7 @@ async function initApp() {
     console.warn('[Auth] Guard init failed:', e);
   }
 
+  setBoot('Loading header...', 40);
   await loadHeader();
   initHeaderUI();
 
@@ -630,12 +651,15 @@ async function initApp() {
   });
 
   window.addEventListener('hashchange', () => { maybeInitCNPages(); });
+  setBoot('Starting router...', 85);
   await maybeInitCNPages();
 
   // ✅ Boot completed — from here on, page-level errors should NOT replace the whole UI.
   window.__CN_READY = true;
   __cnFatalArmed = false;
 
+  setBoot('Ready!', 100);
+  setTimeout(hideLoading, 200);
   console.log('🌞 CN Console ready');
 }
 
