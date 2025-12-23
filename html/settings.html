@@ -3,14 +3,14 @@
   
   Hybrid Layout (SOP-APP-008):
   - Sidebar with section navigation
-  - Sub-tabs for detailed content
+  - Sub-tabs for detailed content within each section
   - Content panel with settings cards
   
   Created: December 2025
   Last Updated: Tuesday Dec 23, 2025
 -->
 
-<div class="hybrid-settings-page">
+<div class="hybrid-settings-page" id="settingsPage">
   <style>
     /* === HYBRID SETTINGS LAYOUT === */
     .hybrid-settings-page {
@@ -119,7 +119,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 24px;
+      padding: 12px 24px;
       border-bottom: 1px solid var(--border);
       background: var(--surface);
     }
@@ -169,11 +169,60 @@
       border-color: #ef4444;
     }
     
+    /* === SUB-TABS === */
+    .hybrid-subtabs-container {
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      background: var(--surface);
+      min-height: 48px;
+    }
+    
+    .hybrid-subtabs {
+      display: none;
+      gap: 0;
+    }
+    
+    .hybrid-subtabs.active {
+      display: flex;
+    }
+    
+    .hybrid-subtab {
+      padding: 14px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.15s;
+      background: none;
+      border-left: none;
+      border-right: none;
+      border-top: none;
+    }
+    
+    .hybrid-subtab:hover {
+      color: var(--ink);
+    }
+    
+    .hybrid-subtab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    
     /* === CONTENT AREA === */
     .hybrid-content {
       flex: 1;
       overflow-y: auto;
       padding: 24px;
+    }
+    
+    .hybrid-section {
+      display: none;
+    }
+    
+    .hybrid-section.active {
+      display: block;
     }
     
     .hybrid-panel {
@@ -365,7 +414,7 @@
       <div class="hybrid-sidebar-title">
         <span>⚙️</span>
         <span>Settings</span>
-        <span class="hybrid-version-badge" id="settingsVersion">v1.3.0</span>
+        <span class="hybrid-version-badge">v1.3.0</span>
       </div>
       <div class="hybrid-sidebar-subtitle">Configure CN Console</div>
     </div>
@@ -397,6 +446,10 @@
           <span class="hybrid-nav-icon">🔌</span>
           <span>API</span>
         </a>
+        <a class="hybrid-nav-item" data-section="passport">
+          <span class="hybrid-nav-icon">🛂</span>
+          <span>Passport</span>
+        </a>
       </div>
     </nav>
   </aside>
@@ -405,9 +458,7 @@
   <main class="hybrid-main">
     <!-- HEADER BAR -->
     <div class="hybrid-header-bar">
-      <div class="hybrid-header-title">
-        <span id="sectionTitle">🧩 Add-ons</span>
-      </div>
+      <div class="hybrid-header-title" id="sectionTitle">🧩 Add-ons</div>
       <div class="hybrid-header-actions">
         <button class="hybrid-btn" id="cnExportSettings">📥 Export</button>
         <button class="hybrid-btn primary" id="cnApplyAddons">🔄 Apply</button>
@@ -415,235 +466,489 @@
       </div>
     </div>
     
+    <!-- SUB-TABS CONTAINER -->
+    <div class="hybrid-subtabs-container">
+      <!-- Add-ons sub-tabs -->
+      <div class="hybrid-subtabs active" data-subtabs-for="addons">
+        <button class="hybrid-subtab active" data-subtab="addons-ui">UI Features</button>
+        <button class="hybrid-subtab" data-subtab="addons-integrations">Integrations</button>
+      </div>
+      
+      <!-- Appearance sub-tabs -->
+      <div class="hybrid-subtabs" data-subtabs-for="appearance">
+        <button class="hybrid-subtab active" data-subtab="appearance-theme">Theme</button>
+        <button class="hybrid-subtab" data-subtab="appearance-layout">Layout</button>
+      </div>
+      
+      <!-- Cache sub-tabs -->
+      <div class="hybrid-subtabs" data-subtabs-for="cache">
+        <button class="hybrid-subtab active" data-subtab="cache-browser">Browser</button>
+        <button class="hybrid-subtab" data-subtab="cache-storage">Storage</button>
+      </div>
+      
+      <!-- Diagnostics sub-tabs -->
+      <div class="hybrid-subtabs" data-subtabs-for="diagnostics">
+        <button class="hybrid-subtab active" data-subtab="diagnostics-console">Console</button>
+        <button class="hybrid-subtab" data-subtab="diagnostics-env">Environment</button>
+      </div>
+      
+      <!-- API sub-tabs -->
+      <div class="hybrid-subtabs" data-subtabs-for="api">
+        <button class="hybrid-subtab active" data-subtab="api-endpoints">Endpoints</button>
+        <button class="hybrid-subtab" data-subtab="api-health">Health</button>
+      </div>
+      
+      <!-- Passport sub-tabs -->
+      <div class="hybrid-subtabs" data-subtabs-for="passport">
+        <button class="hybrid-subtab active" data-subtab="passport-view">View</button>
+        <button class="hybrid-subtab" data-subtab="passport-explain">Explained</button>
+      </div>
+    </div>
+    
     <!-- CONTENT PANELS -->
     <div class="hybrid-content">
       
+      <!-- ═══════════════════════════════════════════════════════════════ -->
       <!-- ADDONS SECTION -->
-      <div class="hybrid-panel active" data-section="addons">
-        <div class="hybrid-panel-header">
-          <h2 class="hybrid-panel-title">Console Add-ons</h2>
-          <p class="hybrid-panel-desc">Pick UI features to enable or disable. Changes apply after clicking "Apply".</p>
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <div class="hybrid-section active" data-section="addons">
+        
+        <!-- Add-ons: UI Features -->
+        <div class="hybrid-panel active" data-panel="addons-ui">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">UI Features</h2>
+            <p class="hybrid-panel-desc">Toggle user interface add-ons.</p>
+          </div>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-body" id="cnAddonsList">
+              <div class="addon-item">
+                <span class="addon-icon">⚡</span>
+                <div class="addon-info">
+                  <div class="addon-name">Quick Actions Button</div>
+                  <div class="addon-desc">Floating action button for fast access to common tasks</div>
+                </div>
+                <label class="addon-toggle">
+                  <input type="checkbox" data-addon="quick-actions" checked>
+                  <span class="addon-slider"></span>
+                </label>
+              </div>
+              
+              <div class="addon-item">
+                <span class="addon-icon">📋</span>
+                <div class="addon-info">
+                  <div class="addon-name">Version Badge</div>
+                  <div class="addon-desc">Shows current version and changelog in header</div>
+                </div>
+                <label class="addon-toggle">
+                  <input type="checkbox" data-addon="version-badge" checked>
+                  <span class="addon-slider"></span>
+                </label>
+              </div>
+              
+              <div class="addon-item">
+                <span class="addon-icon">🔔</span>
+                <div class="addon-info">
+                  <div class="addon-name">Notifications</div>
+                  <div class="addon-desc">Toast notifications for actions and updates</div>
+                </div>
+                <label class="addon-toggle">
+                  <input type="checkbox" data-addon="notifications" checked>
+                  <span class="addon-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
         
-        <div class="hybrid-card">
-          <div class="hybrid-card-body" id="cnAddonsList">
-            <div class="addon-item">
-              <span class="addon-icon">⚡</span>
-              <div class="addon-info">
-                <div class="addon-name">Quick Actions Button</div>
-                <div class="addon-desc">Floating action button for fast access to common tasks</div>
+        <!-- Add-ons: Integrations -->
+        <div class="hybrid-panel" data-panel="addons-integrations">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">Integrations</h2>
+            <p class="hybrid-panel-desc">Connect to external services.</p>
+          </div>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-body">
+              <div class="addon-item">
+                <span class="addon-icon">🤖</span>
+                <div class="addon-info">
+                  <div class="addon-name">AI Integration</div>
+                  <div class="addon-desc">Enable AI features and chat</div>
+                </div>
+                <label class="addon-toggle">
+                  <input type="checkbox" data-addon="ai-integration">
+                  <span class="addon-slider"></span>
+                </label>
               </div>
-              <label class="addon-toggle">
-                <input type="checkbox" data-addon="quick-actions" checked>
-                <span class="addon-slider"></span>
-              </label>
-            </div>
-            
-            <div class="addon-item">
-              <span class="addon-icon">📋</span>
-              <div class="addon-info">
-                <div class="addon-name">Version Badge</div>
-                <div class="addon-desc">Shows current version and changelog in header</div>
+              
+              <div class="addon-item">
+                <span class="addon-icon">📡</span>
+                <div class="addon-info">
+                  <div class="addon-name">Living Agents</div>
+                  <div class="addon-desc">Real-time sync with SundayApp master</div>
+                </div>
+                <label class="addon-toggle">
+                  <input type="checkbox" data-addon="living-agents">
+                  <span class="addon-slider"></span>
+                </label>
               </div>
-              <label class="addon-toggle">
-                <input type="checkbox" data-addon="version-badge" checked>
-                <span class="addon-slider"></span>
-              </label>
-            </div>
-            
-            <div class="addon-item">
-              <span class="addon-icon">🔔</span>
-              <div class="addon-info">
-                <div class="addon-name">Notifications</div>
-                <div class="addon-desc">Toast notifications for actions and updates</div>
-              </div>
-              <label class="addon-toggle">
-                <input type="checkbox" data-addon="notifications" checked>
-                <span class="addon-slider"></span>
-              </label>
             </div>
           </div>
         </div>
       </div>
       
+      <!-- ═══════════════════════════════════════════════════════════════ -->
       <!-- APPEARANCE SECTION -->
-      <div class="hybrid-panel" data-section="appearance">
-        <div class="hybrid-panel-header">
-          <h2 class="hybrid-panel-title">Appearance</h2>
-          <p class="hybrid-panel-desc">Customize how the console looks.</p>
-        </div>
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <div class="hybrid-section" data-section="appearance">
         
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">Theme</div>
+        <!-- Appearance: Theme -->
+        <div class="hybrid-panel active" data-panel="appearance-theme">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">Theme</h2>
+            <p class="hybrid-panel-desc">Colors and visual style.</p>
           </div>
-          <div class="hybrid-card-body">
-            <div class="hybrid-setting-row">
-              <div class="hybrid-setting-info">
-                <div class="hybrid-setting-label">Color Mode</div>
-                <div class="hybrid-setting-desc">Choose dark or light mode</div>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-header">
+              <div class="hybrid-card-title">Color Settings</div>
+            </div>
+            <div class="hybrid-card-body">
+              <div class="hybrid-setting-row">
+                <div class="hybrid-setting-info">
+                  <div class="hybrid-setting-label">Color Mode</div>
+                  <div class="hybrid-setting-desc">Choose dark or light mode</div>
+                </div>
+                <div class="hybrid-setting-control">
+                  <select id="themeMode" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--ink);">
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                    <option value="auto">Auto (System)</option>
+                  </select>
+                </div>
               </div>
-              <div class="hybrid-setting-control">
-                <select class="sunday-input" id="themeMode" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--ink);">
-                  <option value="dark">Dark</option>
-                  <option value="light">Light</option>
-                  <option value="auto">Auto (System)</option>
-                </select>
+              <div class="hybrid-setting-row">
+                <div class="hybrid-setting-info">
+                  <div class="hybrid-setting-label">Accent Color</div>
+                  <div class="hybrid-setting-desc">The main highlight color</div>
+                </div>
+                <div class="hybrid-setting-control">
+                  <input type="color" id="accentColor" value="#8b5cf6" style="width: 40px; height: 32px; border: none; border-radius: 6px; cursor: pointer;">
+                </div>
               </div>
             </div>
-            <div class="hybrid-setting-row">
-              <div class="hybrid-setting-info">
-                <div class="hybrid-setting-label">Accent Color</div>
-                <div class="hybrid-setting-desc">The main highlight color</div>
+          </div>
+        </div>
+        
+        <!-- Appearance: Layout -->
+        <div class="hybrid-panel" data-panel="appearance-layout">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">Layout</h2>
+            <p class="hybrid-panel-desc">Page structure and spacing.</p>
+          </div>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-header">
+              <div class="hybrid-card-title">Layout Options</div>
+            </div>
+            <div class="hybrid-card-body">
+              <div class="hybrid-setting-row">
+                <div class="hybrid-setting-info">
+                  <div class="hybrid-setting-label">Sidebar Width</div>
+                  <div class="hybrid-setting-desc">Width of navigation sidebar</div>
+                </div>
+                <div class="hybrid-setting-control">
+                  <select style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--ink);">
+                    <option value="narrow">Narrow (200px)</option>
+                    <option value="default" selected>Default (240px)</option>
+                    <option value="wide">Wide (280px)</option>
+                  </select>
+                </div>
               </div>
-              <div class="hybrid-setting-control">
-                <input type="color" id="accentColor" value="#8b5cf6" style="width: 40px; height: 32px; border: none; border-radius: 6px; cursor: pointer;">
+              <div class="hybrid-setting-row">
+                <div class="hybrid-setting-info">
+                  <div class="hybrid-setting-label">Compact Mode</div>
+                  <div class="hybrid-setting-desc">Reduce spacing for more content</div>
+                </div>
+                <div class="hybrid-setting-control">
+                  <label class="addon-toggle">
+                    <input type="checkbox" data-setting="compact-mode">
+                    <span class="addon-slider"></span>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
       
+      <!-- ═══════════════════════════════════════════════════════════════ -->
       <!-- CACHE SECTION -->
-      <div class="hybrid-panel" data-section="cache">
-        <div class="hybrid-panel-header">
-          <h2 class="hybrid-panel-title">Cache & Storage</h2>
-          <p class="hybrid-panel-desc">Clear browser cache when things seem stuck or outdated.</p>
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <div class="hybrid-section" data-section="cache">
+        
+        <!-- Cache: Browser -->
+        <div class="hybrid-panel active" data-panel="cache-browser">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">Browser Cache</h2>
+            <p class="hybrid-panel-desc">Clear browser cache when things seem stuck.</p>
+          </div>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-header">
+              <div class="hybrid-card-title">Cache Controls</div>
+            </div>
+            <div class="hybrid-card-body">
+              <p style="font-size: 13px; color: var(--muted); margin: 0 0 16px;">
+                Use this when the browser is stuck on old JS/CSS. It clears service worker + CacheStorage and reloads.
+              </p>
+              <button class="hybrid-btn danger" id="cnClearCache" style="width: 100%;">
+                🗑️ Clear Cache + Reload
+              </button>
+            </div>
+          </div>
         </div>
         
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">Cache Controls</div>
+        <!-- Cache: Storage -->
+        <div class="hybrid-panel" data-panel="cache-storage">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">Local Storage</h2>
+            <p class="hybrid-panel-desc">Where settings are saved.</p>
           </div>
-          <div class="hybrid-card-body">
-            <p style="font-size: 13px; color: var(--muted); margin: 0 0 16px;">
-              Use this when the browser is stuck on old JS/CSS. It clears service worker + CacheStorage and reloads.
-            </p>
-            <button class="hybrid-btn danger" id="cnClearCache" style="width: 100%;">
-              🗑️ Clear Cache + Reload
-            </button>
-          </div>
-        </div>
-        
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">Local Storage</div>
-          </div>
-          <div class="hybrid-card-body">
-            <div class="hybrid-setting-row">
-              <div class="hybrid-setting-info">
-                <div class="hybrid-setting-label">Settings Storage Key</div>
-                <div class="hybrid-setting-desc">Where this console's settings are stored</div>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-header">
+              <div class="hybrid-card-title">Storage Info</div>
+            </div>
+            <div class="hybrid-card-body">
+              <div class="hybrid-setting-row">
+                <div class="hybrid-setting-info">
+                  <div class="hybrid-setting-label">Settings Storage Key</div>
+                  <div class="hybrid-setting-desc">Where this console's settings are stored</div>
+                </div>
+                <div class="hybrid-setting-control">
+                  <code style="font-size: 12px; background: var(--bg); padding: 4px 8px; border-radius: 4px;">cn-console-settings</code>
+                </div>
               </div>
-              <div class="hybrid-setting-control">
-                <code style="font-size: 12px; background: var(--bg); padding: 4px 8px; border-radius: 4px;">cn-console-settings</code>
+              <div class="hybrid-setting-row">
+                <div class="hybrid-setting-info">
+                  <div class="hybrid-setting-label">Storage Used</div>
+                  <div class="hybrid-setting-desc">Approximate storage used</div>
+                </div>
+                <div class="hybrid-setting-control">
+                  <span id="storageUsed" style="font-size: 13px; font-weight: 600;">-</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
       
+      <!-- ═══════════════════════════════════════════════════════════════ -->
       <!-- DIAGNOSTICS SECTION -->
-      <div class="hybrid-panel" data-section="diagnostics">
-        <div class="hybrid-panel-header">
-          <h2 class="hybrid-panel-title">Diagnostics</h2>
-          <p class="hybrid-panel-desc">Useful information for debugging.</p>
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <div class="hybrid-section" data-section="diagnostics">
+        
+        <!-- Diagnostics: Console -->
+        <div class="hybrid-panel active" data-panel="diagnostics-console">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">Console Info</h2>
+            <p class="hybrid-panel-desc">Information about this console.</p>
+          </div>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-body">
+              <div class="diag-row">
+                <span class="diag-label">Console Name</span>
+                <span class="diag-value">CN Console</span>
+              </div>
+              <div class="diag-row">
+                <span class="diag-label">Console Version</span>
+                <span class="diag-value">1.3.0</span>
+              </div>
+              <div class="diag-row">
+                <span class="diag-label">Framework</span>
+                <span class="diag-value">SundayApp 2.4.0</span>
+              </div>
+              <div class="diag-row">
+                <span class="diag-label">UDIN</span>
+                <span class="diag-value" style="font-family: monospace; font-size: 11px;">CONSOLE-CN-20251223120000</span>
+              </div>
+            </div>
+          </div>
         </div>
         
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">Console Info</div>
+        <!-- Diagnostics: Environment -->
+        <div class="hybrid-panel" data-panel="diagnostics-env">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">Environment</h2>
+            <p class="hybrid-panel-desc">Browser and connection details.</p>
           </div>
-          <div class="hybrid-card-body">
-            <div class="diag-row">
-              <span class="diag-label">Console Name</span>
-              <span class="diag-value" id="diagConsole">CN Console</span>
-            </div>
-            <div class="diag-row">
-              <span class="diag-label">Console Version</span>
-              <span class="diag-value" id="diagVersion">1.3.0</span>
-            </div>
-            <div class="diag-row">
-              <span class="diag-label">Framework</span>
-              <span class="diag-value">SundayApp 2.4.0</span>
-            </div>
-            <div class="diag-row">
-              <span class="diag-label">UDIN</span>
-              <span class="diag-value" style="font-family: monospace; font-size: 11px;">CONSOLE-CN-20251223120000</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">Environment</div>
-          </div>
-          <div class="hybrid-card-body">
-            <div class="diag-row">
-              <span class="diag-label">Host</span>
-              <span class="diag-value" id="diagHost">-</span>
-            </div>
-            <div class="diag-row">
-              <span class="diag-label">Path</span>
-              <span class="diag-value" id="diagPath">-</span>
-            </div>
-            <div class="diag-row">
-              <span class="diag-label">Protocol</span>
-              <span class="diag-value" id="diagProtocol">-</span>
-            </div>
-            <div class="diag-row">
-              <span class="diag-label">User Agent</span>
-              <span class="diag-value" id="diagUA" style="font-size: 11px; word-break: break-all;">-</span>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-body">
+              <div class="diag-row">
+                <span class="diag-label">Host</span>
+                <span class="diag-value" id="diagHost">-</span>
+              </div>
+              <div class="diag-row">
+                <span class="diag-label">Path</span>
+                <span class="diag-value" id="diagPath">-</span>
+              </div>
+              <div class="diag-row">
+                <span class="diag-label">Protocol</span>
+                <span class="diag-value" id="diagProtocol">-</span>
+              </div>
+              <div class="diag-row">
+                <span class="diag-label">User Agent</span>
+                <span class="diag-value" id="diagUA" style="font-size: 11px; word-break: break-all;">-</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
       
+      <!-- ═══════════════════════════════════════════════════════════════ -->
       <!-- API SECTION -->
-      <div class="hybrid-panel" data-section="api">
-        <div class="hybrid-panel-header">
-          <h2 class="hybrid-panel-title">API Settings</h2>
-          <p class="hybrid-panel-desc">Configure API connections and endpoints.</p>
-        </div>
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <div class="hybrid-section" data-section="api">
         
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">API Base URL</div>
+        <!-- API: Endpoints -->
+        <div class="hybrid-panel active" data-panel="api-endpoints">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">API Endpoints</h2>
+            <p class="hybrid-panel-desc">API configuration.</p>
           </div>
-          <div class="hybrid-card-body">
-            <div class="hybrid-setting-row">
-              <div class="hybrid-setting-info">
-                <div class="hybrid-setting-label">Base URL</div>
-                <div class="hybrid-setting-desc">The root URL for API requests</div>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-header">
+              <div class="hybrid-card-title">Base Configuration</div>
+            </div>
+            <div class="hybrid-card-body">
+              <div class="hybrid-setting-row">
+                <div class="hybrid-setting-info">
+                  <div class="hybrid-setting-label">API Base URL</div>
+                  <div class="hybrid-setting-desc">The root URL for API requests</div>
+                </div>
+                <div class="hybrid-setting-control">
+                  <code style="font-size: 12px; background: var(--bg); padding: 4px 8px; border-radius: 4px;">/api</code>
+                </div>
               </div>
-              <div class="hybrid-setting-control">
-                <code style="font-size: 12px; background: var(--bg); padding: 4px 8px; border-radius: 4px;">/api</code>
+              <div class="hybrid-setting-row">
+                <div class="hybrid-setting-info">
+                  <div class="hybrid-setting-label">Registry Endpoint</div>
+                  <div class="hybrid-setting-desc">CN Registry location</div>
+                </div>
+                <div class="hybrid-setting-control">
+                  <code style="font-size: 12px; background: var(--bg); padding: 4px 8px; border-radius: 4px;">/api/registry</code>
+                </div>
               </div>
             </div>
           </div>
         </div>
         
-        <div class="hybrid-card">
-          <div class="hybrid-card-header">
-            <div class="hybrid-card-title">Health Check</div>
+        <!-- API: Health -->
+        <div class="hybrid-panel" data-panel="api-health">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">Health Check</h2>
+            <p class="hybrid-panel-desc">Service health status.</p>
           </div>
-          <div class="hybrid-card-body">
-            <div class="hybrid-setting-row">
-              <div class="hybrid-setting-info">
-                <div class="hybrid-setting-label">Endpoint</div>
-                <div class="hybrid-setting-desc">Health check URL</div>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-body">
+              <div class="hybrid-setting-row">
+                <div class="hybrid-setting-info">
+                  <div class="hybrid-setting-label">Health Endpoint</div>
+                  <div class="hybrid-setting-desc">Health check URL</div>
+                </div>
+                <div class="hybrid-setting-control">
+                  <code style="font-size: 12px; background: var(--bg); padding: 4px 8px; border-radius: 4px;">/health</code>
+                </div>
               </div>
-              <div class="hybrid-setting-control">
-                <code style="font-size: 12px; background: var(--bg); padding: 4px 8px; border-radius: 4px;">/health</code>
+              <div class="hybrid-setting-row">
+                <div class="hybrid-setting-info">
+                  <div class="hybrid-setting-label">Status</div>
+                  <div class="hybrid-setting-desc">Current health check status</div>
+                </div>
+                <div class="hybrid-setting-control">
+                  <span style="color: #10b981; font-weight: 600;">● Healthy</span>
+                </div>
+              </div>
+              <div class="hybrid-setting-row">
+                <div class="hybrid-setting-info">
+                  <div class="hybrid-setting-label">Check Interval</div>
+                  <div class="hybrid-setting-desc">How often health is checked</div>
+                </div>
+                <div class="hybrid-setting-control">
+                  <span style="font-size: 13px; font-weight: 600;">30 seconds</span>
+                </div>
               </div>
             </div>
-            <div class="hybrid-setting-row">
-              <div class="hybrid-setting-info">
-                <div class="hybrid-setting-label">Status</div>
-                <div class="hybrid-setting-desc">Current health check status</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <!-- PASSPORT SECTION -->
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <div class="hybrid-section" data-section="passport">
+        
+        <!-- Passport: View -->
+        <div class="hybrid-panel active" data-panel="passport-view">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">🛂 Console Passport</h2>
+            <p class="hybrid-panel-desc">This console's identity configuration.</p>
+          </div>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-header">
+              <div class="hybrid-card-title">passport-cn-console.json</div>
+            </div>
+            <div class="hybrid-card-body">
+              <pre style="background: var(--bg); border-radius: 8px; padding: 16px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; line-height: 1.6; overflow-x: auto; margin: 0;">{
+  "udin": "CONSOLE-CN-20251223120000",
+  "name": "CN Console",
+  "shortName": "cn-console",
+  "type": "console",
+  "version": "1.3.0",
+  "settings": {
+    "enabled": true,
+    "storageKey": "cn-console-settings"
+  },
+  "health": {
+    "enabled": true,
+    "endpoint": "/health"
+  }
+}</pre>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Passport: Explained -->
+        <div class="hybrid-panel" data-panel="passport-explain">
+          <div class="hybrid-panel-header">
+            <h2 class="hybrid-panel-title">Passport Fields Explained</h2>
+            <p class="hybrid-panel-desc">What each part means.</p>
+          </div>
+          
+          <div class="hybrid-card">
+            <div class="hybrid-card-body">
+              <div class="diag-row">
+                <span class="diag-label">udin</span>
+                <span class="diag-value">Unique ID (TYPE-NAME-TIMESTAMP)</span>
               </div>
-              <div class="hybrid-setting-control">
-                <span style="color: #10b981; font-weight: 600;">● Healthy</span>
+              <div class="diag-row">
+                <span class="diag-label">type</span>
+                <span class="diag-value">console, cartridge, or console-cartridge</span>
+              </div>
+              <div class="diag-row">
+                <span class="diag-label">settings.storageKey</span>
+                <span class="diag-value">Prevents settings collisions between consoles</span>
+              </div>
+              <div class="diag-row">
+                <span class="diag-label">health.endpoint</span>
+                <span class="diag-value">URL to check if app is running</span>
               </div>
             </div>
           </div>
@@ -656,64 +961,128 @@
 
 <script>
   (function() {
-    const panels = document.querySelectorAll('.hybrid-panel');
+    const sections = document.querySelectorAll('.hybrid-section');
     const navItems = document.querySelectorAll('.hybrid-nav-item');
-    const sectionTitle = document.getElementById('sectionTitle');
+    const subtabContainers = document.querySelectorAll('.hybrid-subtabs');
+    const sectionTitleEl = document.getElementById('sectionTitle');
     
-    // Section titles with icons
+    // Section titles
     const sectionTitles = {
       addons: '🧩 Add-ons',
       appearance: '🎨 Appearance',
-      cache: '🗑️ Cache & Storage',
+      cache: '🗑️ Cache',
       diagnostics: '💚 Diagnostics',
-      api: '🔌 API Settings'
+      api: '🔌 API',
+      passport: '🛂 Passport'
     };
     
-    // Sidebar navigation
+    // ─────────────────────────────────────────────────────────────────────
+    // SIDEBAR NAVIGATION
+    // ─────────────────────────────────────────────────────────────────────
     navItems.forEach(item => {
       item.addEventListener('click', function(e) {
         e.preventDefault();
+        
+        const sectionId = this.dataset.section;
         
         // Update active nav item
         navItems.forEach(i => i.classList.remove('active'));
         this.classList.add('active');
         
-        // Show corresponding panel
-        const section = this.dataset.section;
-        panels.forEach(panel => {
-          panel.classList.remove('active');
-          if (panel.dataset.section === section) {
-            panel.classList.add('active');
+        // Update header title
+        sectionTitleEl.textContent = sectionTitles[sectionId] || sectionId;
+        
+        // Show corresponding section
+        sections.forEach(section => {
+          section.classList.remove('active');
+          if (section.dataset.section === sectionId) {
+            section.classList.add('active');
           }
         });
         
-        // Update header title
-        sectionTitle.textContent = sectionTitles[section] || section;
+        // Show corresponding sub-tabs
+        subtabContainers.forEach(container => {
+          container.classList.remove('active');
+          if (container.dataset.subtabsFor === sectionId) {
+            container.classList.add('active');
+            // Reset to first subtab
+            const subtabs = container.querySelectorAll('.hybrid-subtab');
+            subtabs.forEach((t, idx) => {
+              t.classList.toggle('active', idx === 0);
+            });
+            // Show first panel
+            const firstSubtab = subtabs[0];
+            if (firstSubtab) {
+              showPanel(firstSubtab.dataset.subtab);
+            }
+          }
+        });
       });
     });
     
-    // Populate diagnostics
+    // ─────────────────────────────────────────────────────────────────────
+    // SUB-TAB NAVIGATION
+    // ─────────────────────────────────────────────────────────────────────
+    function showPanel(panelId) {
+      const activeSection = document.querySelector('.hybrid-section.active');
+      if (!activeSection) return;
+      
+      const panels = activeSection.querySelectorAll('.hybrid-panel');
+      panels.forEach(panel => {
+        panel.classList.remove('active');
+        if (panel.dataset.panel === panelId) {
+          panel.classList.add('active');
+        }
+      });
+    }
+    
+    subtabContainers.forEach(container => {
+      const subtabs = container.querySelectorAll('.hybrid-subtab');
+      subtabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          subtabs.forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          showPanel(this.dataset.subtab);
+        });
+      });
+    });
+    
+    // ─────────────────────────────────────────────────────────────────────
+    // POPULATE DIAGNOSTICS
+    // ─────────────────────────────────────────────────────────────────────
     document.getElementById('diagHost').textContent = window.location.host;
     document.getElementById('diagPath').textContent = window.location.pathname;
     document.getElementById('diagProtocol').textContent = window.location.protocol.replace(':', '');
     document.getElementById('diagUA').textContent = navigator.userAgent;
     
+    // Calculate storage used
+    try {
+      let total = 0;
+      for (let key in localStorage) {
+        if (localStorage.hasOwnProperty(key)) {
+          total += localStorage[key].length * 2; // UTF-16
+        }
+      }
+      document.getElementById('storageUsed').textContent = (total / 1024).toFixed(1) + ' KB';
+    } catch (e) {
+      document.getElementById('storageUsed').textContent = 'Unknown';
+    }
+    
+    // ─────────────────────────────────────────────────────────────────────
+    // BUTTON HANDLERS
+    // ─────────────────────────────────────────────────────────────────────
+    
     // Clear cache button
     document.getElementById('cnClearCache').addEventListener('click', async function() {
       try {
-        // Clear service worker caches
         if ('caches' in window) {
           const keys = await caches.keys();
           await Promise.all(keys.map(key => caches.delete(key)));
         }
-        
-        // Unregister service workers
         if ('serviceWorker' in navigator) {
           const registrations = await navigator.serviceWorker.getRegistrations();
           await Promise.all(registrations.map(reg => reg.unregister()));
         }
-        
-        // Force reload
         window.location.reload(true);
       } catch (err) {
         console.error('Cache clear failed:', err);
@@ -723,14 +1092,14 @@
     
     // Apply button
     document.getElementById('cnApplyAddons').addEventListener('click', function() {
-      // Save settings to localStorage with storageKey
       const settings = {};
       document.querySelectorAll('[data-addon]').forEach(input => {
         settings[input.dataset.addon] = input.checked;
       });
+      document.querySelectorAll('[data-setting]').forEach(input => {
+        settings[input.dataset.setting] = input.checked;
+      });
       localStorage.setItem('cn-console-settings', JSON.stringify(settings));
-      
-      // Show feedback
       alert('Settings applied! Reload to see changes.');
     });
     
@@ -758,7 +1127,7 @@
     try {
       const saved = JSON.parse(localStorage.getItem('cn-console-settings') || '{}');
       Object.entries(saved).forEach(([key, value]) => {
-        const input = document.querySelector(`[data-addon="${key}"]`);
+        const input = document.querySelector(`[data-addon="${key}"], [data-setting="${key}"]`);
         if (input) input.checked = value;
       });
     } catch (e) {}
