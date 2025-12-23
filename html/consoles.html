@@ -259,8 +259,15 @@
   }
 
   function renderConsoles() {
+    // Defensive checks - ensure DOM elements exist
     const grid = document.getElementById('console-grid');
     const countEl = document.getElementById('console-count');
+
+    if (!grid || !countEl) {
+      console.warn('renderConsoles: DOM elements not ready, retrying...');
+      setTimeout(renderConsoles, 100);
+      return;
+    }
 
     // Defensive check - ensure networkData is loaded
     if (!networkData || !networkData.consoles) {
@@ -269,10 +276,11 @@
       return;
     }
 
-    const consoles = networkData.consoles || {};
-    const consoleIds = Object.keys(consoles);
+    try {
+      const consoles = networkData.consoles || {};
+      const consoleIds = Object.keys(consoles);
 
-    countEl.textContent = consoleIds.length;
+      countEl.textContent = consoleIds.length;
 
     if (consoleIds.length === 0) {
       grid.innerHTML = `
@@ -305,6 +313,19 @@
         </div>
       `;
     }).join('');
+    } catch (error) {
+      console.error('renderConsoles error:', error);
+      // Show error state in the grid
+      if (grid) {
+        grid.innerHTML = `
+          <div class="cn-loading" style="grid-column: 1 / -1;">
+            <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+            <div style="font-size: 18px; font-weight: 600;">Error loading consoles</div>
+            <div style="font-size: 14px; margin-top: 8px; color: var(--muted);">Please try refreshing the page</div>
+          </div>
+        `;
+      }
+    }
   }
 
   function refreshConsoles() {

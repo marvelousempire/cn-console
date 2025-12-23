@@ -173,7 +173,7 @@
       window.addEventListener('hashchange', updateAuthPageUI);
     })();
 
-    // Tab click handler for debugging and fallback navigation
+    // Tab click handler - use manual loading to avoid Sunday router issues
     async function handleTabClick(event) {
       const target = event.target.closest('a[data-route]');
       if (target) {
@@ -181,15 +181,9 @@
         const route = target.getAttribute('data-route');
         console.log('[Tab Click]', route, target.getAttribute('href'));
 
-        // Try Sunday router first
-        if (window.Sunday && window.Sunday.router) {
-          console.log('[Router] Using Sunday router');
-          window.Sunday.router.navigate(route);
-        } else {
-          // Fallback: manually load HTML content
-          console.log('[Fallback] Manual HTML loading');
-          await loadPageContent(route);
-        }
+        // Always use manual HTML loading to avoid Sunday router script execution issues
+        console.log('[Navigation] Using manual HTML loading for reliability');
+        await loadPageContent(route);
       }
     }
 
