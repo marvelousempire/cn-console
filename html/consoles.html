@@ -361,17 +361,47 @@
       return;
     }
 
+    function isLocalHost(hostname) {
+      if (!hostname) return true;
+      if (hostname === 'localhost') return true;
+      // Basic IPv4 check
+      if (/^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)) return true;
+      return false;
+    }
+
+    function getConsoleSubdomain(id) {
+      // Keep this mapping aligned with Quick Server's host-based console routing.
+      const map = {
+        'learnmappers-console': 'learnmappers',
+        'marketplace-console': 'marketplace',
+      };
+      if (map[id]) return map[id];
+      // Default: use id as subdomain
+      return id;
+    }
+
     let url;
+    const proto = (window.location?.protocol === 'http:') ? 'http:' : 'https:';
+    const host = window.location.hostname;
+    const networkDomain = networkData.domain || '';
+    const onNetworkDomain = !!networkDomain && (host === networkDomain || host.endsWith('.' + networkDomain));
+    const shouldUseSubdomains = !!networkDomain && !isLocalHost(host) && onNetworkDomain;
+
     if (consoleId === networkData.tld) {
       // TLD console opens at root
-      url = '/';
+      url = shouldUseSubdomains ? `${proto}//${networkDomain}/` : '/';
     } else if (c.tld) {
       // Console has its own domain
-      url = `https://${c.tld}`;
+      url = `${proto}//${c.tld}/`;
     } else if (c.path) {
-      // Console is on same domain - construct full URL
-      const currentDomain = networkData.domain || window.location.hostname;
-      url = `https://${currentDomain}${c.path}`;
+      // Prefer subdomain routing when we are actually running on the network domain.
+      // Fallback to same-origin path mounts for localhost/IP dev.
+      if (shouldUseSubdomains) {
+        const sub = getConsoleSubdomain(consoleId);
+        url = `${proto}//${sub}.${networkDomain}/`;
+      } else {
+        url = `${window.location.origin}${c.path.startsWith('/') ? c.path : '/' + c.path}`;
+      }
     } else {
       console.error('No URL available for console:', consoleId);
       return;
