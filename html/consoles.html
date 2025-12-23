@@ -370,14 +370,24 @@
     }
 
     function getConsoleSubdomain(id) {
-      // Keep this mapping aligned with Quick Server's host-based console routing.
+      const consoleConfig = networkData.consoles[id];
+      // Use the subdomain field from network-master.json if available
+      if (consoleConfig?.subdomain) {
+        return consoleConfig.subdomain;
+      }
+      // Legacy fallback mapping
       const map = {
         'learnmappers-console': 'learnmappers',
         'marketplace-console': 'marketplace',
+        'cn-console': 'cn',
+        'quick-server': 'quick',
+        'ai-console': 'ai',
+        'hive-console': 'hive',
+        'sunday-console': 'sunday',
       };
       if (map[id]) return map[id];
-      // Default: use id as subdomain
-      return id;
+      // Default: strip -console suffix if present
+      return id.replace(/-console$/, '');
     }
 
     let url;
