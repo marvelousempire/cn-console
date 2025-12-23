@@ -805,3 +805,85 @@ body {
   }
 }
 
+/* ============================================
+   CN CONTRIBUTIONS PAGE — DARK MODE POLISH
+   Scoped to the actual Contributions page container to avoid side effects.
+   ============================================ */
+
+[data-cn-page="contributions"] .cn-overview-card {
+  background: var(--card);
+  border-color: var(--line);
+  box-shadow: var(--shadow-md);
+}
+
+[data-cn-page="contributions"] .cn-toggle-btn {
+  background: var(--surface);
+  color: var(--muted);
+}
+
+[data-cn-page="contributions"] .cn-toggle-btn:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  color: var(--ink);
+}
+
+[data-cn-page="contributions"] .cn-toggle-btn.active {
+  border-color: color-mix(in srgb, var(--accent) 70%, var(--line));
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  color: var(--ink);
+}
+
+[data-cn-page="contributions"] .cn-node {
+  background: var(--surface);
+  border-color: var(--line);
+  padding: 16px;
+}
+
+[data-cn-page="contributions"] .cn-node-network {
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+}
+
+[data-cn-page="contributions"] .cn-principles {
+  background: var(--bg);
+  border-color: var(--line);
+}
+
+[data-cn-page="contributions"] .cn-step-text code,
+[data-cn-page="contributions"] .sunday-markdown code {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 2px 6px;
+  color: var(--accent);
+}
+
+[data-cn-page="contributions"] .cn-pill {
+  background: var(--surface);
+}
+
+[data-cn-page="contributions"] .cn-carousel-btn {
+  background: var(--bg);
+  color: var(--muted);
+}
+
+[data-cn-page="contributions"] .cn-carousel-btn:hover {
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg));
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+[data-cn-page="contributions"] .cn-carousel-card {
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-cn-page="contributions"] .cn-carousel-card:hover {
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+  box-shadow: var(--shadow-md);
+}
+
+[data-cn-page="contributions"] .cn-carousel-badge {
+  background: var(--bg);
+  color: var(--muted);
+}
+
