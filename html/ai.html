@@ -194,13 +194,17 @@
   // Check AI status
   async function checkStatus() {
     try {
-      const res = await fetch('/api/ollama/status');
+      const res = await fetch('/api/ai/status');
       const data = await res.json();
-      if (data.running) {
+      if (data.ollama?.available) {
         statusDot.style.background = '#10b981';
         statusText.textContent = 'Connected';
-        // Load available models
-        loadModels();
+        // Load available models from status response
+        if (data.ollama.models && data.ollama.models.length > 0) {
+          modelSelect.innerHTML = data.ollama.models.map(m => 
+            `<option value="${m}">${m}</option>`
+          ).join('');
+        }
       } else {
         statusDot.style.background = '#f59e0b';
         statusText.textContent = 'Ollama Offline';
@@ -208,21 +212,7 @@
     } catch (e) {
       statusDot.style.background = '#ef4444';
       statusText.textContent = 'Unavailable';
-    }
-  }
-
-  // Load available models
-  async function loadModels() {
-    try {
-      const res = await fetch('/api/ollama/models');
-      const data = await res.json();
-      if (data.models && data.models.length > 0) {
-        modelSelect.innerHTML = data.models.map(m => 
-          `<option value="${m.name}">${m.name}</option>`
-        ).join('');
-      }
-    } catch (e) {
-      console.warn('Could not load models:', e);
+      console.warn('Status check failed:', e);
     }
   }
 
@@ -296,7 +286,13 @@
       }
 
       const data = await res.json();
-      addMessage(data.response || data.content || 'No response received', 'assistant');
+      if (data.success && data.content) {
+        addMessage(data.content, 'assistant');
+      } else if (data.error) {
+        addMessage(`Error: ${data.error}${data.hint ? ' - ' + data.hint : ''}`, 'system');
+      } else {
+        addMessage('No response received', 'system');
+      }
 
     } catch (e) {
       hideTyping();
