@@ -48,8 +48,7 @@
         "subdomain": "hive",
         "name": "Hive Console",
         "icon": "🐝",
-        "description": "God mode administration",
-        "status": "coming-soon"
+        "description": "God mode administration"
       },
       "sunday-console": {
         "path": "/sunday-console",
