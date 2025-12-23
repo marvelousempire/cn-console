@@ -1,0 +1,21 @@
+{
+  "id": "cn-console-style-modules",
+  "version": "20251223a",
+  "modules": [
+    {
+      "id": "core",
+      "title": "CN Console Core Styles",
+      "href": "css/ai-console.css",
+      "always": true
+    },
+    {
+      "id": "briefcase-library",
+      "title": "Briefcase Library Styles",
+      "href": "css/briefcase-library.css",
+      "routes": ["protocols"],
+      "onDemand": true
+    }
+  ]
+}
+
+

@@ -307,6 +307,12 @@ async function initFAB() {
       size: 'medium',
       onClick: async () => {
         try {
+          // Ensure Briefcase Library styles are enabled on-demand
+          try {
+            const v = window.__CN_ASSET_VERSION || '20251223a';
+            const styles = await import(`./cn-style-modules.js?v=${encodeURIComponent(v)}`);
+            await styles.ensureStyleModule('briefcase-library');
+          } catch {}
           await import('./cn-library.js');
           window.openBriefcaseLibrary?.();
         } catch (e) {
@@ -326,9 +332,18 @@ async function maybeInitCNPages() {
     const route = (window.location.hash || '').replace(/^#/, '').replace(/^\//, '').split('?')[0];
     const r = route || '';
 
-    const v = '20251219g';
+    const v = '20251223a';
     // Expose for settings/diagnostics
     window.__CN_ASSET_VERSION = v;
+    window.__CN_STYLE_VERSION = v;
+
+    // Apply "style cartridges" per route (prevents CSS leakage between pages)
+    try {
+      const styles = await import(`./cn-style-modules.js?v=${encodeURIComponent(v)}`);
+      await styles.applyStyleModulesForRoute(r);
+    } catch (e) {
+      console.warn('[CN Styles] Apply failed:', e);
+    }
 
     if (r === '' || r === 'overview') {
       const mod = await import(`./cn-overview.js?v=${v}`);
@@ -343,6 +358,11 @@ async function maybeInitCNPages() {
     }
 
     if (r === 'protocols') {
+      // Ensure protocols-specific styles are enabled (briefcase-library pack)
+      try {
+        const styles = await import(`./cn-style-modules.js?v=${encodeURIComponent(v)}`);
+        await styles.ensureStyleModule('briefcase-library');
+      } catch {}
       const mod = await import(`./cn-protocols.js?v=${v}`);
       await mod.initCNProtocols(document);
       return;
