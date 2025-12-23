@@ -10,7 +10,7 @@
  */
 export default {
   name: 'CN Console',
-  version: '1.2.0',
+  version: '1.3.0',
   apiBase: '/api',
 
   // Keep discovery off to avoid accidentally exposing Quick Server pages in this console.
@@ -40,7 +40,7 @@ export default {
     consoles: { page: 'consoles', title: 'Consoles', fallback: './html/consoles.html?v=20251222a' },
     cartridges: { page: 'cartridges', title: 'Cartridges', fallback: './html/cartridges.html?v=20251222b' },
     network: { page: 'network', title: 'Network', fallback: './html/network-settings.html?v=20251222a' },
-    settings: { page: 'settings', title: 'Settings', fallback: './html/settings.html?v=20251223b' },
+    settings: { page: 'settings', title: 'Settings', fallback: './html/settings.html?v=20251223a' },
     about: { page: 'about', title: 'About', fallback: './html/about.html?v=20251223a' }
   },
 
@@ -53,21 +53,8 @@ export default {
     { id: 'ai', label: 'AI', icon: '🤖' },
     { id: 'passwords', label: 'Passwords', icon: '🔐' },
     { id: 'network', label: 'Network', icon: '🌐' },
-    { id: 'settings', label: 'Settings', icon: '⚙️' }
-  ],
-  
-  // Hybrid Beast Engine — Motion + 3D
-  motion: {
-    enabled: true,
-    reducedMotion: 'respect-system'
-  },
-  
-  three: {
-    enabled: true
-  },
-  
-  transitions: {
-    enabled: true
-  }
+    { id: 'settings', label: 'Settings', icon: '⚙️' },
+    { id: 'about', label: 'About', icon: 'ℹ️' }
+  ]
 };
 
