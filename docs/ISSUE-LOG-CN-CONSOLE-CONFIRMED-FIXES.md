@@ -93,7 +93,7 @@ See `GIT-COMMITS.md` for the full commit message.
 ## Issue #002: AI Tab Does Nothing - Multiple Issues
 
 **Date Discovered:** Monday Dec 22, 2025  
-**Date Resolved:** Monday Dec 22, 2025  
+**Date Resolved:** Tuesday Dec 23, 2025  
 **Severity:** High  
 **Status:** 🔄 Pending Confirmation  
 **Confirmed By:** Pending
@@ -165,11 +165,34 @@ if (data.success && data.content) {
 3. **Test functionality** not just loading - actually send a message
 4. **Document public vs authenticated** endpoints clearly
 
+### Final Solution: Open WebUI Integration
+
+User requested a full-featured AI interface like [Open WebUI](https://github.com/open-webui/open-webui). Deployed Open WebUI Docker container:
+
+```bash
+docker run -d \
+  -p 3000:8080 \
+  --add-host=host.docker.internal:host-gateway \
+  -v open-webui:/app/backend/data \
+  --name open-webui \
+  --restart always \
+  ghcr.io/open-webui/open-webui:main
+```
+
+Updated AI tab to embed Open WebUI in an iframe with:
+- Dynamic host detection (uses same hostname, port 3000)
+- Loading state with spinner
+- Fallback UI if Open WebUI is offline
+- Status indicator (Connected/Offline)
+- Full Screen button to open in new tab
+- Refresh button
+
 ### Related Commits
 
 ```
 quick-server: fix: add AI/Ollama/RAG endpoints to public API list (114c6bc4)
 cn-console: fix: AI tab now uses correct API endpoints (802ff91)
+cn-console: feat: AI tab now embeds Open WebUI (5abf1d0)
 ```
 
 ---
