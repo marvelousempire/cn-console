@@ -255,7 +255,9 @@
 </style>
 
 <script>
-  let cartridgeRegistry = [];
+  // IMPORTANT: this page can be loaded multiple times by the Sunday router.
+  // Avoid top-level `let`/`const` which will throw "Identifier has already been declared".
+  var cartridgeRegistry = [];
 
   // Initialize - wait for DOM elements to be ready
   async function initCartridgesPage() {
@@ -276,10 +278,10 @@
     }
   }
   
-  // Start initialization
-  const safeInitCartridgesPage = () => {
+  // Start initialization (function decl = re-entrant safe)
+  function safeInitCartridgesPage() {
     initCartridgesPage().catch((e) => console.error('initCartridgesPage error:', e));
-  };
+  }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', safeInitCartridgesPage);
   } else {

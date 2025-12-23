@@ -576,10 +576,12 @@
 </style>
 
 <script>
-  let networkData = null;
-  let currentTld = null;
-  let currentDomain = null;
-  let dnsStatus = { a: 'unknown', wildcard: 'unknown', ssl: 'unknown' };
+  // IMPORTANT: this page can be loaded multiple times by the Sunday router.
+  // Avoid top-level `let`/`const` which will throw "Identifier has already been declared".
+  var networkData = null;
+  var currentTld = null;
+  var currentDomain = null;
+  var dnsStatus = { a: 'unknown', wildcard: 'unknown', ssl: 'unknown' };
 
   function isNetworkPageMounted() {
     // If this element is gone, the user navigated away and this page is no longer mounted.
@@ -782,11 +784,11 @@
   }
 
   // Subdomain Checker
-  let subdomainResults = [];
-  const COMMON_SUBDOMAINS = ['www', 'api', 'app', 'mail', 'cdn', 'static', 'assets', 'img', 'images', 'admin', 'dashboard', 'portal', 'dev', 'staging', 'test', 'beta'];
+  var subdomainResults = [];
+  var COMMON_SUBDOMAINS = ['www', 'api', 'app', 'mail', 'cdn', 'static', 'assets', 'img', 'images', 'admin', 'dashboard', 'portal', 'dev', 'staging', 'test', 'beta'];
   
   // Known console subdomains - these are the ones we're actively using
-  const CONSOLE_SUBDOMAINS = [
+  var CONSOLE_SUBDOMAINS = [
     { name: 'quick', label: 'Quick Server', icon: '⚡', isConsole: true },
     { name: 'ai', label: 'AI Console', icon: '🤖', isConsole: true },
     { name: 'cn', label: 'CN Console', icon: '🧩', isConsole: true },
@@ -1089,17 +1091,23 @@
 
   // Load on page init - wait for DOM to be ready
   // Auto-refresh every 30 seconds (self-cancels once page is unmounted)
-  let autoRefreshTimer = null;
+  // Keep timer id on window so fast away/back doesn't create duplicate intervals.
+  var autoRefreshTimer = window.__cnNetworkAutoRefreshTimer || null;
   function startAutoRefresh() {
-    if (autoRefreshTimer) return;
+    if (autoRefreshTimer) {
+      try { clearInterval(autoRefreshTimer); } catch {}
+      autoRefreshTimer = null;
+    }
     autoRefreshTimer = setInterval(() => {
       if (!isNetworkPageMounted()) {
         clearInterval(autoRefreshTimer);
         autoRefreshTimer = null;
+        window.__cnNetworkAutoRefreshTimer = null;
         return;
       }
       refreshNetworkStatus().catch((err) => console.error('[Network] Auto-refresh failed:', err));
     }, 30000);
+    window.__cnNetworkAutoRefreshTimer = autoRefreshTimer;
   }
 
   function initPage() {

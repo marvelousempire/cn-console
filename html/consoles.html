@@ -197,8 +197,10 @@
 </style>
 
 <script>
-  let networkData = { tld: '', consoles: {} };
-  const currentConsole = 'cn-console';
+  // IMPORTANT: this page can be loaded multiple times by the Sunday router.
+  // Avoid top-level `let`/`const` which will throw "Identifier has already been declared".
+  var networkData = { tld: '', consoles: {} };
+  var currentConsole = 'cn-console';
 
   // Initialize - wait for DOM elements to be ready
   async function initConsolesPage() {
@@ -218,10 +220,10 @@
     }
   }
   
-  // Start initialization
-  const safeInitConsolesPage = () => {
+  // Start initialization (function decl = re-entrant safe)
+  function safeInitConsolesPage() {
     initConsolesPage().catch((e) => console.error('initConsolesPage error:', e));
-  };
+  }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', safeInitConsolesPage);
   } else {

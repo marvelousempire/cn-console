@@ -444,7 +444,9 @@ if (document.readyState === 'loading') {
 }
 
 // Load contributions into carousels
-let contributionsData = null;
+// IMPORTANT: this page can be loaded multiple times by the Sunday router.
+// Avoid top-level `let`/`const` which will throw "Identifier has already been declared".
+var contributionsData = null;
 
 function escapeHtml(str) {
   return String(str)
