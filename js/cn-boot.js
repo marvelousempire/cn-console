@@ -597,6 +597,12 @@ async function initApp() {
   try {
     await Sunday.init(config);
     console.log('[CN Boot] ✅ Sunday framework initialized');
+    
+    // Ensure Console Switcher FAB is visible (if initialized by Sunday.init)
+    if (Sunday.consoleFab && !document.getElementById('consoleFab')) {
+      console.log('[CN Boot] Adding Console Switcher FAB...');
+      Sunday.consoleFab.appendToBody();
+    }
   } catch (initError) {
     console.error('[CN Boot] ❌ Sunday init failed:', initError);
     setBoot('Sunday initialization failed - check console');
@@ -635,6 +641,38 @@ async function initApp() {
   }
 
   await initFAB();
+
+  // Initialize Console Switcher FAB (cross-console navigation)
+  // This ensures it appears even if Sunday.init() didn't initialize it
+  try {
+    if (!window.ConsoleSwitcher && !document.getElementById('consoleFab')) {
+      console.log('[CN Boot] Initializing Console Switcher...');
+      const { createConsoleSwitcher } = await import('/sundayapp/components/console-picker/index.js');
+      
+      const switcher = await createConsoleSwitcher({
+        events: Sunday.events,
+        motion: Sunday.motion,
+        position: 'bottom-left', // Same position as Briefcase FAB, but console switcher takes precedence
+        preload: true
+      });
+      
+      window.ConsoleSwitcher = switcher;
+      Sunday.consoleRegistry = switcher.registry;
+      Sunday.consolePicker = switcher.picker;
+      Sunday.consoleFab = switcher.fab;
+      
+      switcher.fab.appendToBody();
+      console.log('[CN Boot] ✅ Console Switcher initialized');
+    } else if (Sunday.consoleFab && !document.getElementById('consoleFab')) {
+      // Sunday.init() created it but FAB wasn't appended
+      Sunday.consoleFab.appendToBody();
+      console.log('[CN Boot] ✅ Console Switcher FAB appended');
+    } else {
+      console.log('[CN Boot] Console Switcher already initialized');
+    }
+  } catch (e) {
+    console.warn('[CN Boot] Console Switcher init failed:', e);
+  }
 
   // Keep active tab class in sync if we rendered tabs ourselves.
   window.addEventListener('hashchange', () => {
