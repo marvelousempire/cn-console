@@ -1,0 +1,65 @@
+{
+  "server": {
+    "name": "cn-console",
+    "version": "1.3.0"
+  },
+  "network": {
+    "autoDetect": true,
+    "publicIP": null,
+    "localIP": null,
+    "lastDetected": null
+  },
+  "urls": {
+    "api": "/api",
+    "adminPort": 8001,
+    "httpsPort": 8443
+  },
+  "ports": {
+    "https": 8443,
+    "http": 8001,
+    "fallbackHttp": 3000,
+    "fallbackHttps": 8444
+  },
+  "ssl": {
+    "enabled": false,
+    "certPath": "./certs/cert.pem",
+    "keyPath": "./certs/key.pem",
+    "useMkcert": false
+  },
+  "domains": {
+    "primary": null,
+    "framework": "thebriefcase.app",
+    "frameworkPort": 8890,
+    "additional": [],
+    "localhost": true,
+    "autoDetectIP": true
+  },
+  "reverseProxy": {
+    "enabled": false,
+    "type": "traefik",
+    "traefik": {
+      "email": null,
+      "dashboard": true,
+      "dashboardPort": 8080,
+      "autoStart": false,
+      "letsEncrypt": false,
+      "configPath": "./config/traefik"
+    }
+  },
+  "logging": {
+    "level": "info",
+    "file": "./logs/server.log",
+    "maxSize": "10m",
+    "maxFiles": 5
+  },
+  "environment": {
+    "nodeEnv": "production"
+  },
+  "auth": {
+    "defaultEmail": "admin",
+    "defaultPassword": "changeme",
+    "emailPlaceholder": "admin or admin@example.com",
+    "passwordPlaceholder": "changeme",
+    "service": "auto-detect"
+  }
+}
