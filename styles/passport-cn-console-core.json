@@ -1,0 +1,22 @@
+{
+  "$schema": "/sundayapp/schemas/passport.schema.json",
+  "udin": "STYLE-CN-CONSOLE-CORE-20251223130000",
+  "name": "CN Console Core Styles",
+  "shortName": "cn-console-core",
+  "type": "style",
+  "version": "1.0.0",
+  "framework": "sundayapp",
+  "source": "../css/cn-console.css",
+  "style": {
+    "css": "../css/cn-console.css?v=20251223b",
+    "targets": ["cn-console"],
+    "priority": 220
+  },
+  "metadata": {
+    "created": "2025-12-23T13:00:00Z",
+    "author": "ContributionNetwork",
+    "description": "CN Console core styling (shell polish + CN page visuals)"
+  }
+}
+
+

@@ -1,62 +1,47 @@
 <!-- 
   🧩 CN Console - Login Page
-  Hybrid Beast Edition — Motion + Three.js powered
+  Modern login interface matching Quick Server style
 -->
 
-<div class="auth-page login-page" id="cnLoginPage">
-  <!-- Three.js Background Container -->
-  <div class="auth-3d-bg" id="authThreeBg" data-three-bg="aurora"></div>
-  
-  <!-- Gradient Overlay -->
-  <div class="auth-overlay"></div>
-  
-  <!-- Main Container -->
-  <div class="auth-container" id="authContainer">
+<div class="auth-page login-page">
+  <div class="auth-container">
     <!-- Logo & Title -->
-    <div class="auth-header" id="authHeader">
-      <div class="auth-logo" id="authLogo">🧩</div>
+    <div class="auth-header">
+      <div class="auth-logo">🧩</div>
       <h1 class="auth-title">CN Console</h1>
-      <p class="auth-subtitle">Sign in to Contribution Network</p>
+      <p class="auth-subtitle">Sign in to access Contribution Network</p>
     </div>
 
     <!-- Login Form -->
     <form id="cnLoginForm" class="auth-form">
-      <div class="form-group" id="formGroup1">
+      <div class="form-group">
         <label for="cnEmail">Email or Username</label>
         <input type="text" id="cnEmail" name="email" placeholder="admin or admin@example.com" autocomplete="username" required />
       </div>
 
-      <div class="form-group" id="formGroup2">
+      <div class="form-group">
         <label for="cnPassword">Password</label>
         <div class="password-input">
           <input type="password" id="cnPassword" name="password" placeholder="••••••••" autocomplete="current-password" required />
           <button type="button" class="toggle-password" aria-label="Toggle password visibility">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
+            👁️
           </button>
         </div>
       </div>
 
-      <div class="form-row" id="formGroup3">
+      <div class="form-row">
         <label class="checkbox-label">
           <input type="checkbox" id="cnRemember" name="rememberMe" />
           <span>Remember me</span>
         </label>
-        <a href="#forgot-password" class="link-forgot">Forgot password?</a>
+        <a href="#forgot-password" class="link-forgot">
+          Forgot password?
+        </a>
       </div>
 
-      <button type="submit" class="btn-submit" id="cnLoginBtn">
+      <button type="submit" class="btn btn-primary btn-block" id="cnLoginBtn">
         <span class="btn-text">Sign In</span>
-        <span class="btn-loading" style="display:none">
-          <svg class="spinner" width="20" height="20" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="32" stroke-dashoffset="32">
-              <animate attributeName="stroke-dashoffset" values="32;0;32" dur="1.2s" repeatCount="indefinite"/>
-            </circle>
-          </svg>
-          Signing in...
-        </span>
+        <span class="btn-loading" style="display:none">⏳ Signing in...</span>
       </button>
 
       <div id="cnLoginError" class="form-error" style="display:none"></div>
@@ -64,414 +49,238 @@
 
     <!-- Footer -->
     <div class="auth-footer">
-      <p>New here? <a href="#register">Create an account</a></p>
+      <p>Don't have an account? <a href="#register">Create one</a></p>
     </div>
   </div>
-  
-  <!-- Version Badge -->
-  <div class="auth-version">CN Console • Hybrid Beast Engine</div>
+
+  <!-- Background decoration -->
+  <div class="auth-background">
+    <div class="auth-bg-gradient"></div>
+  </div>
 </div>
 
 <style>
-  /* ═══════════════════════════════════════════════════════════════════════════
-     AUTH PAGE — HYBRID BEAST EDITION
-     Clean, responsive, Motion + Three.js powered
-     ═══════════════════════════════════════════════════════════════════════════ */
-  
+  /* Auth Page Layout - Full screen centered */
   .auth-page {
     position: fixed;
     inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #05060a;
-    z-index: 9999;
-    overflow: hidden;
+    background: var(--sunday-bg, #0b0c10);
+    z-index: 1000;
   }
-  
-  /* Three.js Background */
-  .auth-3d-bg {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    opacity: 0.7;
-  }
-  
-  /* Gradient Overlay */
-  .auth-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: 
-      radial-gradient(ellipse at 30% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-      radial-gradient(ellipse at 70% 80%, rgba(124, 227, 255, 0.1) 0%, transparent 50%),
-      linear-gradient(180deg, transparent 0%, rgba(5, 6, 10, 0.8) 100%);
-    pointer-events: none;
-  }
-  
-  /* Container */
+
   .auth-container {
     position: relative;
-    z-index: 10;
+    z-index: 2;
     width: 100%;
-    max-width: 420px;
-    margin: 0 20px;
-    padding: 48px 40px;
-    background: rgba(15, 19, 28, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(139, 92, 246, 0.2);
-    border-radius: 24px;
-    box-shadow: 
-      0 0 0 1px rgba(255, 255, 255, 0.03),
-      0 25px 80px rgba(0, 0, 0, 0.5),
-      0 0 60px rgba(139, 92, 246, 0.1);
+    max-width: 400px;
+    padding: 40px;
+    background: var(--sunday-surface, #0f131c);
+    border: 1px solid var(--sunday-line, #1e2636);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   }
-  
+
   /* Header */
   .auth-header {
     text-align: center;
-    margin-bottom: 36px;
+    margin-bottom: 32px;
   }
-  
+
   .auth-logo {
-    font-size: 64px;
+    font-size: 56px;
     margin-bottom: 16px;
-    display: inline-block;
-    filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
+    animation: glow 3s ease infinite;
   }
-  
+
   .auth-title {
-    font-size: 28px;
-    font-weight: 800;
-    color: #fff;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--sunday-text, #e9f3ff);
     margin: 0 0 8px;
-    letter-spacing: -0.5px;
   }
-  
+
   .auth-subtitle {
-    color: rgba(155, 177, 199, 0.8);
+    color: var(--sunday-text-muted, #9bb1c7);
     margin: 0;
-    font-size: 15px;
-    font-weight: 400;
+    font-size: 14px;
   }
-  
+
   /* Form */
   .auth-form {
     display: flex;
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .form-group {
     display: flex;
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .form-group label {
     font-size: 13px;
-    font-weight: 600;
-    color: rgba(155, 177, 199, 0.9);
-    letter-spacing: 0.3px;
+    font-weight: 500;
+    color: var(--sunday-text-muted, #9bb1c7);
   }
-  
+
   .form-group input {
-    padding: 14px 18px;
-    background: rgba(5, 6, 10, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    color: #fff;
-    font-size: 15px;
-    font-family: inherit;
-    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    padding: 12px 16px;
+    background: var(--sunday-bg, #0b0c10);
+    border: 1px solid var(--sunday-line, #1e2636);
+    border-radius: 8px;
+    color: var(--sunday-text, #e9f3ff);
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-  
+
   .form-group input:focus {
     outline: none;
-    border-color: rgba(139, 92, 246, 0.6);
-    background: rgba(5, 6, 10, 0.8);
-    box-shadow: 
-      0 0 0 4px rgba(139, 92, 246, 0.1),
-      0 0 20px rgba(139, 92, 246, 0.1);
-    transform: translateY(-1px);
+    border-color: var(--sunday-accent, #7ce3ff);
+    box-shadow: 0 0 0 3px rgba(124, 227, 255, 0.1);
   }
-  
+
   .form-group input::placeholder {
-    color: rgba(155, 177, 199, 0.4);
+    color: var(--sunday-text-muted, #9bb1c7);
+    opacity: 0.5;
   }
-  
+
   .password-input {
     position: relative;
   }
-  
+
   .password-input input {
     width: 100%;
-    padding-right: 50px;
-    box-sizing: border-box;
+    padding-right: 48px;
   }
-  
+
   .toggle-password {
     position: absolute;
-    right: 14px;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
     cursor: pointer;
-    color: rgba(155, 177, 199, 0.5);
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s, transform 0.2s;
+    font-size: 16px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
   }
-  
+
   .toggle-password:hover {
-    color: rgba(155, 177, 199, 0.9);
-    transform: translateY(-50%) scale(1.1);
+    opacity: 1;
   }
-  
+
   .form-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 13px;
-    margin-top: -4px;
   }
-  
+
   .checkbox-label {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     cursor: pointer;
-    color: rgba(155, 177, 199, 0.7);
-    transition: color 0.2s;
+    color: var(--sunday-text-muted, #9bb1c7);
   }
-  
-  .checkbox-label:hover {
-    color: rgba(155, 177, 199, 1);
-  }
-  
+
   .checkbox-label input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #8b5cf6;
-    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--sunday-accent, #7ce3ff);
   }
-  
+
   .link-forgot {
-    color: #8b5cf6;
+    color: var(--sunday-accent, #7ce3ff);
     text-decoration: none;
-    font-weight: 500;
+    transition: opacity 0.2s;
+  }
+
+  .link-forgot:hover {
+    opacity: 0.8;
+  }
+
+  .btn-block {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
     transition: all 0.2s;
   }
-  
-  .link-forgot:hover {
-    color: #a78bfa;
-    text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
-  }
-  
-  /* Submit Button */
-  .btn-submit {
-    width: 100%;
-    padding: 16px 24px;
-    font-size: 16px;
-    font-weight: 700;
-    font-family: inherit;
-    border-radius: 14px;
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--sunday-brand, #8b5cf6), var(--sunday-accent, #7ce3ff));
     border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #7ce3ff 100%);
-    background-size: 200% 200%;
     color: white;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    box-shadow: 
-      0 4px 20px rgba(139, 92, 246, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    animation: gradientShift 4s ease infinite;
   }
-  
-  .btn-submit:hover:not(:disabled) {
-    transform: translateY(-2px) scale(1.01);
-    box-shadow: 
-      0 8px 30px rgba(139, 92, 246, 0.5),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
   }
-  
-  .btn-submit:active:not(:disabled) {
-    transform: translateY(0) scale(0.99);
-  }
-  
-  .btn-submit:disabled {
-    opacity: 0.7;
+
+  .btn-primary:disabled {
+    opacity: 0.6;
     cursor: not-allowed;
     transform: none;
   }
-  
-  .btn-loading {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .spinner {
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-  
-  @keyframes gradientShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-  }
-  
-  /* Error */
+
   .form-error {
-    padding: 14px 18px;
+    padding: 12px 16px;
     background: rgba(239, 68, 68, 0.1);
     border: 1px solid rgba(239, 68, 68, 0.3);
-    border-radius: 12px;
-    color: #f87171;
-    font-size: 14px;
+    border-radius: 8px;
+    color: #ef4444;
+    font-size: 13px;
     text-align: center;
-    animation: shake 0.4s ease;
   }
-  
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-8px); }
-    40% { transform: translateX(8px); }
-    60% { transform: translateX(-4px); }
-    80% { transform: translateX(4px); }
-  }
-  
+
   /* Footer */
   .auth-footer {
-    margin-top: 28px;
+    margin-top: 24px;
     text-align: center;
-    font-size: 14px;
-    color: rgba(155, 177, 199, 0.6);
+    font-size: 13px;
+    color: var(--sunday-text-muted, #9bb1c7);
   }
-  
+
   .auth-footer a {
-    color: #7ce3ff;
+    color: var(--sunday-accent, #7ce3ff);
     text-decoration: none;
-    font-weight: 600;
-    transition: all 0.2s;
+    font-weight: 500;
   }
-  
-  .auth-footer a:hover {
-    color: #a5f3fc;
-    text-shadow: 0 0 10px rgba(124, 227, 255, 0.5);
-  }
-  
-  /* Version Badge */
-  .auth-version {
+
+  /* Background */
+  .auth-background {
     position: absolute;
-    bottom: 20px;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .auth-bg-gradient {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
-    font-size: 11px;
-    color: rgba(155, 177, 199, 0.3);
-    letter-spacing: 0.5px;
-    z-index: 10;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+    filter: blur(60px);
   }
-  
-  /* ═══════════════════════════════════════════════════════════════════════════
-     RESPONSIVE DESIGN
-     ═══════════════════════════════════════════════════════════════════════════ */
-  
-  @media (max-width: 480px) {
-    .auth-container {
-      margin: 16px;
-      padding: 32px 24px;
-      border-radius: 20px;
+
+  @keyframes glow {
+    0%, 100% {
+      filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.3));
     }
-    
-    .auth-logo {
-      font-size: 52px;
-    }
-    
-    .auth-title {
-      font-size: 24px;
-    }
-    
-    .auth-subtitle {
-      font-size: 14px;
-    }
-    
-    .form-group input {
-      padding: 12px 16px;
-      font-size: 16px; /* Prevents iOS zoom */
-    }
-    
-    .btn-submit {
-      padding: 14px 20px;
-      font-size: 15px;
-    }
-    
-    .form-row {
-      flex-direction: column;
-      gap: 12px;
-      align-items: flex-start;
-    }
-    
-    .auth-version {
-      font-size: 10px;
-      bottom: 12px;
-    }
-  }
-  
-  @media (max-height: 700px) {
-    .auth-container {
-      padding: 32px;
-    }
-    
-    .auth-header {
-      margin-bottom: 24px;
-    }
-    
-    .auth-logo {
-      font-size: 48px;
-      margin-bottom: 12px;
-    }
-    
-    .auth-form {
-      gap: 16px;
-    }
-  }
-  
-  /* High contrast / accessibility */
-  @media (prefers-contrast: high) {
-    .auth-container {
-      border-color: rgba(255, 255, 255, 0.3);
-      background: rgba(0, 0, 0, 0.9);
-    }
-    
-    .form-group input {
-      border-color: rgba(255, 255, 255, 0.4);
-    }
-  }
-  
-  /* Reduce motion */
-  @media (prefers-reduced-motion: reduce) {
-    .auth-logo,
-    .btn-submit,
-    .form-group input {
-      animation: none !important;
-      transition: opacity 0.2s !important;
-    }
-    
-    .auth-3d-bg {
-      display: none;
+    50% {
+      filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.6));
     }
   }
 </style>
@@ -480,215 +289,96 @@
   (function() {
     'use strict';
     
-    const page = document.getElementById('cnLoginPage');
+    // Mark this as a bound page to prevent re-initialization
+    const page = document.querySelector('.auth-page.login-page');
     if (!page || page.dataset.cnBound === '1') return;
     page.dataset.cnBound = '1';
-    
-    // ═══════════════════════════════════════════════════════════════════════════
-    // HYBRID BEAST ANIMATIONS
-    // ═══════════════════════════════════════════════════════════════════════════
-    
-    async function initAnimations() {
-      const motion = window.Sunday?.motion;
-      const three = window.Sunday?.three;
-      
-      // Mount Three.js background
-      if (three) {
-        const bgContainer = document.getElementById('authThreeBg');
-        if (bgContainer && !bgContainer.__threeBgMounted) {
-          try {
-            await three.mountBackground(bgContainer, 'aurora', { opacity: 0.6 });
-            three.applyCSSPostEffects?.(bgContainer, { vignette: true, vignetteIntensity: 0.5 });
-          } catch (e) {
-            console.log('[Login] 3D background skipped:', e.message);
-          }
-        }
-      }
-      
-      // Animate form elements with stagger
-      if (motion?.isEnabled?.()) {
-        const container = document.getElementById('authContainer');
-        const logo = document.getElementById('authLogo');
-        const header = document.getElementById('authHeader');
-        
-        // Initial hidden state
-        if (container) {
-          container.style.opacity = '0';
-          container.style.transform = 'translateY(30px) scale(0.95)';
-        }
-        
-        // Animate in
-        await new Promise(r => setTimeout(r, 100));
-        
-        if (container) {
-          await motion.animate(container, {
-            opacity: [0, 1],
-            y: [30, 0],
-            scale: [0.95, 1],
-            duration: 0.6,
-            easing: [0.34, 1.56, 0.64, 1]
-          });
-        }
-        
-        // Stagger form groups
-        const formGroups = page.querySelectorAll('.form-group, .form-row, .btn-submit, .auth-footer');
-        formGroups.forEach((el, i) => {
-          el.style.opacity = '0';
-          el.style.transform = 'translateY(15px)';
-        });
-        
-        await motion.stagger(formGroups, {
-          opacity: [0, 1],
-          y: [15, 0],
-          duration: 0.4
-        }, { delay: 0.08 });
-        
-        // Pulse logo
-        if (logo) {
-          motion.animate(logo, {
-            scale: [1, 1.05, 1],
-            duration: 2,
-            repeat: Infinity,
-            easing: 'ease-in-out'
-          });
-        }
-        
-        // Bind micro-interactions to inputs
-        motion.bindMicroInteractions?.('.form-group input', {
-          hover: { scale: 1.01, duration: 0.15 },
-          press: { scale: 0.99, duration: 0.1 },
-          reset: { scale: 1, duration: 0.15 }
-        });
-      } else {
-        // Fallback: just show everything
-        const container = document.getElementById('authContainer');
-        if (container) {
-          container.style.opacity = '1';
-          container.style.transform = 'none';
-        }
-      }
-    }
-    
-    // Run animations after a short delay to ensure framework is loaded
-    setTimeout(initAnimations, 150);
-    
-    // ═══════════════════════════════════════════════════════════════════════════
-    // FORM LOGIC
-    // ═══════════════════════════════════════════════════════════════════════════
-    
+
+    // DOM Elements
     const form = document.getElementById('cnLoginForm');
     const emailInput = document.getElementById('cnEmail');
     const passwordInput = document.getElementById('cnPassword');
     const rememberMeInput = document.getElementById('cnRemember');
     const loginBtn = document.getElementById('cnLoginBtn');
     const errorDiv = document.getElementById('cnLoginError');
-    const togglePasswordBtn = page.querySelector('.toggle-password');
-    
+    const togglePasswordBtn = document.querySelector('.toggle-password');
+
     // Toggle password visibility
     togglePasswordBtn?.addEventListener('click', () => {
       const type = passwordInput.type === 'password' ? 'text' : 'password';
       passwordInput.type = type;
-      togglePasswordBtn.innerHTML = type === 'password' 
-        ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
-        : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+      togglePasswordBtn.textContent = type === 'password' ? '👁️' : '🙈';
     });
-    
+
     // Form submission
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
       const email = emailInput.value.trim();
       const password = passwordInput.value;
       const rememberMe = rememberMeInput?.checked || false;
-      
+
       if (!email || !password) {
         showError('Please enter email and password');
         return;
       }
-      
+
       setLoading(true);
       hideError();
-      
+
       try {
         const { getAuthClient } = await import('/sundayapp/core/auth-client.js');
         const auth = getAuthClient();
-        
+        console.log('[Login] Attempting login for:', email);
+
         await auth.login(email, password, rememberMe);
-        
-        // Success animation
-        const motion = window.Sunday?.motion;
-        if (motion?.isEnabled?.()) {
-          await motion.animate(loginBtn, {
-            scale: [1, 1.05, 1],
-            duration: 0.3
-          });
-        }
-        
+        console.log('[Login] Login successful, auth state:', auth.isAuthenticated());
+
+        // Show success briefly
         const btnText = loginBtn.querySelector('.btn-text');
-        if (btnText) {
-          btnText.innerHTML = '✓ Success!';
-          btnText.style.display = 'inline';
-          loginBtn.querySelector('.btn-loading').style.display = 'none';
-        }
-        
-        // Mark authenticated
+        if (btnText) btnText.textContent = '✓ Success!';
+
+        // Mark as authenticated and show app
         document.documentElement.classList.add('authenticated');
         document.documentElement.classList.remove('show-login', 'is-auth-page');
         document.body.classList.remove('auth-page');
-        
-        // Animate out and redirect
-        if (motion?.isEnabled?.()) {
-          const container = document.getElementById('authContainer');
-          await motion.animate(container, {
-            opacity: [1, 0],
-            y: [0, -20],
-            scale: [1, 0.95],
-            duration: 0.4
-          });
-        }
-        
+
+        // Redirect
         setTimeout(() => {
           const redirect = sessionStorage.getItem('sunday_redirect_after_login') || '#overview';
           sessionStorage.removeItem('sunday_redirect_after_login');
           window.location.hash = redirect;
+          // Reload to fully initialize app after login
           window.location.reload();
-        }, 200);
-        
+        }, 500);
+
       } catch (error) {
         showError(error.message || 'Login failed. Please try again.');
         setLoading(false);
-        
-        // Shake the form on error
-        const motion = window.Sunday?.motion;
-        if (motion?.isEnabled?.()) {
-          motion.animate(form, 'shake');
-        }
       }
     });
-    
+
     function setLoading(loading) {
       if (!loginBtn) return;
       loginBtn.disabled = loading;
       const btnText = loginBtn.querySelector('.btn-text');
       const btnLoading = loginBtn.querySelector('.btn-loading');
       if (btnText) btnText.style.display = loading ? 'none' : 'inline';
-      if (btnLoading) btnLoading.style.display = loading ? 'flex' : 'none';
+      if (btnLoading) btnLoading.style.display = loading ? 'inline' : 'none';
     }
-    
+
     function showError(message) {
       if (!errorDiv) return;
       errorDiv.textContent = message;
       errorDiv.style.display = 'block';
     }
-    
+
     function hideError() {
       if (!errorDiv) return;
       errorDiv.style.display = 'none';
     }
-    
+
     // Focus email on load
-    setTimeout(() => {
-      try { emailInput?.focus(); } catch {}
-    }, 600);
+    try { emailInput?.focus(); } catch {}
   })();
 </script>

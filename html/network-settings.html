@@ -129,6 +129,22 @@
       </div>
     </div>
     <div class="sunday-card__body">
+      <!-- Console Subdomain Presets -->
+      <div style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+          <div style="font-weight:700">⚙️ Console Subdomain Presets</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="sunday-btn secondary sm" onclick="saveAllConsolePresets()">💾 Save All</button>
+          </div>
+        </div>
+        <div id="console-presets" class="subdomain-grid">
+          <div class="subdomain-empty">
+            <span>⚙️</span>
+            <span>Loading console presets…</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Subdomain Input -->
       <div class="subdomain-input-row">
         <input type="text" id="subdomain-input" class="subdomain-input" 
@@ -581,6 +597,7 @@
   var networkData = null;
   var currentTld = null;
   var currentDomain = null;
+  var tldDataCache = null;
   var dnsStatus = { a: 'unknown', wildcard: 'unknown', ssl: 'unknown' };
 
   function isNetworkPageMounted() {
@@ -602,6 +619,7 @@
       // Get TLD info
       const tldRes = await fetch('/api/network/tld');
       const tldData = await tldRes.json();
+      tldDataCache = tldData;
       currentTld = tldData.tld;
       currentDomain = tldData.domain || window.location.hostname;
       
@@ -611,6 +629,9 @@
       
       // Populate console select
       populateConsoleSelect(tldData.consoles, tldData.available);
+
+      // Load console subdomain presets from network-master.json
+      applyConsolePresetsFromNetwork(tldData.consoles);
       
       // Get server IP
       await detectServerIP();
@@ -787,17 +808,174 @@
   var subdomainResults = [];
   var COMMON_SUBDOMAINS = ['www', 'api', 'app', 'mail', 'cdn', 'static', 'assets', 'img', 'images', 'admin', 'dashboard', 'portal', 'dev', 'staging', 'test', 'beta'];
   
-  // Known console subdomains - these are the ones we're actively using
+  // Console subdomain presets (editable in CN Console)
+  // Source of truth: network-master.json → routing.consoles[*].subdomains
+  var DEFAULT_CONSOLE_PRESETS = {
+    'quick-server': ['quick', 'quick-server'],
+    'ai-console': ['ai'],
+    'cn-console': ['cn'],
+    'hive-console': ['hive'],
+    'sunday-console': ['sunday'],
+    'learnmappers-console': ['learnmappers'],
+    'marketplace-console': ['marketplace'],
+  };
+
+  // Fallback until the network master config is loaded.
   var CONSOLE_SUBDOMAINS = [
-    { name: 'quick', label: 'Quick Server', icon: '⚡', isConsole: true },
-    { name: 'ai', label: 'AI Console', icon: '🤖', isConsole: true },
-    { name: 'cn', label: 'CN Console', icon: '🧩', isConsole: true },
-    { name: 'hive', label: 'Hive Console', icon: '🐝', isConsole: true },
-    { name: 'sunday', label: 'Sunday Console', icon: '🌞', isConsole: true },
-    { name: 'learn', label: 'LearnMappers', icon: '🗺️', isConsole: true },
-    { name: 'marketplace', label: 'Marketplace', icon: '🛒', isConsole: true },
-    { name: 'app', label: 'App', icon: '📱', isConsole: true },
+    { name: 'quick', label: 'Quick Server', icon: '⚡', isConsole: true, consoleId: 'quick-server' },
+    { name: 'cn', label: 'CN Console', icon: '🧩', isConsole: true, consoleId: 'cn-console' },
+    { name: 'ai', label: 'AI Console', icon: '🤖', isConsole: true, consoleId: 'ai-console' },
+    { name: 'hive', label: 'Hive Console', icon: '🐝', isConsole: true, consoleId: 'hive-console' },
+    { name: 'sunday', label: 'Sunday Console', icon: '🌞', isConsole: true, consoleId: 'sunday-console' },
+    { name: 'learnmappers', label: 'LearnMappers', icon: '🗺️', isConsole: true, consoleId: 'learnmappers-console' },
+    { name: 'marketplace', label: 'Marketplace', icon: '🛒', isConsole: true, consoleId: 'marketplace-console' },
   ];
+
+  function normalizePresetLabels(value) {
+    // return array of lowercased labels
+    return String(value || '')
+      .split(',')
+      .map(s => s.trim().toLowerCase())
+      .filter(Boolean)
+      .filter(s => !s.includes('.') && /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/.test(s));
+  }
+
+  function applyConsolePresetsFromNetwork(consoles) {
+    if (!consoles) return;
+
+    // Build console subdomains for DNS checking
+    var next = [];
+    var seen = new Set();
+    var ids = Object.keys(consoles || {});
+
+    for (var i = 0; i < ids.length; i++) {
+      var id = ids[i];
+      var c = consoles[id] || {};
+      var icon = c.icon || '🖥️';
+      var label = c.name || id;
+
+      var subs = [];
+      if (Array.isArray(c.subdomains)) subs = c.subdomains.slice();
+      else if (typeof c.subdomains === 'string') subs = normalizePresetLabels(c.subdomains);
+      else subs = DEFAULT_CONSOLE_PRESETS[id] ? DEFAULT_CONSOLE_PRESETS[id].slice() : [];
+
+      subs = subs.map(s => String(s || '').trim().toLowerCase()).filter(Boolean);
+
+      for (var j = 0; j < subs.length; j++) {
+        var name = subs[j];
+        if (!name || seen.has(name)) continue;
+        seen.add(name);
+        next.push({ name: name, label: label, icon: icon, isConsole: true, consoleId: id });
+      }
+    }
+
+    // If nothing configured, keep the current fallback.
+    if (next.length) CONSOLE_SUBDOMAINS = next;
+
+    // Render editor UI
+    renderConsolePresets(consoles);
+  }
+
+  function renderConsolePresets(consoles) {
+    var container = document.getElementById('console-presets');
+    if (!container) return;
+
+    var ids = Object.keys(consoles || {});
+    if (!ids.length) {
+      container.innerHTML = `
+        <div class="subdomain-empty">
+          <span>⚙️</span>
+          <span>No consoles found in network master config</span>
+        </div>
+      `;
+      return;
+    }
+
+    // Sort alphabetically but keep quick-server + cn-console first for convenience
+    ids.sort(function(a, b) {
+      var pin = function(id) {
+        if (id === 'quick-server') return -2;
+        if (id === 'cn-console') return -1;
+        return 0;
+      };
+      var pa = pin(a);
+      var pb = pin(b);
+      if (pa !== pb) return pa - pb;
+      return a.localeCompare(b);
+    });
+
+    container.innerHTML = ids.map(function(id) {
+      var c = consoles[id] || {};
+      var icon = c.icon || '🖥️';
+      var label = c.name || id;
+      var subs = Array.isArray(c.subdomains) ? c.subdomains : (DEFAULT_CONSOLE_PRESETS[id] || []);
+      var value = Array.isArray(subs) ? subs.join(', ') : String(subs || '');
+
+      return `
+        <div class="subdomain-card is-console">
+          <div class="subdomain-icon">${icon}</div>
+          <div class="subdomain-info">
+            <div class="subdomain-name">
+              ${label}
+              <span class="subdomain-badge">Preset</span>
+            </div>
+            <div class="subdomain-url">${id}</div>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+              <input class="subdomain-input" id="preset-${id}" value="${escapeHtml(value)}" placeholder="e.g. quick, admin">
+              <button class="sunday-btn secondary sm" onclick="saveConsolePreset('${id}')">Save</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function escapeHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  async function saveConsolePreset(consoleId) {
+    var input = document.getElementById('preset-' + consoleId);
+    if (!input) return;
+
+    var subdomains = normalizePresetLabels(input.value);
+
+    try {
+      var response = await fetch('/api/network/console-subdomains', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ consoleId: consoleId, subdomains: subdomains })
+      });
+
+      var data = await response.json();
+      if (!data.success) throw new Error(data.error || 'Failed to save');
+
+      // Update local cache and re-render
+      if (tldDataCache && tldDataCache.consoles && tldDataCache.consoles[consoleId]) {
+        tldDataCache.consoles[consoleId].subdomains = data.subdomains || subdomains;
+      }
+
+      applyConsolePresetsFromNetwork(tldDataCache ? tldDataCache.consoles : null);
+      // Refresh DNS checks for console subdomains
+      await loadConsoleSubdomains();
+    } catch (err) {
+      alert('❌ Failed to save presets: ' + (err.message || err));
+    }
+  }
+
+  async function saveAllConsolePresets() {
+    if (!tldDataCache || !tldDataCache.consoles) return;
+    var ids = Object.keys(tldDataCache.consoles || {});
+    for (var i = 0; i < ids.length; i++) {
+      await saveConsolePreset(ids[i]);
+      await new Promise(r => setTimeout(r, 50));
+    }
+  }
   
   // Auto-load console subdomains on page init
   async function loadConsoleSubdomains() {

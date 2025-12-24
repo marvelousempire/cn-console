@@ -158,6 +158,38 @@ body {
   min-height: 70vh;
 }
 
+/* Sunday Card Header/Body (for proper card structure) */
+.sunday-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sunday-card__body {
+  padding-top: 0;
+}
+
+.sunday-text {
+  margin: 0;
+}
+
+.sunday-text--title {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.sunday-text--muted {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
 .ai-embed {
   width: 100%;
   height: calc(100vh - 180px);

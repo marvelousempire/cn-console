@@ -1,0 +1,22 @@
+{
+  "$schema": "/sundayapp/schemas/passport.schema.json",
+  "udin": "STYLE-CN-BRIEFCASE-LIBRARY-20251223130010",
+  "name": "CN Briefcase Library Styles",
+  "shortName": "cn-briefcase-library",
+  "type": "style",
+  "version": "1.0.0",
+  "framework": "sundayapp",
+  "source": "../css/briefcase-library.css",
+  "style": {
+    "css": "../css/briefcase-library.css?v=20251223b",
+    "targets": ["cn-console", "briefcase-library"],
+    "priority": 230
+  },
+  "metadata": {
+    "created": "2025-12-23T13:00:10Z",
+    "author": "ContributionNetwork",
+    "description": "Briefcase Library modal + CN overview/protocol visuals (loaded only when needed)"
+  }
+}
+
+

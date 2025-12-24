@@ -1,0 +1,72 @@
+{
+  "$schema": "/sundayapp/schemas/passport.schema.json",
+  
+  "udin": "CONSOLE-CN-20251223120000",
+  "name": "CN Console",
+  "shortName": "cn-console",
+  "type": "console",
+  "version": "1.3.0",
+  
+  "framework": {
+    "name": "sundayapp",
+    "minVersion": "1.5.0",
+    "url": "/sundayapp/index.js"
+  },
+  
+  "source": "./",
+  "entry": "index.html",
+  "config": "app.config.js",
+
+  "requires": [
+    "./styles/passport-cn-console-core.json"
+  ],
+  
+  "capabilities": {
+    "standalone": true,
+    "cartridge": true,
+    "embeddable": true
+  },
+  
+  "settings": {
+    "enabled": true,
+    "page": "./html/settings.html",
+    "layout": "hybrid",
+    "sections": [
+      { "id": "addons", "label": "Add-ons", "icon": "🧩" },
+      { "id": "cache", "label": "Cache", "icon": "🗑️" },
+      { "id": "diagnostics", "label": "Diagnostics", "icon": "💚" },
+      { "id": "about", "label": "About", "icon": "ℹ️" }
+    ],
+    "storageKey": "cn-console-settings"
+  },
+  
+  "about": {
+    "enabled": true,
+    "page": "./html/about.html",
+    "layout": "hybrid",
+    "sections": ["overview", "system", "frameworks", "passport", "sops", "changelog", "links", "legal"]
+  },
+  
+  "health": {
+    "enabled": true,
+    "endpoint": "/health",
+    "interval": 30000
+  },
+  
+  "discovery": {
+    "enabled": true,
+    "scanPaths": ["./cartridges/"],
+    "autoLoad": true,
+    "priority": 10
+  },
+  
+  "metadata": {
+    "created": "2025-12-23T12:00:00Z",
+    "updated": "2025-12-23T12:00:00Z",
+    "author": "Contribution Network",
+    "repository": "https://github.com/marvelousempire/ContributionNetwork",
+    "icon": "🤝",
+    "description": "Contribution Network Console — Management interface for the CN ecosystem"
+  }
+}
+
